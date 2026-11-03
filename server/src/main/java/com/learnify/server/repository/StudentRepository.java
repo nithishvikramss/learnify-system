@@ -11,4 +11,9 @@ public interface StudentRepository extends MongoRepository<Student, String> {
     List<Student> findByDepartment(String department);
     List<Student> findBySemester(int semester);
     List<Student> findByNameContainingIgnoreCase(String name);
+    List<Student> findByNameContainingIgnoreCaseOrRegisterNumberContainingIgnoreCase(String name, String registerNumber);
+    boolean existsByRegisterNumber(String registerNumber);
+    boolean existsByRegisterNumberAndIdNot(String registerNumber, String id);
+    boolean existsByEmail(String email);
+    boolean existsByEmailAndIdNot(String email, String id);
 }

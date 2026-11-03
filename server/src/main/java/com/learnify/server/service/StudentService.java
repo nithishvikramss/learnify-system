@@ -1,6 +1,8 @@
 package com.learnify.server.service;
 
 import com.learnify.server.entity.Student;
+import com.learnify.server.exception.ConflictException;
+import com.learnify.server.exception.NotFoundException;
 import com.learnify.server.repository.MarksRepository;
 import com.learnify.server.repository.StudentRepository;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,14 @@ public class StudentService {
     }
 
     public Student addStudent(Student student) {
+        student.setId(null); // never let the client choose/overwrite an id
+        normalize(student);
+        if (studentRepository.existsByRegisterNumber(student.getRegisterNumber())) {
+            throw new ConflictException("Register number " + student.getRegisterNumber() + " is already in use.");
+        }
+        if (student.getEmail() != null && studentRepository.existsByEmail(student.getEmail())) {
+            throw new ConflictException("Email " + student.getEmail() + " is already in use.");
+        }
         return studentRepository.save(student);
     }
 
@@ -35,26 +45,48 @@ public class StudentService {
         return studentRepository.findByDepartment(department);
     }
 
-    public List<Student> searchStudents(String name) {
-        return studentRepository.findByNameContainingIgnoreCase(name);
+    /** Searches by (partial) name or register number. */
+    public List<Student> searchStudents(String query) {
+        String q = query.trim();
+        return studentRepository.findByNameContainingIgnoreCaseOrRegisterNumberContainingIgnoreCase(q, q);
     }
 
     public Student updateStudent(String id, Student updated) {
-        return studentRepository.findById(id).map(existing -> {
-            existing.setName(updated.getName());
-            existing.setDepartment(updated.getDepartment());
-            existing.setSemester(updated.getSemester());
-            existing.setEmail(updated.getEmail());
-            return studentRepository.save(existing);
-        }).orElseThrow(() -> new RuntimeException("Student not found: " + id));
+        Student existing = studentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Student not found"));
+        normalize(updated);
+        if (studentRepository.existsByRegisterNumberAndIdNot(updated.getRegisterNumber(), id)) {
+            throw new ConflictException("Register number " + updated.getRegisterNumber() + " is already in use.");
+        }
+        if (updated.getEmail() != null && studentRepository.existsByEmailAndIdNot(updated.getEmail(), id)) {
+            throw new ConflictException("Email " + updated.getEmail() + " is already in use.");
+        }
+        existing.setName(updated.getName());
+        existing.setRegisterNumber(updated.getRegisterNumber());
+        existing.setDepartment(updated.getDepartment());
+        existing.setSemester(updated.getSemester());
+        existing.setEmail(updated.getEmail());
+        return studentRepository.save(existing);
     }
 
     public void deleteStudent(String id) {
+        if (!studentRepository.existsById(id)) {
+            throw new NotFoundException("Student not found");
+        }
         marksRepository.deleteByStudentId(id);
         studentRepository.deleteById(id);
     }
 
     public long getTotalCount() {
         return studentRepository.count();
+    }
+
+    /** Trims input and stores register numbers upper-case and emails lower-case so uniqueness checks are reliable. */
+    private static void normalize(Student s) {
+        s.setName(s.getName().trim());
+        s.setRegisterNumber(s.getRegisterNumber().trim().toUpperCase());
+        s.setDepartment(s.getDepartment().trim());
+        String email = s.getEmail() == null ? "" : s.getEmail().trim().toLowerCase();
+        s.setEmail(email.isEmpty() ? null : email);
     }
 }

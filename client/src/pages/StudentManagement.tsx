@@ -1,36 +1,52 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import {
-  UserPlus, Search, Trash2, Edit2, X, Users, Save
+  UserPlus, Search, Trash2, Edit2, X, Users, Save, Eye
 } from 'lucide-react';
 import {
-  getAllStudents, addStudent, updateStudent, deleteStudent
+  getAllStudents, addStudent, updateStudent, deleteStudent, getErrorMessage, getFieldErrors
 } from '../api/api';
 import type { Student } from '../types';
+import FieldError from '../components/FieldError';
+import StudentDetailsModal from '../components/StudentDetailsModal';
+import { getSession, isAdmin } from '../auth/session';
+import { validateStudent, hasErrors, type FieldErrors } from '../utils/validation';
 
 const DEPARTMENTS = ['Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Mathematics', 'Physics', 'Chemistry', 'Other'];
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];
 
-const emptyForm = (): Student => ({ name: '', department: '', semester: 1, email: '' });
+const emptyForm = (): Student => ({ name: '', registerNumber: '', department: '', semester: 1, email: '' });
 
 export default function StudentManagement() {
+  const canEdit = isAdmin(getSession());
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [deptFilter, setDeptFilter] = useState('');
+  const [semFilter, setSemFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState<Student | null>(null);
+  const [viewTarget, setViewTarget] = useState<Student | null>(null);
   const [form, setForm] = useState<Student>(emptyForm());
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
-  const load = (q?: string) => {
-    setLoading(true);
-    getAllStudents(q ? { search: q } : {})
-      .then(setStudents)
-      .catch(() => showAlert('error', 'Failed to load students'))
-      .finally(() => setLoading(false));
-  };
+  const [query, setQuery] = useState(''); // search term sent to the server
+  const [reloadKey, setReloadKey] = useState(0);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    let active = true;
+    getAllStudents(query ? { search: query } : {})
+      .then(data => { if (active) setStudents(data); })
+      .catch(err => { if (active) setAlert({ type: 'error', msg: getErrorMessage(err, 'Failed to load students') }); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [query, reloadKey]);
+
+  const reload = () => {
+    setLoading(true);
+    setReloadKey(k => k + 1);
+  };
 
   const showAlert = (type: 'success' | 'error', msg: string) => {
     setAlert({ type, msg });
@@ -40,17 +56,23 @@ export default function StudentManagement() {
   const openAdd = () => {
     setEditTarget(null);
     setForm(emptyForm());
+    setFieldErrors({});
     setShowModal(true);
   };
 
   const openEdit = (s: Student) => {
     setEditTarget(s);
-    setForm({ ...s });
+    setForm({ ...s, email: s.email ?? '', registerNumber: s.registerNumber ?? '' });
+    setFieldErrors({});
     setShowModal(true);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const errors = validateStudent(form);
+    setFieldErrors(errors);
+    if (hasErrors(errors)) return;
+
     setSaving(true);
     try {
       if (editTarget?.id) {
@@ -61,9 +83,10 @@ export default function StudentManagement() {
         showAlert('success', 'Student added successfully');
       }
       setShowModal(false);
-      load(search);
-    } catch {
-      showAlert('error', 'Operation failed. Please try again.');
+      reload();
+    } catch (err) {
+      setFieldErrors(getFieldErrors(err));
+      showAlert('error', getErrorMessage(err, 'Could not save student'));
     } finally {
       setSaving(false);
     }
@@ -74,18 +97,25 @@ export default function StudentManagement() {
     try {
       await deleteStudent(id);
       showAlert('success', `${name} deleted`);
-      load(search);
-    } catch {
-      showAlert('error', 'Delete failed');
+      reload();
+    } catch (err) {
+      showAlert('error', getErrorMessage(err, 'Delete failed'));
     }
   };
 
   const handleSearch = (q: string) => {
     setSearch(q);
-    if (q.length === 0 || q.length >= 2) load(q);
+    if (q.length === 0 || q.length >= 2) {
+      setLoading(true);
+      setQuery(q);
+    }
   };
 
-  const filtered = students; // server-side search applied
+  // Search runs on the server; department/semester filters are applied to the loaded list.
+  const filtered = students.filter(s =>
+    (!deptFilter || s.department === deptFilter) &&
+    (!semFilter || s.semester === Number(semFilter))
+  );
 
   return (
     <div className="page-content">
@@ -99,13 +129,21 @@ export default function StudentManagement() {
         <div className="section-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={18} color="var(--primary)" />
-            <span className="section-title">Students ({students.length})</span>
+            <span className="section-title">Students ({filtered.length})</span>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div className="toolbar">
+            <select className="form-control" value={deptFilter} onChange={e => setDeptFilter(e.target.value)} aria-label="Filter by department">
+              <option value="">All departments</option>
+              {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+            </select>
+            <select className="form-control" value={semFilter} onChange={e => setSemFilter(e.target.value)} aria-label="Filter by semester">
+              <option value="">All semesters</option>
+              {SEMESTERS.map(s => <option key={s} value={s}>Semester {s}</option>)}
+            </select>
             <div className="search-bar">
               <Search size={14} />
               <input
-                placeholder="Search students…"
+                placeholder="Search name or register no…"
                 value={search}
                 onChange={e => handleSearch(e.target.value)}
               />
@@ -118,9 +156,11 @@ export default function StudentManagement() {
                 </button>
               )}
             </div>
-            <button className="btn btn-primary btn-sm" onClick={openAdd}>
-              <UserPlus size={14} /> Add Student
-            </button>
+            {canEdit && (
+              <button className="btn btn-primary btn-sm" onClick={openAdd}>
+                <UserPlus size={14} /> Add Student
+              </button>
+            )}
           </div>
         </div>
 
@@ -132,7 +172,7 @@ export default function StudentManagement() {
         ) : filtered.length === 0 ? (
           <div className="empty-state">
             <Users size={40} />
-            <p>{search ? 'No students match your search' : 'No students yet. Add one to get started.'}</p>
+            <p>{search || deptFilter || semFilter ? 'No students match your filters' : 'No students yet. Add one to get started.'}</p>
           </div>
         ) : (
           <div className="table-wrap">
@@ -140,6 +180,7 @@ export default function StudentManagement() {
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>Reg. No</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Department</th>
@@ -151,6 +192,7 @@ export default function StudentManagement() {
                 {filtered.map((s, i) => (
                   <tr key={s.id}>
                     <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{i + 1}</td>
+                    <td><code className="reg-no">{s.registerNumber || '—'}</code></td>
                     <td style={{ fontWeight: 500 }}>{s.name}</td>
                     <td style={{ color: 'var(--text-muted)' }}>{s.email || '—'}</td>
                     <td><span className="badge badge-info">{s.department}</span></td>
@@ -159,18 +201,29 @@ export default function StudentManagement() {
                       <div style={{ display: 'flex', gap: 4 }}>
                         <button
                           className="btn btn-secondary btn-sm btn-icon"
-                          title="Edit"
-                          onClick={() => openEdit(s)}
+                          title="View details"
+                          onClick={() => setViewTarget(s)}
                         >
-                          <Edit2 size={13} />
+                          <Eye size={13} />
                         </button>
-                        <button
-                          className="btn btn-danger btn-sm btn-icon"
-                          title="Delete"
-                          onClick={() => handleDelete(s.id!, s.name)}
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                        {canEdit && (
+                          <>
+                            <button
+                              className="btn btn-secondary btn-sm btn-icon"
+                              title="Edit"
+                              onClick={() => openEdit(s)}
+                            >
+                              <Edit2 size={13} />
+                            </button>
+                            <button
+                              className="btn btn-danger btn-sm btn-icon"
+                              title="Delete"
+                              onClick={() => handleDelete(s.id!, s.name)}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -180,6 +233,10 @@ export default function StudentManagement() {
           </div>
         )}
       </div>
+
+      {viewTarget && (
+        <StudentDetailsModal key={viewTarget.id} student={viewTarget} onClose={() => setViewTarget(null)} />
+      )}
 
       {/* Modal */}
       {showModal && (
@@ -191,42 +248,56 @@ export default function StudentManagement() {
                 <X size={14} />
               </button>
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="modal-body">
                 <div className="form-grid">
                   <div className="form-group">
                     <label className="form-label">Full Name *</label>
                     <input
-                      className="form-control"
+                      className={`form-control${fieldErrors.name ? ' invalid' : ''}`}
                       placeholder="e.g. Arun Kumar"
+                      maxLength={100}
                       value={form.name}
                       onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                      required
                     />
+                    <FieldError message={fieldErrors.name} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Email</label>
+                    <label className="form-label">Register Number *</label>
                     <input
-                      className="form-control"
-                      type="email"
-                      placeholder="student@example.com"
-                      value={form.email}
-                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                      className={`form-control${fieldErrors.registerNumber ? ' invalid' : ''}`}
+                      placeholder="e.g. 21CS001"
+                      maxLength={20}
+                      value={form.registerNumber}
+                      onChange={e => setForm(f => ({ ...f, registerNumber: e.target.value.toUpperCase() }))}
                     />
+                    <FieldError message={fieldErrors.registerNumber} />
                   </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Email</label>
+                  <input
+                    className={`form-control${fieldErrors.email ? ' invalid' : ''}`}
+                    type="email"
+                    placeholder="student@example.com"
+                    maxLength={120}
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  />
+                  <FieldError message={fieldErrors.email} />
                 </div>
                 <div className="form-grid">
                   <div className="form-group">
                     <label className="form-label">Department *</label>
                     <select
-                      className="form-control"
+                      className={`form-control${fieldErrors.department ? ' invalid' : ''}`}
                       value={form.department}
                       onChange={e => setForm(f => ({ ...f, department: e.target.value }))}
-                      required
                     >
                       <option value="">Select department</option>
                       {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
                     </select>
+                    <FieldError message={fieldErrors.department} />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Semester *</label>
@@ -238,6 +309,7 @@ export default function StudentManagement() {
                     >
                       {SEMESTERS.map(s => <option key={s} value={s}>Semester {s}</option>)}
                     </select>
+                    <FieldError message={fieldErrors.semester} />
                   </div>
                 </div>
               </div>

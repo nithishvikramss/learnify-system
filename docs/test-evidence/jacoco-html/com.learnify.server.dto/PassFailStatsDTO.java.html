@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PassFailStatsDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.dto</a> &gt; <span class="el_source">PassFailStatsDTO.java</span></div><h1>PassFailStatsDTO.java</h1><pre class="source lang-java linenums">package com.learnify.server.dto;
+
+public class PassFailStatsDTO {
+    private long totalStudents;
+    private long passCount;
+    private long failCount;
+    private double passPercentage;
+    private double failPercentage;
+
+<span class="nc" id="L10">    public PassFailStatsDTO() {}</span>
+
+<span class="fc" id="L12">    public PassFailStatsDTO(long totalStudents, long passCount, long failCount) {</span>
+<span class="fc" id="L13">        this.totalStudents = totalStudents;</span>
+<span class="fc" id="L14">        this.passCount = passCount;</span>
+<span class="fc" id="L15">        this.failCount = failCount;</span>
+<span class="fc bfc" id="L16" title="All 2 branches covered.">        this.passPercentage = totalStudents &gt; 0</span>
+<span class="fc" id="L17">                ? Math.round((passCount * 100.0 / totalStudents) * 100.0) / 100.0</span>
+<span class="fc" id="L18">                : 0;</span>
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        this.failPercentage = totalStudents &gt; 0</span>
+<span class="fc" id="L20">                ? Math.round((failCount * 100.0 / totalStudents) * 100.0) / 100.0</span>
+<span class="fc" id="L21">                : 0;</span>
+<span class="fc" id="L22">    }</span>
+
+<span class="fc" id="L24">    public long getTotalStudents() { return totalStudents; }</span>
+<span class="nc" id="L25">    public void setTotalStudents(long totalStudents) { this.totalStudents = totalStudents; }</span>
+
+<span class="fc" id="L27">    public long getPassCount() { return passCount; }</span>
+<span class="nc" id="L28">    public void setPassCount(long passCount) { this.passCount = passCount; }</span>
+
+<span class="fc" id="L30">    public long getFailCount() { return failCount; }</span>
+<span class="nc" id="L31">    public void setFailCount(long failCount) { this.failCount = failCount; }</span>
+
+<span class="fc" id="L33">    public double getPassPercentage() { return passPercentage; }</span>
+<span class="nc" id="L34">    public void setPassPercentage(double passPercentage) { this.passPercentage = passPercentage; }</span>
+
+<span class="fc" id="L36">    public double getFailPercentage() { return failPercentage; }</span>
+<span class="nc" id="L37">    public void setFailPercentage(double failPercentage) { this.failPercentage = failPercentage; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

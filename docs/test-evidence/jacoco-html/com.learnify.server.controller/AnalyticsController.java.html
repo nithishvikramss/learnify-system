@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.controller</a> &gt; <span class="el_source">AnalyticsController.java</span></div><h1>AnalyticsController.java</h1><pre class="source lang-java linenums">package com.learnify.server.controller;
+
+import com.learnify.server.dto.AnalyticsSummaryDTO;
+import com.learnify.server.dto.PassFailStatsDTO;
+import com.learnify.server.dto.SubjectAverageDTO;
+import com.learnify.server.dto.TopStudentDTO;
+import com.learnify.server.exception.BadRequestException;
+import com.learnify.server.service.AnalyticsService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping(&quot;/api/analytics&quot;)
+public class AnalyticsController {
+
+    private static final int MAX_LIMIT = 100;
+
+    private final AnalyticsService analyticsService;
+
+<span class="fc" id="L23">    public AnalyticsController(AnalyticsService analyticsService) {</span>
+<span class="fc" id="L24">        this.analyticsService = analyticsService;</span>
+<span class="fc" id="L25">    }</span>
+
+    @GetMapping(&quot;/summary&quot;)
+    public ResponseEntity&lt;AnalyticsSummaryDTO&gt; getSummary() {
+<span class="nc" id="L29">        return ResponseEntity.ok(analyticsService.getAnalyticsSummary());</span>
+    }
+
+    @GetMapping(&quot;/subject-averages&quot;)
+    public ResponseEntity&lt;List&lt;SubjectAverageDTO&gt;&gt; getSubjectAverages() {
+<span class="nc" id="L34">        return ResponseEntity.ok(analyticsService.getAverageMarksPerSubject());</span>
+    }
+
+    @GetMapping(&quot;/top-students&quot;)
+    public ResponseEntity&lt;List&lt;TopStudentDTO&gt;&gt; getTopStudents(
+            @RequestParam(defaultValue = &quot;5&quot;) int limit) {
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">        if (limit &lt; 0 || limit &gt; MAX_LIMIT) {</span>
+<span class="fc" id="L41">            throw new BadRequestException(&quot;limit must be between 0 and &quot; + MAX_LIMIT + &quot;.&quot;);</span>
+        }
+<span class="fc" id="L43">        return ResponseEntity.ok(analyticsService.getTopStudents(limit));</span>
+    }
+
+    @GetMapping(&quot;/pass-fail&quot;)
+    public ResponseEntity&lt;PassFailStatsDTO&gt; getPassFailStats() {
+<span class="nc" id="L48">        return ResponseEntity.ok(analyticsService.getPassFailStats());</span>
+    }
+
+    @GetMapping(&quot;/class-average&quot;)
+    public ResponseEntity&lt;Map&lt;String, Double&gt;&gt; getClassAverage() {
+<span class="fc" id="L53">        return ResponseEntity.ok(Map.of(&quot;classAverage&quot;, analyticsService.getClassAverage()));</span>
+    }
+
+    @GetMapping(&quot;/below-threshold&quot;)
+    public ResponseEntity&lt;List&lt;TopStudentDTO&gt;&gt; getBelowThreshold(
+            @RequestParam(defaultValue = &quot;40&quot;) double threshold) {
+<span class="nc" id="L59">        return ResponseEntity.ok(analyticsService.getStudentsBelowThreshold(threshold));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

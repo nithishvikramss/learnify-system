@@ -1,9 +1,12 @@
 package com.learnify.server.service;
 
 import com.learnify.server.dto.MarksDetailDTO;
+import com.learnify.server.dto.MarksUpdateRequest;
 import com.learnify.server.entity.Marks;
 import com.learnify.server.entity.Student;
 import com.learnify.server.entity.Subject;
+import com.learnify.server.exception.BadRequestException;
+import com.learnify.server.exception.NotFoundException;
 import com.learnify.server.repository.MarksRepository;
 import com.learnify.server.repository.StudentRepository;
 import com.learnify.server.repository.SubjectRepository;
@@ -29,19 +32,64 @@ public class MarksService {
         this.subjectRepository = subjectRepository;
     }
 
+    /**
+     * Saves marks for a student-subject pair, updating the existing record if there is one.
+     * (Previously used Optional.orElse(save(...)), which always inserted a new record.)
+     */
     public Marks addOrUpdateMarks(Marks marks) {
-        // Auto-calculate totalMarks
-        marks.setTotalMarks(marks.getInternalMarks() + marks.getExternalMarks());
+        if (!studentRepository.existsById(marks.getStudentId())) {
+            throw new NotFoundException("Student not found");
+        }
+        Subject subject = subjectRepository.findById(marks.getSubjectId())
+                .orElseThrow(() -> new NotFoundException("Subject not found"));
+        checkWithinMaxMarks(marks.getInternalMarks(), marks.getExternalMarks(), subject);
 
-        // Check if marks already exist for this student-subject pair
-        return marksRepository.findByStudentIdAndSubjectId(marks.getStudentId(), marks.getSubjectId())
-                .map(existing -> {
-                    existing.setInternalMarks(marks.getInternalMarks());
-                    existing.setExternalMarks(marks.getExternalMarks());
-                    existing.setTotalMarks(marks.getTotalMarks());
-                    return marksRepository.save(existing);
-                })
-                .orElse(marksRepository.save(marks));
+        List<Marks> existing = marksRepository.findAllByStudentIdAndSubjectId(
+                marks.getStudentId(), marks.getSubjectId());
+        Marks target = existing.isEmpty() ? new Marks() : existing.get(0);
+        if (existing.size() > 1) {
+            // Clean up duplicates created by the old bug
+            marksRepository.deleteAll(existing.subList(1, existing.size()));
+        }
+
+        target.setStudentId(marks.getStudentId());
+        target.setSubjectId(marks.getSubjectId());
+        target.setInternalMarks(marks.getInternalMarks());
+        target.setExternalMarks(marks.getExternalMarks());
+        target.setMaxMarks(subject.getMaxMarks());
+        return marksRepository.save(target);
+    }
+
+    public Marks updateMarks(String id, MarksUpdateRequest request) {
+        Marks marks = marksRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Marks record not found"));
+        Subject subject = subjectRepository.findById(marks.getSubjectId())
+                .orElseThrow(() -> new NotFoundException("Subject not found"));
+        checkWithinMaxMarks(request.internalMarks(), request.externalMarks(), subject);
+
+        marks.setInternalMarks(request.internalMarks());
+        marks.setExternalMarks(request.externalMarks());
+        marks.setMaxMarks(subject.getMaxMarks());
+        return marksRepository.save(marks);
+    }
+
+    public void deleteMarks(String id) {
+        if (!marksRepository.existsById(id)) {
+            throw new NotFoundException("Marks record not found");
+        }
+        marksRepository.deleteById(id);
+    }
+
+    private void checkWithinMaxMarks(double internal, double external, Subject subject) {
+        double total = internal + external;
+        if (total > subject.getMaxMarks()) {
+            throw new BadRequestException("Total marks (" + formatMarks(total) + ") cannot exceed the maximum of "
+                    + subject.getMaxMarks() + " for " + subject.getName() + ".");
+        }
+    }
+
+    private static String formatMarks(double value) {
+        return value == Math.floor(value) ? String.valueOf((long) value) : String.valueOf(value);
     }
 
     public List<Marks> getAllMarks() {
@@ -90,12 +138,14 @@ public class MarksService {
         dto.setInternalMarks(m.getInternalMarks());
         dto.setExternalMarks(m.getExternalMarks());
         dto.setTotalMarks(m.getTotalMarks());
-        dto.setPassed(m.getTotalMarks() >= Marks.PASS_MARK);
-        dto.setPercentage(Math.round((m.getTotalMarks() / Marks.MAX_MARKS) * 100.0 * 100.0) / 100.0);
+        dto.setMaxMarks(m.effectiveMaxMarks());
+        dto.setPassed(m.isPassed());
+        dto.setPercentage(Math.round(m.getPercentage() * 100.0) / 100.0);
 
         Student student = studentMap.get(m.getStudentId());
         if (student != null) {
             dto.setStudentName(student.getName());
+            dto.setRegisterNumber(student.getRegisterNumber());
             dto.setDepartment(student.getDepartment());
             dto.setSemester(student.getSemester());
         }

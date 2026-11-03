@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubjectAverageDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.dto</a> &gt; <span class="el_source">SubjectAverageDTO.java</span></div><h1>SubjectAverageDTO.java</h1><pre class="source lang-java linenums">package com.learnify.server.dto;
+
+public class SubjectAverageDTO {
+    private String subjectId;
+    private String subjectName;
+    private double averageMarks;
+    private long totalStudents;
+
+<span class="nc" id="L9">    public SubjectAverageDTO() {}</span>
+
+<span class="fc" id="L11">    public SubjectAverageDTO(String subjectId, String subjectName, double averageMarks, long totalStudents) {</span>
+<span class="fc" id="L12">        this.subjectId = subjectId;</span>
+<span class="fc" id="L13">        this.subjectName = subjectName;</span>
+<span class="fc" id="L14">        this.averageMarks = Math.round(averageMarks * 100.0) / 100.0;</span>
+<span class="fc" id="L15">        this.totalStudents = totalStudents;</span>
+<span class="fc" id="L16">    }</span>
+
+<span class="nc" id="L18">    public String getSubjectId() { return subjectId; }</span>
+<span class="nc" id="L19">    public void setSubjectId(String subjectId) { this.subjectId = subjectId; }</span>
+
+<span class="fc" id="L21">    public String getSubjectName() { return subjectName; }</span>
+<span class="nc" id="L22">    public void setSubjectName(String subjectName) { this.subjectName = subjectName; }</span>
+
+<span class="fc" id="L24">    public double getAverageMarks() { return averageMarks; }</span>
+<span class="nc" id="L25">    public void setAverageMarks(double averageMarks) { this.averageMarks = averageMarks; }</span>
+
+<span class="nc" id="L27">    public long getTotalStudents() { return totalStudents; }</span>
+<span class="nc" id="L28">    public void setTotalStudents(long totalStudents) { this.totalStudents = totalStudents; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

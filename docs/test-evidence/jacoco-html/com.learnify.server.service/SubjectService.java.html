@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubjectService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.service</a> &gt; <span class="el_source">SubjectService.java</span></div><h1>SubjectService.java</h1><pre class="source lang-java linenums">package com.learnify.server.service;
+
+import com.learnify.server.entity.Marks;
+import com.learnify.server.entity.Subject;
+import com.learnify.server.exception.BadRequestException;
+import com.learnify.server.exception.ConflictException;
+import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.repository.MarksRepository;
+import com.learnify.server.repository.SubjectRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class SubjectService {
+
+    private final SubjectRepository subjectRepository;
+    private final MarksRepository marksRepository;
+
+<span class="fc" id="L21">    public SubjectService(SubjectRepository subjectRepository, MarksRepository marksRepository) {</span>
+<span class="fc" id="L22">        this.subjectRepository = subjectRepository;</span>
+<span class="fc" id="L23">        this.marksRepository = marksRepository;</span>
+<span class="fc" id="L24">    }</span>
+
+    public Subject addSubject(Subject subject) {
+<span class="fc" id="L27">        subject.setId(null); // never let the client choose/overwrite an id</span>
+<span class="fc" id="L28">        normalize(subject);</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if (subjectRepository.existsByCode(subject.getCode())) {</span>
+<span class="fc" id="L30">            throw new ConflictException(&quot;Subject code &quot; + subject.getCode() + &quot; already exists.&quot;);</span>
+        }
+<span class="nc" id="L32">        return subjectRepository.save(subject);</span>
+    }
+
+    public List&lt;Subject&gt; getAllSubjects() {
+<span class="nc" id="L36">        return subjectRepository.findAll();</span>
+    }
+
+    public Optional&lt;Subject&gt; getSubjectById(String id) {
+<span class="nc" id="L40">        return subjectRepository.findById(id);</span>
+    }
+
+    /**
+     * Updates a subject. If max marks change, existing marks are re-scaled to the new maximum;
+     * lowering the maximum below a mark that is already recorded is rejected.
+     */
+    public Subject updateSubject(String id, Subject updated) {
+<span class="fc" id="L48">        Subject existing = subjectRepository.findById(id)</span>
+<span class="pc" id="L49">                .orElseThrow(() -&gt; new NotFoundException(&quot;Subject not found&quot;));</span>
+<span class="fc" id="L50">        normalize(updated);</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (subjectRepository.existsByCodeAndIdNot(updated.getCode(), id)) {</span>
+<span class="nc" id="L52">            throw new ConflictException(&quot;Subject code &quot; + updated.getCode() + &quot; already exists.&quot;);</span>
+        }
+
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (updated.getMaxMarks() != existing.getMaxMarks()) {</span>
+<span class="fc" id="L56">            List&lt;Marks&gt; marks = marksRepository.findBySubjectId(id);</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            long tooHigh = marks.stream().filter(m -&gt; m.getTotalMarks() &gt; updated.getMaxMarks()).count();</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            if (tooHigh &gt; 0) {</span>
+<span class="fc" id="L59">                throw new BadRequestException(tooHigh + &quot; student(s) already have marks above &quot;</span>
+<span class="fc" id="L60">                        + updated.getMaxMarks() + &quot;. Update their marks first.&quot;);</span>
+            }
+<span class="fc" id="L62">            marks.forEach(m -&gt; m.setMaxMarks(updated.getMaxMarks()));</span>
+<span class="fc" id="L63">            marksRepository.saveAll(marks);</span>
+        }
+
+<span class="fc" id="L66">        existing.setName(updated.getName());</span>
+<span class="fc" id="L67">        existing.setCode(updated.getCode());</span>
+<span class="fc" id="L68">        existing.setMaxMarks(updated.getMaxMarks());</span>
+<span class="fc" id="L69">        return subjectRepository.save(existing);</span>
+    }
+
+    /**
+     * Deletes a subject. If marks exist for it, deletion is refused unless {@code cascade} is true,
+     * in which case those marks are deleted too (so no orphaned marks remain).
+     */
+    public void deleteSubject(String id, boolean cascade) {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (!subjectRepository.existsById(id)) {</span>
+<span class="nc" id="L78">            throw new NotFoundException(&quot;Subject not found&quot;);</span>
+        }
+<span class="fc" id="L80">        long marksCount = marksRepository.countBySubjectId(id);</span>
+<span class="pc bpc" id="L81" title="1 of 4 branches missed.">        if (marksCount &gt; 0 &amp;&amp; !cascade) {</span>
+<span class="fc" id="L82">            throw new ConflictException(&quot;This subject has &quot; + marksCount</span>
+                    + &quot; marks record(s). Delete the subject together with its marks?&quot;);
+        }
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (marksCount &gt; 0) {</span>
+<span class="fc" id="L86">            marksRepository.deleteBySubjectId(id);</span>
+        }
+<span class="fc" id="L88">        subjectRepository.deleteById(id);</span>
+<span class="fc" id="L89">    }</span>
+
+    public long getTotalCount() {
+<span class="nc" id="L92">        return subjectRepository.count();</span>
+    }
+
+    private static void normalize(Subject subject) {
+<span class="fc" id="L96">        subject.setName(subject.getName().trim());</span>
+<span class="fc" id="L97">        subject.setCode(subject.getCode().trim().toUpperCase());</span>
+<span class="fc" id="L98">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

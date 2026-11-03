@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.security</a> &gt; <span class="el_source">JwtService.java</span></div><h1>JwtService.java</h1><pre class="source lang-java linenums">package com.learnify.server.security;
+
+import com.learnify.server.entity.Role;
+import com.learnify.server.entity.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
+
+/** Issues and verifies signed (HMAC-SHA256) JSON Web Tokens for logged-in users. */
+@Service
+public class JwtService {
+
+<span class="fc" id="L25">    private static final Logger log = LoggerFactory.getLogger(JwtService.class);</span>
+    private static final int MIN_SECRET_BYTES = 32;
+
+    private final SecretKey key;
+    private final Duration expiration;
+
+    public JwtService(@Value(&quot;${app.jwt.secret:}&quot;) String secret,
+<span class="fc" id="L32">                      @Value(&quot;${app.jwt.expiration-minutes:120}&quot;) long expirationMinutes) {</span>
+<span class="pc bpc" id="L33" title="1 of 4 branches missed.">        if (secret == null || secret.getBytes(StandardCharsets.UTF_8).length &lt; MIN_SECRET_BYTES) {</span>
+            // Safe fallback: a random key means tokens simply stop working after a restart.
+<span class="fc" id="L35">            log.warn(&quot;JWT_SECRET is missing or shorter than {} bytes; using a random key for this run. &quot;</span>
+<span class="fc" id="L36">                    + &quot;Users will need to log in again after every restart.&quot;, MIN_SECRET_BYTES);</span>
+<span class="fc" id="L37">            this.key = Jwts.SIG.HS256.key().build();</span>
+        } else {
+<span class="fc" id="L39">            this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));</span>
+        }
+<span class="fc" id="L41">        this.expiration = Duration.ofMinutes(expirationMinutes);</span>
+<span class="fc" id="L42">    }</span>
+
+    public String generateToken(User user) {
+<span class="fc" id="L45">        Instant now = Instant.now();</span>
+<span class="fc" id="L46">        return Jwts.builder()</span>
+<span class="fc" id="L47">                .subject(user.getUsername())</span>
+<span class="fc" id="L48">                .claim(&quot;role&quot;, user.getRole().name())</span>
+<span class="fc" id="L49">                .claim(&quot;name&quot;, user.getFullName())</span>
+<span class="fc" id="L50">                .issuedAt(Date.from(now))</span>
+<span class="fc" id="L51">                .expiration(Date.from(now.plus(expiration)))</span>
+<span class="fc" id="L52">                .signWith(key)</span>
+<span class="fc" id="L53">                .compact();</span>
+    }
+
+    public Instant expiresAt(String token) {
+<span class="fc" id="L57">        return parse(token).map(c -&gt; c.getExpiration().toInstant()).orElseThrow();</span>
+    }
+
+    /** Returns the authenticated identity in the token, or empty if it is invalid, tampered or expired. */
+    public Optional&lt;TokenUser&gt; verify(String token) {
+<span class="fc" id="L62">        return parse(token).flatMap(claims -&gt; {</span>
+            try {
+<span class="fc" id="L64">                return Optional.of(new TokenUser(claims.getSubject(), Role.valueOf(claims.get(&quot;role&quot;, String.class))));</span>
+<span class="nc" id="L65">            } catch (IllegalArgumentException | NullPointerException e) {</span>
+<span class="nc" id="L66">                return Optional.empty();</span>
+            }
+        });
+    }
+
+    private Optional&lt;Claims&gt; parse(String token) {
+        try {
+<span class="fc" id="L73">            return Optional.of(Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload());</span>
+<span class="fc" id="L74">        } catch (JwtException | IllegalArgumentException e) {</span>
+<span class="fc" id="L75">            return Optional.empty();</span>
+        }
+    }
+
+<span class="fc" id="L79">    public record TokenUser(String username, Role role) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

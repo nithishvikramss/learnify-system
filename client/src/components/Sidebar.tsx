@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Users, BookOpen, ClipboardList,
   BarChart3, GraduationCap, LogOut
 } from 'lucide-react';
+import { clearSession } from '../auth/session';
 
 const navItems = [
   { path: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard'         },
@@ -12,23 +13,34 @@ const navItems = [
   { path: '/reports',    icon: BarChart3,       label: 'Reports & Analytics'},
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  /** Whether the sidebar is shown on small screens (always shown on desktop). */
+  open: boolean;
+  onNavigate: () => void;
+}
+
+export default function Sidebar({ open, onNavigate }: SidebarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
+  const go = (path: string) => {
+    navigate(path);
+    onNavigate();
+  };
+
   const handleLogout = () => {
-    localStorage.removeItem('auth');
-    navigate('/login');
+    clearSession();
+    navigate('/login', { replace: true });
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${open ? ' open' : ''}`}>
       <div className="sidebar-logo">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
           <GraduationCap size={20} color="#a5b4fc" />
           <h2>LearnifyAnalytics</h2>
         </div>
-        <span>Student Performance System</span>
+        <span>Student Management System</span>
       </div>
 
       <nav className="sidebar-nav">
@@ -36,7 +48,7 @@ export default function Sidebar() {
           <button
             key={path}
             className={`nav-item${pathname === path ? ' active' : ''}`}
-            onClick={() => navigate(path)}
+            onClick={() => go(path)}
           >
             <Icon size={16} />
             {label}

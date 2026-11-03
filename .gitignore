@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Secrets / local environment ###
+.env
+**/.env
+!**/.env.example
+
+### Local tool settings ###
+.claude/settings.local.json
+
+### Test artifacts (traces/videos are large; reports and screenshots are kept) ###
+docs/test-evidence/playwright-results/
+client/test-results/

@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface SubjectRepository extends MongoRepository<Subject, String> {
     Optional<Subject> findByCode(String code);
     Optional<Subject> findByName(String name);
+    boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, String id);
 }

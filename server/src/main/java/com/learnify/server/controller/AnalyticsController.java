@@ -4,6 +4,7 @@ import com.learnify.server.dto.AnalyticsSummaryDTO;
 import com.learnify.server.dto.PassFailStatsDTO;
 import com.learnify.server.dto.SubjectAverageDTO;
 import com.learnify.server.dto.TopStudentDTO;
+import com.learnify.server.exception.BadRequestException;
 import com.learnify.server.service.AnalyticsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/analytics")
 public class AnalyticsController {
+
+    private static final int MAX_LIMIT = 100;
 
     private final AnalyticsService analyticsService;
 
@@ -34,6 +37,9 @@ public class AnalyticsController {
     @GetMapping("/top-students")
     public ResponseEntity<List<TopStudentDTO>> getTopStudents(
             @RequestParam(defaultValue = "5") int limit) {
+        if (limit < 0 || limit > MAX_LIMIT) {
+            throw new BadRequestException("limit must be between 0 and " + MAX_LIMIT + ".");
+        }
         return ResponseEntity.ok(analyticsService.getTopStudents(limit));
     }
 

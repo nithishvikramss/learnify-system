@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import MetricCard from '../components/MetricCard';
 import { SubjectBarChart, PassFailPieChart } from '../components/Charts';
-import { getAnalyticsSummary } from '../api/api';
+import { getAnalyticsSummary, getErrorMessage } from '../api/api';
 import type { AnalyticsSummary } from '../types';
 
 export default function Dashboard() {
@@ -18,7 +18,7 @@ export default function Dashboard() {
   useEffect(() => {
     getAnalyticsSummary()
       .then(setSummary)
-      .catch(() => setError('Failed to load analytics. Make sure the backend is running.'))
+      .catch(err => setError(getErrorMessage(err, 'Failed to load analytics.')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -55,8 +55,8 @@ export default function Dashboard() {
         <MetricCard
           icon={<TrendingUp size={20} />}
           iconBg="#dcfce7" iconColor="#16a34a"
-          value={`${s.classAverage}`}
-          label="Class Average (/ 100)"
+          value={`${s.classAverage}%`}
+          label="Class Average"
           trend={s.classAverage >= 70 ? 'Excellent' : s.classAverage >= 50 ? 'Average' : 'Needs Improvement'}
           trendColor={s.classAverage >= 70 ? 'var(--success)' : s.classAverage >= 50 ? 'var(--warning)' : 'var(--danger)'}
         />
@@ -65,14 +65,14 @@ export default function Dashboard() {
           iconBg="#dcfce7" iconColor="#16a34a"
           value={`${s.passPercentage}%`}
           label="Pass Rate"
-          trend={`${s.totalStudents - s.belowThresholdCount} students passed`}
+          trend="Passed every subject"
           trendColor="var(--success)"
         />
         <MetricCard
           icon={<XCircle size={20} />}
           iconBg="#fee2e2" iconColor="#ef4444"
           value={s.belowThresholdCount.toString()}
-          label="Below Passing Mark"
+          label="Average Below 40%"
           trend={s.belowThresholdCount > 0 ? 'Needs attention' : 'All good!'}
           trendColor={s.belowThresholdCount > 0 ? 'var(--danger)' : 'var(--success)'}
         />
@@ -120,7 +120,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="two-col-grid">
         {/* Top Students */}
         <div className="card">
           <div className="card-header">
@@ -164,7 +164,7 @@ export default function Dashboard() {
         {/* Insights */}
         <div className="card">
           <div className="card-header">
-            <span className="card-title">AI Insights</span>
+            <span className="card-title">Insights</span>
             <Lightbulb size={16} color="var(--warning)" />
           </div>
           {s.insights.length === 0 ? (

@@ -44,12 +44,12 @@ public class AnalyticsService {
                     String subjectId = entry.getKey();
                     List<Marks> subjectMarks = entry.getValue();
                     double avg = subjectMarks.stream()
-                            .mapToDouble(Marks::getTotalMarks)
+                            .mapToDouble(Marks::getPercentage)
                             .average()
                             .orElse(0.0);
                     Subject subject = subjectMap.get(subjectId);
                     String subjectName = subject != null ? subject.getName() : "Unknown";
-                    return new SubjectAverageDTO(subjectId, subjectName, avg, subjectMarks.size());
+                    return new SubjectAverageDTO(subjectId, subjectName, round2(avg), subjectMarks.size());
                 })
                 .sorted(Comparator.comparingDouble(SubjectAverageDTO::getAverageMarks).reversed())
                 .collect(Collectors.toList());
@@ -64,7 +64,7 @@ public class AnalyticsService {
         List<Map.Entry<String, Double>> ranked = allMarks.stream()
                 .collect(Collectors.groupingBy(
                         Marks::getStudentId,
-                        Collectors.averagingDouble(Marks::getTotalMarks)
+                        Collectors.averagingDouble(Marks::getPercentage)
                 ))
                 .entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
@@ -93,17 +93,16 @@ public class AnalyticsService {
     public PassFailStatsDTO getPassFailStats() {
         List<Marks> allMarks = marksRepository.findAll();
 
-        // A student is considered as "passed" if their average >= PASS_MARK
-        Map<String, Double> studentAvg = allMarks.stream()
+        // A student passes only if they passed every subject they have marks for
+        // (same rule as the student report card).
+        Map<String, Boolean> passedAll = allMarks.stream()
                 .collect(Collectors.groupingBy(
                         Marks::getStudentId,
-                        Collectors.averagingDouble(Marks::getTotalMarks)
+                        Collectors.reducing(true, Marks::isPassed, Boolean::logicalAnd)
                 ));
 
-        long total = studentAvg.size();
-        long passed = studentAvg.values().stream()
-                .filter(avg -> avg >= Marks.PASS_MARK)
-                .count();
+        long total = passedAll.size();
+        long passed = passedAll.values().stream().filter(Boolean::booleanValue).count();
         long failed = total - passed;
 
         return new PassFailStatsDTO(total, passed, failed);
@@ -114,10 +113,14 @@ public class AnalyticsService {
         List<Marks> allMarks = marksRepository.findAll();
         if (allMarks.isEmpty()) return 0.0;
         double avg = allMarks.stream()
-                .mapToDouble(Marks::getTotalMarks)
+                .mapToDouble(Marks::getPercentage)
                 .average()
                 .orElse(0.0);
-        return Math.round(avg * 100.0) / 100.0;
+        return round2(avg);
+    }
+
+    private static double round2(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 
     // --- Students below threshold ---
@@ -129,7 +132,7 @@ public class AnalyticsService {
         return allMarks.stream()
                 .collect(Collectors.groupingBy(
                         Marks::getStudentId,
-                        Collectors.averagingDouble(Marks::getTotalMarks)
+                        Collectors.averagingDouble(Marks::getPercentage)
                 ))
                 .entrySet().stream()
                 .filter(e -> e.getValue() < threshold)
@@ -170,8 +173,8 @@ public class AnalyticsService {
         List<TopStudentDTO> topStudents = getTopStudents(5);
         summary.setTopStudents(topStudents);
 
-        // Below 40% threshold
-        List<TopStudentDTO> belowThreshold = getStudentsBelowThreshold(Marks.PASS_MARK);
+        // Students whose average is below the pass percentage
+        List<TopStudentDTO> belowThreshold = getStudentsBelowThreshold(Marks.PASS_PERCENTAGE);
         summary.setBelowThresholdCount(belowThreshold.size());
 
         // Lowest subject
@@ -203,16 +206,16 @@ public class AnalyticsService {
                     .orElse(null);
             SubjectAverageDTO highest = subjectAverages.get(0);
             if (lowest != null) {
-                insights.add("Average marks in " + lowest.getSubjectName() + " is the lowest at "
-                        + lowest.getAverageMarks() + " — needs attention.");
+                insights.add("Average score in " + lowest.getSubjectName() + " is the lowest at "
+                        + lowest.getAverageMarks() + "% — needs attention.");
             }
             insights.add("Students perform best in " + highest.getSubjectName()
-                    + " with an average of " + highest.getAverageMarks() + ".");
+                    + " with an average of " + highest.getAverageMarks() + "%.");
         }
 
         if (!belowThreshold.isEmpty()) {
-            insights.add(belowThreshold.size() + " student(s) are below the passing mark of "
-                    + (int) Marks.PASS_MARK + " — immediate intervention needed.");
+            insights.add(belowThreshold.size() + " student(s) have an average below "
+                    + (int) Marks.PASS_PERCENTAGE + "% — immediate intervention needed.");
         }
 
         if (summary.getTopPerformerName() != null) {
@@ -224,7 +227,7 @@ public class AnalyticsService {
             String level = summary.getClassAverage() >= 70 ? "excellent"
                     : summary.getClassAverage() >= 50 ? "average" : "below average";
             insights.add("Overall class performance is " + level
-                    + " with a class average of " + summary.getClassAverage() + ".");
+                    + " with a class average of " + summary.getClassAverage() + "%.");
         }
 
         if (summary.getPassPercentage() > 0) {

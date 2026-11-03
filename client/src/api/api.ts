@@ -1,15 +1,64 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import type {
   Student, Subject, Marks, MarksDetail,
   SubjectAverage, TopStudent, PassFailStats, AnalyticsSummary
 } from '../types';
+import { getSession, clearSession, type Session } from '../auth/session';
 
-const BASE_URL = 'http://localhost:8080/api';
+// Defaults to the Vite dev proxy (/api -> http://localhost:8080). Override with VITE_API_URL.
+const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
+
+// Send the login token with every request
+api.interceptors.request.use(config => {
+  const session = getSession();
+  if (session) config.headers.Authorization = `Bearer ${session.token}`;
+  return config;
+});
+
+// If the server says the token is invalid/expired, log out and go back to the login page
+api.interceptors.response.use(undefined, err => {
+  const isLoginCall = err.config?.url?.endsWith('/auth/login');
+  if (isAxiosError(err) && err.response?.status === 401 && !isLoginCall) {
+    clearSession();
+    if (window.location.pathname !== '/login') window.location.assign('/login?expired=1');
+  }
+  return Promise.reject(err);
+});
+
+// --- Error helpers ---
+interface ApiErrorBody {
+  message?: string;
+  fieldErrors?: Record<string, string>;
+}
+
+/** Returns the server's user-friendly error message, or a fallback. */
+export function getErrorMessage(err: unknown, fallback = 'Something went wrong. Please try again.'): string {
+  if (isAxiosError<ApiErrorBody>(err)) {
+    if (!err.response) return 'Cannot reach the server. Make sure the backend is running.';
+    return err.response.data?.message || fallback;
+  }
+  return fallback;
+}
+
+/** Returns the HTTP status of a failed request (undefined for network errors). */
+export function getErrorStatus(err: unknown): number | undefined {
+  return isAxiosError(err) ? err.response?.status : undefined;
+}
+
+/** Returns per-field validation errors sent by the server (empty object if none). */
+export function getFieldErrors(err: unknown): Record<string, string> {
+  if (isAxiosError<ApiErrorBody>(err)) return err.response?.data?.fieldErrors ?? {};
+  return {};
+}
+
+// --- Auth APIs ---
+export const login = (username: string, password: string) =>
+  api.post<Session>('/auth/login', { username, password }).then(r => r.data);
 
 // --- Student APIs ---
 export const addStudent = (student: Student) =>
@@ -34,8 +83,12 @@ export const addSubject = (subject: Subject) =>
 export const getAllSubjects = () =>
   api.get<Subject[]>('/subjects').then(r => r.data);
 
-export const deleteSubject = (id: string) =>
-  api.delete(`/subjects/${id}`).then(r => r.data);
+export const updateSubject = (id: string, subject: Subject) =>
+  api.put<Subject>(`/subjects/${id}`, subject).then(r => r.data);
+
+/** cascade=true also deletes the subject's marks; otherwise the server refuses (409) if marks exist. */
+export const deleteSubject = (id: string, cascade = false) =>
+  api.delete(`/subjects/${id}`, { params: { cascade } }).then(r => r.data);
 
 // --- Marks APIs ---
 export const addMarks = (marks: Marks) =>
@@ -43,6 +96,12 @@ export const addMarks = (marks: Marks) =>
 
 export const getAllMarks = () =>
   api.get<MarksDetail[]>('/marks').then(r => r.data);
+
+export const updateMarks = (id: string, marks: { internalMarks: number; externalMarks: number }) =>
+  api.put<Marks>(`/marks/${id}`, marks).then(r => r.data);
+
+export const deleteMarks = (id: string) =>
+  api.delete(`/marks/${id}`).then(r => r.data);
 
 export const getMarksByStudent = (studentId: string) =>
   api.get<MarksDetail[]>(`/marks/student/${studentId}`).then(r => r.data);

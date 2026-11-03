@@ -10,6 +10,46 @@ interface SubjectBarChartProps {
   data: SubjectAverage[];
 }
 
+interface BarTooltipProps {
+  active?: boolean;
+  payload?: { value: number; payload: { fullName: string } }[];
+}
+
+function BarTooltip({ active, payload }: BarTooltipProps) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{
+      background: '#fff', border: '1px solid #e2e8f0',
+      borderRadius: 8, padding: '10px 14px', fontSize: 12
+    }}>
+      <p style={{ fontWeight: 600, marginBottom: 4 }}>{payload[0].payload.fullName}</p>
+      <p>Average: <strong>{payload[0].value}%</strong></p>
+    </div>
+  );
+}
+
+interface PieLabelProps {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  percent?: number;
+}
+
+function PieLabel({ cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0, percent = 0 }: PieLabelProps) {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
+      fontSize={12} fontWeight={600}>
+      {`${(percent * 100).toFixed(1)}%`}
+    </text>
+  );
+}
+
 export function SubjectBarChart({ data }: SubjectBarChartProps) {
   if (!data.length) {
     return (
@@ -25,28 +65,13 @@ export function SubjectBarChart({ data }: SubjectBarChartProps) {
     average: d.averageMarks,
   }));
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload?.length) {
-      return (
-        <div style={{
-          background: '#fff', border: '1px solid #e2e8f0',
-          borderRadius: 8, padding: '10px 14px', fontSize: 12
-        }}>
-          <p style={{ fontWeight: 600, marginBottom: 4 }}>{payload[0].payload.fullName}</p>
-          <p>Avg Marks: <strong>{payload[0].value}</strong></p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
         <XAxis dataKey="name" tick={{ fontSize: 11 }} />
         <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<BarTooltip />} />
         <Bar dataKey="average" radius={[4, 4, 0, 0]}>
           {chartData.map((_, i) => (
             <Cell key={i} fill={COLORS[i % COLORS.length]} />
@@ -75,19 +100,6 @@ export function PassFailPieChart({ passPercentage, failPercentage }: PassFailPie
 
   const PIE_COLORS = ['#10b981', '#ef4444'];
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    return (
-      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
-        fontSize={12} fontWeight={600}>
-        {`${(percent * 100).toFixed(1)}%`}
-      </text>
-    );
-  };
-
   return (
     <ResponsiveContainer width="100%" height={220}>
       <PieChart>
@@ -98,7 +110,7 @@ export function PassFailPieChart({ passPercentage, failPercentage }: PassFailPie
           outerRadius={85}
           dataKey="value"
           labelLine={false}
-          label={<CustomLabel />}
+          label={<PieLabel />}
         >
           {data.map((_, i) => (
             <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />

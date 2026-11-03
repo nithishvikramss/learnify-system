@@ -1,5 +1,8 @@
 package com.learnify.server.entity;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -8,14 +11,29 @@ public class Marks {
 
     @Id
     private String id;
+
+    @NotBlank(message = "Student is required")
     private String studentId;
+
+    @NotBlank(message = "Subject is required")
     private String subjectId;
+
+    @DecimalMin(value = "0", message = "Internal marks cannot be negative")
+    @DecimalMax(value = "200", message = "Internal marks are too large")
     private double internalMarks;
+
+    @DecimalMin(value = "0", message = "External marks cannot be negative")
+    @DecimalMax(value = "200", message = "External marks are too large")
     private double externalMarks;
+
     private double totalMarks;
 
-    public static final double PASS_MARK = 40.0;
-    public static final double MAX_MARKS = 100.0;
+    /** Snapshot of the subject's max marks when these marks were saved (0 for legacy records = 100). */
+    private double maxMarks;
+
+    /** A subject is passed when the student scores at least this percentage. */
+    public static final double PASS_PERCENTAGE = 40.0;
+    public static final double DEFAULT_MAX_MARKS = 100.0;
 
     public Marks() {}
 
@@ -51,11 +69,19 @@ public class Marks {
     public double getTotalMarks() { return totalMarks; }
     public void setTotalMarks(double totalMarks) { this.totalMarks = totalMarks; }
 
-    public boolean isPassed() {
-        return this.totalMarks >= PASS_MARK;
+    public double getMaxMarks() { return maxMarks; }
+    public void setMaxMarks(double maxMarks) { this.maxMarks = maxMarks; }
+
+    /** Max marks used for calculations; legacy records without a value are treated as out of 100. */
+    public double effectiveMaxMarks() {
+        return maxMarks > 0 ? maxMarks : DEFAULT_MAX_MARKS;
     }
 
     public double getPercentage() {
-        return (this.totalMarks / MAX_MARKS) * 100.0;
+        return (this.totalMarks / effectiveMaxMarks()) * 100.0;
+    }
+
+    public boolean isPassed() {
+        return getPercentage() >= PASS_PERCENTAGE;
     }
 }

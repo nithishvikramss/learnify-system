@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -6,6 +8,7 @@ import StudentManagement from './pages/StudentManagement';
 import Subjects from './pages/Subjects';
 import MarksEntry from './pages/MarksEntry';
 import Reports from './pages/Reports';
+import { getSession, ROLE_LABELS } from './auth/session';
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -16,30 +19,30 @@ const PAGE_TITLES: Record<string, string> = {
 };
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const auth = localStorage.getItem('auth');
   const location = useLocation();
-  if (!auth) return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!getSession()) return <Navigate to="/login" state={{ from: location }} replace />;
   return <>{children}</>;
 }
 
 function AppLayout() {
   const location = useLocation();
   const title = PAGE_TITLES[location.pathname] || 'Learnify Analytics';
-  const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+  const session = getSession();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="app-layout">
-      <Sidebar />
+      <Sidebar open={menuOpen} onNavigate={() => setMenuOpen(false)} />
+      {menuOpen && <div className="sidebar-backdrop" onClick={() => setMenuOpen(false)} />}
       <div className="main-content">
         <header className="top-bar">
+          <button className="menu-btn" aria-label="Open menu" onClick={() => setMenuOpen(true)}>
+            <Menu size={20} />
+          </button>
           <h1>{title}</h1>
           <div className="top-bar-actions">
-            <span style={{
-              fontSize: 12, color: 'var(--text-muted)',
-              background: 'var(--surface-2)', padding: '4px 10px',
-              borderRadius: 20, border: '1px solid var(--border)'
-            }}>
-              {auth.role || 'User'}: <strong>{auth.username}</strong>
+            <span className="user-chip">
+              {session ? ROLE_LABELS[session.role] : 'User'}: <strong>{session?.username}</strong>
             </span>
           </div>
         </header>

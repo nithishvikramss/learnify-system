@@ -1,7 +1,9 @@
 package com.learnify.server.controller;
 
 import com.learnify.server.entity.Student;
+import com.learnify.server.exception.NotFoundException;
 import com.learnify.server.service.StudentService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,7 @@ public class StudentController {
     }
 
     @PostMapping
-    public ResponseEntity<Student> addStudent(@RequestBody Student student) {
+    public ResponseEntity<Student> addStudent(@Valid @RequestBody Student student) {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.addStudent(student));
     }
 
@@ -41,17 +43,13 @@ public class StudentController {
     public ResponseEntity<Student> getStudentById(@PathVariable String id) {
         return studentService.getStudentById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new NotFoundException("Student not found"));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable String id,
-                                                  @RequestBody Student student) {
-        try {
-            return ResponseEntity.ok(studentService.updateStudent(id, student));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+                                                  @Valid @RequestBody Student student) {
+        return ResponseEntity.ok(studentService.updateStudent(id, student));
     }
 
     @DeleteMapping("/{id}")

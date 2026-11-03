@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, AlertTriangle, Award, BookOpen, User, Search } from 'lucide-react';
+import { BarChart3, AlertTriangle, Award, BookOpen, User, Search, Printer, Download } from 'lucide-react';
 import {
   getAnalyticsSummary, getAllStudents, getMarksByStudent,
-  getStudentsBelowThreshold, getTopStudents
+  getStudentsBelowThreshold, getTopStudents, getErrorMessage
 } from '../api/api';
 import type { AnalyticsSummary, Student, MarksDetail, TopStudent } from '../types';
 import { SubjectBarChart } from '../components/Charts';
+import { toCsv, downloadCsv } from '../utils/csv';
 
 type Tab = 'overview' | 'reportcard' | 'weak';
+
+const DEFAULT_THRESHOLD = 40;
 
 export default function Reports() {
   const [tab, setTab] = useState<Tab>('overview');
@@ -16,17 +19,17 @@ export default function Reports() {
   const [selectedStudent, setSelectedStudent] = useState('');
   const [reportMarks, setReportMarks] = useState<MarksDetail[]>([]);
   const [weakStudents, setWeakStudents] = useState<TopStudent[]>([]);
-  const [threshold, setThreshold] = useState(40);
+  const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
   const [topStudents, setTopStudents] = useState<TopStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [reportLoading, setReportLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    setLoading(true);
     Promise.all([
       getAnalyticsSummary(),
       getAllStudents(),
-      getStudentsBelowThreshold(threshold),
+      getStudentsBelowThreshold(DEFAULT_THRESHOLD),
       getTopStudents(10),
     ])
       .then(([s, st, weak, top]) => {
@@ -35,28 +38,47 @@ export default function Reports() {
         setWeakStudents(weak);
         setTopStudents(top);
       })
-      .catch(console.error)
+      .catch(err => setError(getErrorMessage(err, 'Failed to load reports')))
       .finally(() => setLoading(false));
   }, []);
 
   const loadReport = () => {
     if (!selectedStudent) return;
     setReportLoading(true);
+    setError('');
     getMarksByStudent(selectedStudent)
       .then(setReportMarks)
-      .catch(console.error)
+      .catch(err => setError(getErrorMessage(err, 'Failed to load report card')))
       .finally(() => setReportLoading(false));
   };
 
   const refreshWeak = () => {
-    getStudentsBelowThreshold(threshold).then(setWeakStudents).catch(console.error);
+    setError('');
+    getStudentsBelowThreshold(threshold)
+      .then(setWeakStudents)
+      .catch(err => setError(getErrorMessage(err, 'Failed to load weak students')));
   };
 
   const student = students.find(s => s.id === selectedStudent);
   const totalMarks = reportMarks.reduce((a, m) => a + m.totalMarks, 0);
-  const avgMarks = reportMarks.length ? (totalMarks / reportMarks.length).toFixed(2) : '0';
+  const totalMax = reportMarks.reduce((a, m) => a + m.maxMarks, 0);
+  const avgMarks = reportMarks.length
+    ? (reportMarks.reduce((a, m) => a + m.percentage, 0) / reportMarks.length).toFixed(2)
+    : '0';
   const passedCount = reportMarks.filter(m => m.passed).length;
   const overallPass = reportMarks.length > 0 && passedCount === reportMarks.length;
+
+  const exportReportCsv = () => {
+    if (!student) return;
+    const csv = toCsv(
+      ['Register No', 'Student', 'Subject', 'Internal', 'External', 'Total', 'Max', 'Percentage', 'Result'],
+      reportMarks.map(m => [
+        student.registerNumber, student.name, m.subjectName, m.internalMarks, m.externalMarks,
+        m.totalMarks, m.maxMarks, m.percentage, m.passed ? 'Pass' : 'Fail',
+      ]),
+    );
+    downloadCsv(`report-card-${student.registerNumber || student.name}.csv`, csv);
+  };
 
   const TABS: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
     { key: 'overview', label: 'Subject Overview', icon: BarChart3 },
@@ -74,8 +96,10 @@ export default function Reports() {
 
   return (
     <div className="page-content">
+      {error && <div className="alert alert-error">{error}</div>}
+
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20 }}>
+      <div className="tabs no-print">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -113,7 +137,7 @@ export default function Reports() {
                       <th>#</th>
                       <th>Subject</th>
                       <th>Students</th>
-                      <th>Average Marks</th>
+                      <th>Average %</th>
                       <th>Performance</th>
                     </tr>
                   </thead>
@@ -201,9 +225,9 @@ export default function Reports() {
       {/* ── Tab: Student Report Card ── */}
       {tab === 'reportcard' && (
         <div>
-          <div className="card mb-4">
-            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}>
+          <div className="card mb-4 no-print">
+            <div className="report-picker">
+              <div style={{ flex: 1, minWidth: 200 }}>
                 <label className="form-label">Select Student</label>
                 <select
                   className="form-control"
@@ -212,7 +236,7 @@ export default function Reports() {
                 >
                   <option value="">-- Select Student --</option>
                   {students.map(s => (
-                    <option key={s.id} value={s.id}>{s.name} — {s.department} (Sem {s.semester})</option>
+                    <option key={s.id} value={s.id}>{s.registerNumber ? `${s.registerNumber} · ` : ''}{s.name} — {s.department} (Sem {s.semester})</option>
                   ))}
                 </select>
               </div>
@@ -224,6 +248,16 @@ export default function Reports() {
               >
                 <Search size={14} /> View Report
               </button>
+              {student && reportMarks.length > 0 && (
+                <>
+                  <button className="btn btn-secondary" style={{ height: 36 }} onClick={() => window.print()}>
+                    <Printer size={14} /> Print
+                  </button>
+                  <button className="btn btn-secondary" style={{ height: 36 }} onClick={exportReportCsv}>
+                    <Download size={14} /> Export CSV
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
@@ -232,25 +266,25 @@ export default function Reports() {
           )}
 
           {!reportLoading && selectedStudent && reportMarks.length > 0 && student && (
-            <div className="card">
+            <div className="card print-area">
               {/* Header */}
               <div style={{
                 background: 'linear-gradient(135deg, var(--primary-dark), var(--primary))',
                 borderRadius: 8, padding: '20px 24px', marginBottom: 20, color: '#fff'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                   <div>
                     <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{student.name}</h2>
                     <div style={{ fontSize: 13, opacity: .85 }}>
-                      {student.department} · Semester {student.semester}
+                      {student.registerNumber && <>{student.registerNumber} · </>}{student.department} · Semester {student.semester}
                     </div>
                     {student.email && (
                       <div style={{ fontSize: 12, opacity: .7, marginTop: 2 }}>{student.email}</div>
                     )}
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 32, fontWeight: 800 }}>{avgMarks}</div>
-                    <div style={{ fontSize: 11, opacity: .8 }}>Avg. Marks</div>
+                    <div style={{ fontSize: 32, fontWeight: 800 }}>{avgMarks}%</div>
+                    <div style={{ fontSize: 11, opacity: .8 }}>Average</div>
                     <span style={{
                       background: overallPass ? '#dcfce7' : '#fee2e2',
                       color: overallPass ? '#15803d' : '#b91c1c',
@@ -269,9 +303,9 @@ export default function Reports() {
                   <thead>
                     <tr>
                       <th>Subject</th>
-                      <th>Internal (50)</th>
-                      <th>External (50)</th>
-                      <th>Total (100)</th>
+                      <th>Internal</th>
+                      <th>External</th>
+                      <th>Total</th>
                       <th>%</th>
                       <th>Result</th>
                     </tr>
@@ -282,7 +316,7 @@ export default function Reports() {
                         <td style={{ fontWeight: 500 }}>{m.subjectName}</td>
                         <td>{m.internalMarks}</td>
                         <td>{m.externalMarks}</td>
-                        <td style={{ fontWeight: 600 }}>{m.totalMarks}</td>
+                        <td style={{ fontWeight: 600 }}>{m.totalMarks} / {m.maxMarks}</td>
                         <td style={{
                           fontWeight: 600,
                           color: m.percentage >= 70 ? 'var(--success)' : m.percentage >= 40 ? 'var(--warning)' : 'var(--danger)'
@@ -302,13 +336,13 @@ export default function Reports() {
               <div style={{
                 marginTop: 16, padding: '12px 16px',
                 background: 'var(--surface-2)', borderRadius: 8,
-                display: 'flex', gap: 24, fontSize: 13
+                display: 'flex', gap: '8px 24px', flexWrap: 'wrap', fontSize: 13
               }}>
                 <span>Subjects: <strong>{reportMarks.length}</strong></span>
                 <span>Passed: <strong style={{ color: 'var(--success)' }}>{passedCount}</strong></span>
                 <span>Failed: <strong style={{ color: 'var(--danger)' }}>{reportMarks.length - passedCount}</strong></span>
-                <span>Total: <strong>{totalMarks}</strong></span>
-                <span>Average: <strong>{avgMarks}</strong></span>
+                <span>Total: <strong>{totalMarks} / {totalMax}</strong></span>
+                <span>Average: <strong>{avgMarks}%</strong></span>
               </div>
             </div>
           )}
@@ -328,9 +362,9 @@ export default function Reports() {
       {tab === 'weak' && (
         <div>
           <div className="card mb-4">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <label className="form-label" style={{ marginBottom: 0, whiteSpace: 'nowrap' }}>
-                Threshold (marks):
+                Threshold (%):
               </label>
               <input
                 className="form-control"
@@ -341,7 +375,7 @@ export default function Reports() {
               />
               <button className="btn btn-primary btn-sm" onClick={refreshWeak}>Apply</button>
               <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                Students with average below this mark
+                Students whose average score is below this percentage
               </span>
             </div>
           </div>
@@ -351,7 +385,7 @@ export default function Reports() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={16} color="var(--danger)" />
                 <span className="card-title">
-                  Students Below {threshold} Marks ({weakStudents.length})
+                  Students Below {threshold}% ({weakStudents.length})
                 </span>
               </div>
               {weakStudents.length > 0 && (
@@ -373,7 +407,7 @@ export default function Reports() {
                       <th>Student</th>
                       <th>Department</th>
                       <th>Semester</th>
-                      <th>Avg Marks</th>
+                      <th>Average %</th>
                       <th>Status</th>
                     </tr>
                   </thead>

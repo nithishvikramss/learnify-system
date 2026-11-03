@@ -19,7 +19,9 @@ export default function MetricCard({
         {icon}
       </div>
       <div className="metric-info">
-        <div className="metric-value">{value}</div>
+        <div className={`metric-value${typeof value === 'string' && value.length > 10 ? ' metric-value-text' : ''}`} title={String(value)}>
+          {value}
+        </div>
         <div className="metric-label">{label}</div>
         {trend && (
           <div className="metric-trend" style={{ color: trendColor }}>{trend}</div>

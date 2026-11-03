@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsSummaryDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.dto</a> &gt; <span class="el_source">AnalyticsSummaryDTO.java</span></div><h1>AnalyticsSummaryDTO.java</h1><pre class="source lang-java linenums">package com.learnify.server.dto;
+
+import java.util.List;
+
+public class AnalyticsSummaryDTO {
+    private long totalStudents;
+    private long totalSubjects;
+    private double classAverage;
+    private double passPercentage;
+    private double failPercentage;
+    private long belowThresholdCount;
+    private String lowestSubject;
+    private String topPerformerName;
+    private double topPerformerScore;
+    private List&lt;SubjectAverageDTO&gt; subjectAverages;
+    private List&lt;TopStudentDTO&gt; topStudents;
+    private List&lt;String&gt; insights;
+
+<span class="fc" id="L19">    public AnalyticsSummaryDTO() {}</span>
+
+<span class="fc" id="L21">    public long getTotalStudents() { return totalStudents; }</span>
+<span class="fc" id="L22">    public void setTotalStudents(long totalStudents) { this.totalStudents = totalStudents; }</span>
+
+<span class="nc" id="L24">    public long getTotalSubjects() { return totalSubjects; }</span>
+<span class="fc" id="L25">    public void setTotalSubjects(long totalSubjects) { this.totalSubjects = totalSubjects; }</span>
+
+<span class="fc" id="L27">    public double getClassAverage() { return classAverage; }</span>
+<span class="fc" id="L28">    public void setClassAverage(double classAverage) { this.classAverage = classAverage; }</span>
+
+<span class="fc" id="L30">    public double getPassPercentage() { return passPercentage; }</span>
+<span class="fc" id="L31">    public void setPassPercentage(double passPercentage) { this.passPercentage = passPercentage; }</span>
+
+<span class="nc" id="L33">    public double getFailPercentage() { return failPercentage; }</span>
+<span class="fc" id="L34">    public void setFailPercentage(double failPercentage) { this.failPercentage = failPercentage; }</span>
+
+<span class="fc" id="L36">    public long getBelowThresholdCount() { return belowThresholdCount; }</span>
+<span class="fc" id="L37">    public void setBelowThresholdCount(long belowThresholdCount) { this.belowThresholdCount = belowThresholdCount; }</span>
+
+<span class="fc" id="L39">    public String getLowestSubject() { return lowestSubject; }</span>
+<span class="fc" id="L40">    public void setLowestSubject(String lowestSubject) { this.lowestSubject = lowestSubject; }</span>
+
+<span class="fc" id="L42">    public String getTopPerformerName() { return topPerformerName; }</span>
+<span class="fc" id="L43">    public void setTopPerformerName(String topPerformerName) { this.topPerformerName = topPerformerName; }</span>
+
+<span class="fc" id="L45">    public double getTopPerformerScore() { return topPerformerScore; }</span>
+<span class="fc" id="L46">    public void setTopPerformerScore(double topPerformerScore) { this.topPerformerScore = topPerformerScore; }</span>
+
+<span class="nc" id="L48">    public List&lt;SubjectAverageDTO&gt; getSubjectAverages() { return subjectAverages; }</span>
+<span class="fc" id="L49">    public void setSubjectAverages(List&lt;SubjectAverageDTO&gt; subjectAverages) { this.subjectAverages = subjectAverages; }</span>
+
+<span class="fc" id="L51">    public List&lt;TopStudentDTO&gt; getTopStudents() { return topStudents; }</span>
+<span class="fc" id="L52">    public void setTopStudents(List&lt;TopStudentDTO&gt; topStudents) { this.topStudents = topStudents; }</span>
+
+<span class="fc" id="L54">    public List&lt;String&gt; getInsights() { return insights; }</span>
+<span class="fc" id="L55">    public void setInsights(List&lt;String&gt; insights) { this.insights = insights; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

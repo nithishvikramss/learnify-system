@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.service</a> &gt; <span class="el_source">AnalyticsService.java</span></div><h1>AnalyticsService.java</h1><pre class="source lang-java linenums">package com.learnify.server.service;
+
+import com.learnify.server.dto.AnalyticsSummaryDTO;
+import com.learnify.server.dto.PassFailStatsDTO;
+import com.learnify.server.dto.SubjectAverageDTO;
+import com.learnify.server.dto.TopStudentDTO;
+import com.learnify.server.entity.Marks;
+import com.learnify.server.entity.Student;
+import com.learnify.server.entity.Subject;
+import com.learnify.server.repository.MarksRepository;
+import com.learnify.server.repository.StudentRepository;
+import com.learnify.server.repository.SubjectRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Service
+public class AnalyticsService {
+
+    private final MarksRepository marksRepository;
+    private final StudentRepository studentRepository;
+    private final SubjectRepository subjectRepository;
+
+    public AnalyticsService(MarksRepository marksRepository,
+                            StudentRepository studentRepository,
+<span class="fc" id="L28">                            SubjectRepository subjectRepository) {</span>
+<span class="fc" id="L29">        this.marksRepository = marksRepository;</span>
+<span class="fc" id="L30">        this.studentRepository = studentRepository;</span>
+<span class="fc" id="L31">        this.subjectRepository = subjectRepository;</span>
+<span class="fc" id="L32">    }</span>
+
+    // --- Average marks per subject ---
+    public List&lt;SubjectAverageDTO&gt; getAverageMarksPerSubject() {
+<span class="fc" id="L36">        List&lt;Marks&gt; allMarks = marksRepository.findAll();</span>
+<span class="fc" id="L37">        Map&lt;String, Subject&gt; subjectMap = subjectRepository.findAll().stream()</span>
+<span class="fc" id="L38">                .collect(Collectors.toMap(Subject::getId, Function.identity()));</span>
+
+<span class="fc" id="L40">        return allMarks.stream()</span>
+<span class="fc" id="L41">                .collect(Collectors.groupingBy(Marks::getSubjectId))</span>
+<span class="fc" id="L42">                .entrySet().stream()</span>
+<span class="fc" id="L43">                .map(entry -&gt; {</span>
+<span class="fc" id="L44">                    String subjectId = entry.getKey();</span>
+<span class="fc" id="L45">                    List&lt;Marks&gt; subjectMarks = entry.getValue();</span>
+<span class="fc" id="L46">                    double avg = subjectMarks.stream()</span>
+<span class="fc" id="L47">                            .mapToDouble(Marks::getPercentage)</span>
+<span class="fc" id="L48">                            .average()</span>
+<span class="fc" id="L49">                            .orElse(0.0);</span>
+<span class="fc" id="L50">                    Subject subject = subjectMap.get(subjectId);</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">                    String subjectName = subject != null ? subject.getName() : &quot;Unknown&quot;;</span>
+<span class="fc" id="L52">                    return new SubjectAverageDTO(subjectId, subjectName, round2(avg), subjectMarks.size());</span>
+                })
+<span class="fc" id="L54">                .sorted(Comparator.comparingDouble(SubjectAverageDTO::getAverageMarks).reversed())</span>
+<span class="fc" id="L55">                .collect(Collectors.toList());</span>
+    }
+
+    // --- Top N students by average marks ---
+    public List&lt;TopStudentDTO&gt; getTopStudents(int limit) {
+<span class="fc" id="L60">        List&lt;Marks&gt; allMarks = marksRepository.findAll();</span>
+<span class="fc" id="L61">        Map&lt;String, Student&gt; studentMap = studentRepository.findAll().stream()</span>
+<span class="fc" id="L62">                .collect(Collectors.toMap(Student::getId, Function.identity()));</span>
+
+<span class="fc" id="L64">        List&lt;Map.Entry&lt;String, Double&gt;&gt; ranked = allMarks.stream()</span>
+<span class="fc" id="L65">                .collect(Collectors.groupingBy(</span>
+                        Marks::getStudentId,
+<span class="fc" id="L67">                        Collectors.averagingDouble(Marks::getPercentage)</span>
+                ))
+<span class="fc" id="L69">                .entrySet().stream()</span>
+<span class="fc" id="L70">                .sorted(Map.Entry.&lt;String, Double&gt;comparingByValue().reversed())</span>
+<span class="fc" id="L71">                .limit(limit)</span>
+<span class="fc" id="L72">                .collect(Collectors.toList());</span>
+
+<span class="fc" id="L74">        List&lt;TopStudentDTO&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (int i = 0; i &lt; ranked.size(); i++) {</span>
+<span class="fc" id="L76">            Map.Entry&lt;String, Double&gt; entry = ranked.get(i);</span>
+<span class="fc" id="L77">            Student student = studentMap.get(entry.getKey());</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">            if (student != null) {</span>
+<span class="fc" id="L79">                result.add(new TopStudentDTO(</span>
+<span class="fc" id="L80">                        student.getId(),</span>
+<span class="fc" id="L81">                        student.getName(),</span>
+<span class="fc" id="L82">                        student.getDepartment(),</span>
+<span class="fc" id="L83">                        student.getSemester(),</span>
+<span class="fc" id="L84">                        entry.getValue(),</span>
+                        i + 1
+                ));
+            }
+        }
+<span class="fc" id="L89">        return result;</span>
+    }
+
+    // --- Pass/Fail stats (per unique student) ---
+    public PassFailStatsDTO getPassFailStats() {
+<span class="fc" id="L94">        List&lt;Marks&gt; allMarks = marksRepository.findAll();</span>
+
+        // A student passes only if they passed every subject they have marks for
+        // (same rule as the student report card).
+<span class="fc" id="L98">        Map&lt;String, Boolean&gt; passedAll = allMarks.stream()</span>
+<span class="fc" id="L99">                .collect(Collectors.groupingBy(</span>
+                        Marks::getStudentId,
+<span class="fc" id="L101">                        Collectors.reducing(true, Marks::isPassed, Boolean::logicalAnd)</span>
+                ));
+
+<span class="fc" id="L104">        long total = passedAll.size();</span>
+<span class="fc" id="L105">        long passed = passedAll.values().stream().filter(Boolean::booleanValue).count();</span>
+<span class="fc" id="L106">        long failed = total - passed;</span>
+
+<span class="fc" id="L108">        return new PassFailStatsDTO(total, passed, failed);</span>
+    }
+
+    // --- Class average (all marks) ---
+    public double getClassAverage() {
+<span class="fc" id="L113">        List&lt;Marks&gt; allMarks = marksRepository.findAll();</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (allMarks.isEmpty()) return 0.0;</span>
+<span class="fc" id="L115">        double avg = allMarks.stream()</span>
+<span class="fc" id="L116">                .mapToDouble(Marks::getPercentage)</span>
+<span class="fc" id="L117">                .average()</span>
+<span class="fc" id="L118">                .orElse(0.0);</span>
+<span class="fc" id="L119">        return round2(avg);</span>
+    }
+
+    private static double round2(double value) {
+<span class="fc" id="L123">        return Math.round(value * 100.0) / 100.0;</span>
+    }
+
+    // --- Students below threshold ---
+    public List&lt;TopStudentDTO&gt; getStudentsBelowThreshold(double threshold) {
+<span class="fc" id="L128">        List&lt;Marks&gt; allMarks = marksRepository.findAll();</span>
+<span class="fc" id="L129">        Map&lt;String, Student&gt; studentMap = studentRepository.findAll().stream()</span>
+<span class="fc" id="L130">                .collect(Collectors.toMap(Student::getId, Function.identity()));</span>
+
+<span class="fc" id="L132">        return allMarks.stream()</span>
+<span class="fc" id="L133">                .collect(Collectors.groupingBy(</span>
+                        Marks::getStudentId,
+<span class="fc" id="L135">                        Collectors.averagingDouble(Marks::getPercentage)</span>
+                ))
+<span class="fc" id="L137">                .entrySet().stream()</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                .filter(e -&gt; e.getValue() &lt; threshold)</span>
+<span class="fc" id="L139">                .sorted(Map.Entry.comparingByValue())</span>
+<span class="fc" id="L140">                .map(entry -&gt; {</span>
+<span class="fc" id="L141">                    Student student = studentMap.get(entry.getKey());</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">                    if (student == null) return null;</span>
+<span class="fc" id="L143">                    return new TopStudentDTO(</span>
+<span class="fc" id="L144">                            student.getId(),</span>
+<span class="fc" id="L145">                            student.getName(),</span>
+<span class="fc" id="L146">                            student.getDepartment(),</span>
+<span class="fc" id="L147">                            student.getSemester(),</span>
+<span class="fc" id="L148">                            entry.getValue(),</span>
+                            0
+                    );
+                })
+<span class="fc" id="L152">                .filter(Objects::nonNull)</span>
+<span class="fc" id="L153">                .collect(Collectors.toList());</span>
+    }
+
+    // --- Full analytics summary ---
+    public AnalyticsSummaryDTO getAnalyticsSummary() {
+<span class="fc" id="L158">        AnalyticsSummaryDTO summary = new AnalyticsSummaryDTO();</span>
+
+<span class="fc" id="L160">        long totalStudents = studentRepository.count();</span>
+<span class="fc" id="L161">        long totalSubjects = subjectRepository.count();</span>
+<span class="fc" id="L162">        summary.setTotalStudents(totalStudents);</span>
+<span class="fc" id="L163">        summary.setTotalSubjects(totalSubjects);</span>
+<span class="fc" id="L164">        summary.setClassAverage(getClassAverage());</span>
+
+<span class="fc" id="L166">        PassFailStatsDTO pf = getPassFailStats();</span>
+<span class="fc" id="L167">        summary.setPassPercentage(pf.getPassPercentage());</span>
+<span class="fc" id="L168">        summary.setFailPercentage(pf.getFailPercentage());</span>
+
+<span class="fc" id="L170">        List&lt;SubjectAverageDTO&gt; subjectAverages = getAverageMarksPerSubject();</span>
+<span class="fc" id="L171">        summary.setSubjectAverages(subjectAverages);</span>
+
+<span class="fc" id="L173">        List&lt;TopStudentDTO&gt; topStudents = getTopStudents(5);</span>
+<span class="fc" id="L174">        summary.setTopStudents(topStudents);</span>
+
+        // Students whose average is below the pass percentage
+<span class="fc" id="L177">        List&lt;TopStudentDTO&gt; belowThreshold = getStudentsBelowThreshold(Marks.PASS_PERCENTAGE);</span>
+<span class="fc" id="L178">        summary.setBelowThresholdCount(belowThreshold.size());</span>
+
+        // Lowest subject
+<span class="fc" id="L181">        subjectAverages.stream()</span>
+<span class="fc" id="L182">                .min(Comparator.comparingDouble(SubjectAverageDTO::getAverageMarks))</span>
+<span class="fc" id="L183">                .ifPresent(s -&gt; summary.setLowestSubject(s.getSubjectName()));</span>
+
+        // Top performer
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        if (!topStudents.isEmpty()) {</span>
+<span class="fc" id="L187">            TopStudentDTO top = topStudents.get(0);</span>
+<span class="fc" id="L188">            summary.setTopPerformerName(top.getStudentName());</span>
+<span class="fc" id="L189">            summary.setTopPerformerScore(top.getPercentage());</span>
+        }
+
+        // Insights
+<span class="fc" id="L193">        summary.setInsights(generateInsights(summary, subjectAverages, belowThreshold));</span>
+
+<span class="fc" id="L195">        return summary;</span>
+    }
+
+    private List&lt;String&gt; generateInsights(AnalyticsSummaryDTO summary,
+                                           List&lt;SubjectAverageDTO&gt; subjectAverages,
+                                           List&lt;TopStudentDTO&gt; belowThreshold) {
+<span class="fc" id="L201">        List&lt;String&gt; insights = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        if (!subjectAverages.isEmpty()) {</span>
+<span class="fc" id="L204">            SubjectAverageDTO lowest = subjectAverages.stream()</span>
+<span class="fc" id="L205">                    .min(Comparator.comparingDouble(SubjectAverageDTO::getAverageMarks))</span>
+<span class="fc" id="L206">                    .orElse(null);</span>
+<span class="fc" id="L207">            SubjectAverageDTO highest = subjectAverages.get(0);</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">            if (lowest != null) {</span>
+<span class="fc" id="L209">                insights.add(&quot;Average score in &quot; + lowest.getSubjectName() + &quot; is the lowest at &quot;</span>
+<span class="fc" id="L210">                        + lowest.getAverageMarks() + &quot;% — needs attention.&quot;);</span>
+            }
+<span class="fc" id="L212">            insights.add(&quot;Students perform best in &quot; + highest.getSubjectName()</span>
+<span class="fc" id="L213">                    + &quot; with an average of &quot; + highest.getAverageMarks() + &quot;%.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        if (!belowThreshold.isEmpty()) {</span>
+<span class="fc" id="L217">            insights.add(belowThreshold.size() + &quot; student(s) have an average below &quot;</span>
+                    + (int) Marks.PASS_PERCENTAGE + &quot;% — immediate intervention needed.&quot;);
+        }
+
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        if (summary.getTopPerformerName() != null) {</span>
+<span class="fc" id="L222">            insights.add(&quot;Top performer: &quot; + summary.getTopPerformerName()</span>
+<span class="fc" id="L223">                    + &quot; scored &quot; + summary.getTopPerformerScore() + &quot;%.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (summary.getClassAverage() &gt; 0) {</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">            String level = summary.getClassAverage() &gt;= 70 ? &quot;excellent&quot;</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">                    : summary.getClassAverage() &gt;= 50 ? &quot;average&quot; : &quot;below average&quot;;</span>
+<span class="fc" id="L229">            insights.add(&quot;Overall class performance is &quot; + level</span>
+<span class="fc" id="L230">                    + &quot; with a class average of &quot; + summary.getClassAverage() + &quot;%.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        if (summary.getPassPercentage() &gt; 0) {</span>
+<span class="fc" id="L234">            insights.add(summary.getPassPercentage() + &quot;% of students passed overall.&quot;);</span>
+        }
+
+<span class="fc" id="L237">        return insights;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

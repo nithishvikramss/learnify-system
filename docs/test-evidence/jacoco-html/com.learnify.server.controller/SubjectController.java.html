@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubjectController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.controller</a> &gt; <span class="el_source">SubjectController.java</span></div><h1>SubjectController.java</h1><pre class="source lang-java linenums">package com.learnify.server.controller;
+
+import com.learnify.server.entity.Subject;
+import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.service.SubjectService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping(&quot;/api/subjects&quot;)
+public class SubjectController {
+
+    private final SubjectService subjectService;
+
+<span class="fc" id="L20">    public SubjectController(SubjectService subjectService) {</span>
+<span class="fc" id="L21">        this.subjectService = subjectService;</span>
+<span class="fc" id="L22">    }</span>
+
+    @PostMapping
+    public ResponseEntity&lt;Subject&gt; addSubject(@Valid @RequestBody Subject subject) {
+<span class="nc" id="L26">        return ResponseEntity.status(HttpStatus.CREATED).body(subjectService.addSubject(subject));</span>
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Subject&gt;&gt; getAllSubjects() {
+<span class="nc" id="L31">        return ResponseEntity.ok(subjectService.getAllSubjects());</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Subject&gt; getSubjectById(@PathVariable String id) {
+<span class="nc" id="L36">        return subjectService.getSubjectById(id)</span>
+<span class="nc" id="L37">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L38">                .orElseThrow(() -&gt; new NotFoundException(&quot;Subject not found&quot;));</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Subject&gt; updateSubject(@PathVariable String id,
+                                                 @Valid @RequestBody Subject subject) {
+<span class="nc" id="L44">        return ResponseEntity.ok(subjectService.updateSubject(id, subject));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; deleteSubject(@PathVariable String id,
+                                                             @RequestParam(defaultValue = &quot;false&quot;) boolean cascade) {
+<span class="fc" id="L50">        subjectService.deleteSubject(id, cascade);</span>
+<span class="fc" id="L51">        return ResponseEntity.ok(Map.of(&quot;message&quot;, &quot;Subject deleted successfully&quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

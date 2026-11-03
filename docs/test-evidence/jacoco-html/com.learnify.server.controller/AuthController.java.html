@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.learnify.server.controller;
+
+import com.learnify.server.dto.LoginRequest;
+import com.learnify.server.dto.LoginResponse;
+import com.learnify.server.entity.User;
+import com.learnify.server.exception.ApiException;
+import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.repository.UserRepository;
+import com.learnify.server.security.JwtService;
+import com.learnify.server.security.LoginAttemptService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+
+@RestController
+@RequestMapping(&quot;/api/auth&quot;)
+public class AuthController {
+
+    /** Same message for unknown user and wrong password, so attackers cannot discover usernames. */
+    private static final String BAD_CREDENTIALS = &quot;Invalid username or password.&quot;;
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final LoginAttemptService loginAttempts;
+    /** Hash checked when the user does not exist, so both cases take similar time. */
+    private final String dummyHash;
+
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder,
+<span class="fc" id="L37">                          JwtService jwtService, LoginAttemptService loginAttempts) {</span>
+<span class="fc" id="L38">        this.userRepository = userRepository;</span>
+<span class="fc" id="L39">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L40">        this.jwtService = jwtService;</span>
+<span class="fc" id="L41">        this.loginAttempts = loginAttempts;</span>
+<span class="fc" id="L42">        this.dummyHash = passwordEncoder.encode(&quot;dummy-password-for-timing&quot;);</span>
+<span class="fc" id="L43">    }</span>
+
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;LoginResponse&gt; login(@Valid @RequestBody LoginRequest request) {
+<span class="fc" id="L47">        String username = request.username().trim().toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (loginAttempts.isLocked(username)) {</span>
+<span class="fc" id="L49">            throw new ApiException(HttpStatus.TOO_MANY_REQUESTS,</span>
+                    &quot;Too many failed attempts. Try again in 15 minutes.&quot;);
+        }
+
+<span class="fc" id="L53">        Optional&lt;User&gt; user = userRepository.findByUsername(username);</span>
+<span class="fc" id="L54">        boolean matches = passwordEncoder.matches(request.password(),</span>
+<span class="fc" id="L55">                user.map(User::getPasswordHash).orElse(dummyHash));</span>
+<span class="fc bfc" id="L56" title="All 4 branches covered.">        if (user.isEmpty() || !matches) {</span>
+<span class="fc" id="L57">            loginAttempts.recordFailure(username);</span>
+<span class="fc" id="L58">            throw new ApiException(HttpStatus.UNAUTHORIZED, BAD_CREDENTIALS);</span>
+        }
+
+<span class="fc" id="L61">        loginAttempts.recordSuccess(username);</span>
+<span class="fc" id="L62">        User u = user.get();</span>
+<span class="fc" id="L63">        String token = jwtService.generateToken(u);</span>
+<span class="fc" id="L64">        return ResponseEntity.ok(new LoginResponse(token, u.getUsername(), u.getFullName(),</span>
+<span class="fc" id="L65">                u.getRole().name(), jwtService.expiresAt(token)));</span>
+    }
+
+    /** Returns the logged-in user's profile (used by the frontend to confirm a session is still valid). */
+    @GetMapping(&quot;/me&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; me(Authentication authentication) {
+<span class="fc" id="L71">        User u = userRepository.findByUsername(authentication.getName())</span>
+<span class="pc" id="L72">                .orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+<span class="fc" id="L73">        return ResponseEntity.ok(Map.of(</span>
+<span class="fc" id="L74">                &quot;username&quot;, u.getUsername(),</span>
+<span class="fc" id="L75">                &quot;fullName&quot;, u.getFullName(),</span>
+<span class="fc" id="L76">                &quot;role&quot;, u.getRole().name()));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

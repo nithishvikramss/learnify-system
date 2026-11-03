@@ -1,0 +1,37 @@
+✔ FE-CSV-P-01 plain values are joined with commas and CRLF (2.8868ms)
+✔ FE-CSV-E-01 commas, quotes and newlines are quoted (0.473ms)
+✔ FE-CSV-N-01 spreadsheet formulas are neutralised (CSV injection) (0.3924ms)
+✔ FE-CSV-E-02 negative numbers, null and undefined are kept/blank (0.232ms)
+✔ FE-AUTH-P-01 saved session is returned while valid (4.7111ms)
+✔ FE-AUTH-N-01 expired session is cleared and treated as logged out (0.8012ms)
+✔ FE-AUTH-N-02 corrupted storage does not crash (0.61ms)
+✔ FE-AUTH-P-02 teacher is not admin; logout clears session (0.4569ms)
+✔ FE-STU-P-01 valid student has no errors (2.9245ms)
+✔ FE-STU-B-01 semester boundaries 1 and 8 accepted, 0 and 9 rejected (0.4806ms)
+✔ FE-STU-B-02 name 100 chars accepted, 101 rejected, blank rejected (0.2652ms)
+✔ FE-STU-B-03 register number length 3..20 letters/digits (0.268ms)
+✔ FE-STU-N-01 invalid email rejected, empty email allowed (0.3509ms)
+✔ FE-SUB-B-01 max marks boundaries 1 and 200 accepted, 0, 201 and NaN rejected (0.5061ms)
+✔ FE-SUB-B-02 subject code 2..15 chars (0.2417ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 404.1719
+ℹ start of coverage report
+ℹ ----------------------------------------------------------------
+ℹ file            | line % | branch % | funcs % | uncovered lines
+ℹ ----------------------------------------------------------------
+ℹ src             |        |          |         | 
+ℹ  auth           |        |          |         | 
+ℹ   session.ts    | 100.00 |   100.00 |  100.00 | 
+ℹ  utils          |        |          |         | 
+ℹ   csv.ts        |  62.50 |   100.00 |   75.00 | 16-24
+ℹ   validation.ts | 100.00 |    90.00 |  100.00 | 
+ℹ ----------------------------------------------------------------
+ℹ all files       |  90.91 |    95.24 |   90.91 | 
+ℹ ----------------------------------------------------------------
+ℹ end of coverage report

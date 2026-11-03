@@ -1,0 +1,255 @@
+
+Running 7 tests using 1 worker
+
+  x  1 tests\e2e\student-workflow.spec.ts:17:1 › UI-01 protected page redirects to login when not signed in (5.8s)
+  x  2 tests\e2e\student-workflow.spec.ts:24:1 › UI-02 wrong password shows an error and stays on login (30.2s)
+  x  3 tests\e2e\student-workflow.spec.ts:31:1 › UI-03 admin logs in, sees dashboard, adds a student with validation (30.2s)
+  x  4 tests\e2e\student-workflow.spec.ts:63:1 › UI-04 duplicate register number shows the server message (30.2s)
+  x  5 tests\e2e\student-workflow.spec.ts:75:1 › UI-05 teacher sees students read-only (no add/edit/delete) (30.2s)
+  x  6 tests\e2e\student-workflow.spec.ts:86:1 › UI-06 logout returns to login and protects pages again (30.2s)
+  x  7 tests\e2e\student-workflow.spec.ts:95:1 › UI-07 mobile layout: menu button opens the sidebar (30.2s)
+
+
+  1) tests\e2e\student-workflow.spec.ts:17:1 › UI-01 protected page redirects to login when not signed in 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/login$/
+    Received string:  "http://localhost:5173/students"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 5000ms
+        13 × locator resolved to <html lang="en">…</html>
+           - unexpected value "http://localhost:5173/students"
+
+
+      17 | test('UI-01 protected page redirects to login when not signed in', async ({ page }) => {
+      18 |   await page.goto('/students');
+    > 19 |   await expect(page).toHaveURL(/\/login$/);
+         |                      ^
+      20 |   await expect(page.getByRole('heading', { name: 'Learnify Analytics' })).toBeVisible();
+      21 |   await page.screenshot({ path: `${SHOTS}/UI-01-login-redirect.png` });
+      22 | });
+        at E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:19:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-01-pro-f45ae-to-login-when-not-signed-in\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\docs\test-evidence\playwright-results\student-workflow-UI-01-pro-f45ae-to-login-when-not-signed-in\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-01-pro-f45ae-to-login-when-not-signed-in\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\docs\test-evidence\playwright-results\student-workflow-UI-01-pro-f45ae-to-login-when-not-signed-in\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\e2e\student-workflow.spec.ts:24:1 › UI-02 wrong password shows an error and stays on login 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByPlaceholder('Enter username')
+
+
+       6 | async function login(page: Page, username: string, password: string) {
+       7 |   await page.goto('/login');
+    >  8 |   await page.getByPlaceholder('Enter username').fill(username);
+         |                                                 ^
+       9 |   await page.getByPlaceholder('Enter password').fill(password);
+      10 |   await page.getByRole('button', { name: 'Sign In' }).click();
+      11 | }
+        at login (E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:8:49)
+        at E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:25:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-02-wro-a332a-an-error-and-stays-on-login\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\docs\test-evidence\playwright-results\student-workflow-UI-02-wro-a332a-an-error-and-stays-on-login\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-02-wro-a332a-an-error-and-stays-on-login\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\docs\test-evidence\playwright-results\student-workflow-UI-02-wro-a332a-an-error-and-stays-on-login\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests\e2e\student-workflow.spec.ts:31:1 › UI-03 admin logs in, sees dashboard, adds a student with validation 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByPlaceholder('Enter username')
+
+
+       6 | async function login(page: Page, username: string, password: string) {
+       7 |   await page.goto('/login');
+    >  8 |   await page.getByPlaceholder('Enter username').fill(username);
+         |                                                 ^
+       9 |   await page.getByPlaceholder('Enter password').fill(password);
+      10 |   await page.getByRole('button', { name: 'Sign In' }).click();
+      11 | }
+        at login (E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:8:49)
+        at E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:32:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-03-adm-32c18-s-a-student-with-validation\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\docs\test-evidence\playwright-results\student-workflow-UI-03-adm-32c18-s-a-student-with-validation\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-03-adm-32c18-s-a-student-with-validation\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\docs\test-evidence\playwright-results\student-workflow-UI-03-adm-32c18-s-a-student-with-validation\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests\e2e\student-workflow.spec.ts:63:1 › UI-04 duplicate register number shows the server message 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByPlaceholder('Enter username')
+
+
+       6 | async function login(page: Page, username: string, password: string) {
+       7 |   await page.goto('/login');
+    >  8 |   await page.getByPlaceholder('Enter username').fill(username);
+         |                                                 ^
+       9 |   await page.getByPlaceholder('Enter password').fill(password);
+      10 |   await page.getByRole('button', { name: 'Sign In' }).click();
+      11 | }
+        at login (E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:8:49)
+        at E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:64:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-04-dup-d6281-er-shows-the-server-message\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\docs\test-evidence\playwright-results\student-workflow-UI-04-dup-d6281-er-shows-the-server-message\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-04-dup-d6281-er-shows-the-server-message\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\docs\test-evidence\playwright-results\student-workflow-UI-04-dup-d6281-er-shows-the-server-message\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests\e2e\student-workflow.spec.ts:75:1 › UI-05 teacher sees students read-only (no add/edit/delete) 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByPlaceholder('Enter username')
+
+
+       6 | async function login(page: Page, username: string, password: string) {
+       7 |   await page.goto('/login');
+    >  8 |   await page.getByPlaceholder('Enter username').fill(username);
+         |                                                 ^
+       9 |   await page.getByPlaceholder('Enter password').fill(password);
+      10 |   await page.getByRole('button', { name: 'Sign In' }).click();
+      11 | }
+        at login (E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:8:49)
+        at E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:76:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-05-tea-b8a5e-ad-only-no-add-edit-delete-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\docs\test-evidence\playwright-results\student-workflow-UI-05-tea-b8a5e-ad-only-no-add-edit-delete-\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-05-tea-b8a5e-ad-only-no-add-edit-delete-\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\docs\test-evidence\playwright-results\student-workflow-UI-05-tea-b8a5e-ad-only-no-add-edit-delete-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests\e2e\student-workflow.spec.ts:86:1 › UI-06 logout returns to login and protects pages again 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByPlaceholder('Enter username')
+
+
+       6 | async function login(page: Page, username: string, password: string) {
+       7 |   await page.goto('/login');
+    >  8 |   await page.getByPlaceholder('Enter username').fill(username);
+         |                                                 ^
+       9 |   await page.getByPlaceholder('Enter password').fill(password);
+      10 |   await page.getByRole('button', { name: 'Sign In' }).click();
+      11 | }
+        at login (E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:8:49)
+        at E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:87:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-06-log-9fc82-in-and-protects-pages-again\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\docs\test-evidence\playwright-results\student-workflow-UI-06-log-9fc82-in-and-protects-pages-again\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-06-log-9fc82-in-and-protects-pages-again\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\docs\test-evidence\playwright-results\student-workflow-UI-06-log-9fc82-in-and-protects-pages-again\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests\e2e\student-workflow.spec.ts:95:1 › UI-07 mobile layout: menu button opens the sidebar ──
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByPlaceholder('Enter username')
+
+
+       6 | async function login(page: Page, username: string, password: string) {
+       7 |   await page.goto('/login');
+    >  8 |   await page.getByPlaceholder('Enter username').fill(username);
+         |                                                 ^
+       9 |   await page.getByPlaceholder('Enter password').fill(password);
+      10 |   await page.getByRole('button', { name: 'Sign In' }).click();
+      11 | }
+        at login (E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:8:49)
+        at E:\learnify-system\client\tests\e2e\student-workflow.spec.ts:97:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-07-mob-ce02d-nu-button-opens-the-sidebar\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\docs\test-evidence\playwright-results\student-workflow-UI-07-mob-ce02d-nu-button-opens-the-sidebar\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\docs\test-evidence\playwright-results\student-workflow-UI-07-mob-ce02d-nu-button-opens-the-sidebar\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\docs\test-evidence\playwright-results\student-workflow-UI-07-mob-ce02d-nu-button-opens-the-sidebar\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests\e2e\student-workflow.spec.ts:17:1 › UI-01 protected page redirects to login when not signed in 
+    tests\e2e\student-workflow.spec.ts:24:1 › UI-02 wrong password shows an error and stays on login 
+    tests\e2e\student-workflow.spec.ts:31:1 › UI-03 admin logs in, sees dashboard, adds a student with validation 
+    tests\e2e\student-workflow.spec.ts:63:1 › UI-04 duplicate register number shows the server message 
+    tests\e2e\student-workflow.spec.ts:75:1 › UI-05 teacher sees students read-only (no add/edit/delete) 
+    tests\e2e\student-workflow.spec.ts:86:1 › UI-06 logout returns to login and protects pages again 
+    tests\e2e\student-workflow.spec.ts:95:1 › UI-07 mobile layout: menu button opens the sidebar ───

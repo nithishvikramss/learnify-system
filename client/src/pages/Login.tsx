@@ -1,37 +1,40 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GraduationCap, Eye, EyeOff, Lock, User } from 'lucide-react';
-
-const DEMO_USERS = [
-  { username: 'admin', password: 'admin123', role: 'Administrator' },
-  { username: 'teacher', password: 'teacher123', role: 'Teacher' },
-];
+import { login, getErrorMessage } from '../api/api';
+import { getSession, saveSession } from '../auth/session';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [params] = useSearchParams();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/dashboard';
+
+  if (getSession()) return <Navigate to={from} replace />;
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!username.trim() || !password) {
+      setError('Enter your username and password.');
+      return;
+    }
     setError('');
     setLoading(true);
-
-    setTimeout(() => {
-      const match = DEMO_USERS.find(
-        u => u.username === username && u.password === password
-      );
-      if (match) {
-        localStorage.setItem('auth', JSON.stringify({ username: match.username, role: match.role }));
-        navigate('/dashboard');
-      } else {
-        setError('Invalid credentials. Try admin/admin123 or teacher/teacher123');
-      }
+    try {
+      saveSession(await login(username.trim(), password));
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(getErrorMessage(err, 'Login failed. Please try again.'));
+      setPassword('');
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
   return (
@@ -50,6 +53,10 @@ export default function Login() {
           <p>Student Performance Analytics System</p>
         </div>
 
+        {params.get('expired') && !error && (
+          <div className="alert alert-info">Your session has expired. Please sign in again.</div>
+        )}
+
         {error && (
           <div className="alert alert-error">
             <Lock size={14} />
@@ -57,7 +64,7 @@ export default function Login() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label className="form-label">Username</label>
             <div style={{ position: 'relative' }}>
@@ -71,9 +78,11 @@ export default function Login() {
                 className="form-control"
                 style={{ paddingLeft: 32 }}
                 placeholder="Enter username"
+                autoComplete="username"
+                autoFocus
+                maxLength={50}
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                required
               />
             </div>
           </div>
@@ -92,12 +101,14 @@ export default function Login() {
                 style={{ paddingLeft: 32, paddingRight: 36 }}
                 type={showPass ? 'text' : 'password'}
                 placeholder="Enter password"
+                autoComplete="current-password"
+                maxLength={100}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                required
               />
               <button
                 type="button"
+                aria-label={showPass ? 'Hide password' : 'Show password'}
                 onClick={() => setShowPass(s => !s)}
                 style={{
                   position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
@@ -122,16 +133,9 @@ export default function Login() {
           </button>
         </form>
 
-        <div style={{
-          marginTop: 20, padding: 12,
-          background: 'var(--surface-2)', borderRadius: 8, fontSize: 12, color: 'var(--text-muted)'
-        }}>
-          <strong style={{ color: 'var(--text)' }}>Demo Credentials:</strong>
-          <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <span>Admin: admin / admin123</span>
-            <span>Teacher: teacher / teacher123</span>
-          </div>
-        </div>
+        <p className="login-footnote">
+          Accounts are created by the administrator. Contact them if you cannot sign in.
+        </p>
       </div>
     </div>
   );

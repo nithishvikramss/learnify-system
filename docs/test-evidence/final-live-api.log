@@ -1,0 +1,25 @@
+PASS No token -> 401
+PASS Wrong password -> 401 with generic message
+PASS Admin login -> 200 + token
+PASS Teacher login -> 200 + token
+PASS Password hashes stored, not plain text
+PASS Create student -> 201
+PASS Student saved in MongoDB (normalised reg no + email)
+PASS Duplicate register number -> 409
+PASS Invalid student -> 400 with field errors
+PASS Teacher cannot create student -> 403
+PASS Read student by id (teacher) -> 200
+PASS Search by register number finds it
+PASS Update student -> 200 and changed in MongoDB
+PASS Teacher enters marks -> 201
+PASS Re-entering marks updates, no duplicate (B3)
+PASS Marks above subject max -> 400
+PASS Report card data -> registerNumber and percentage
+PASS Dashboard counts match MongoDB
+PASS Teacher cannot delete student -> 403
+PASS Delete student -> 200
+PASS Student and their marks removed from MongoDB
+PASS Total students back to the original count
+PASS Deleted student -> 404
+
+23/23 checks passed

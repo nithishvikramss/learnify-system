@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MarksService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.service</a> &gt; <span class="el_source">MarksService.java</span></div><h1>MarksService.java</h1><pre class="source lang-java linenums">package com.learnify.server.service;
+
+import com.learnify.server.dto.MarksDetailDTO;
+import com.learnify.server.dto.MarksUpdateRequest;
+import com.learnify.server.entity.Marks;
+import com.learnify.server.entity.Student;
+import com.learnify.server.entity.Subject;
+import com.learnify.server.exception.BadRequestException;
+import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.repository.MarksRepository;
+import com.learnify.server.repository.StudentRepository;
+import com.learnify.server.repository.SubjectRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Service
+public class MarksService {
+
+    private final MarksRepository marksRepository;
+    private final StudentRepository studentRepository;
+    private final SubjectRepository subjectRepository;
+
+    public MarksService(MarksRepository marksRepository,
+                        StudentRepository studentRepository,
+<span class="fc" id="L29">                        SubjectRepository subjectRepository) {</span>
+<span class="fc" id="L30">        this.marksRepository = marksRepository;</span>
+<span class="fc" id="L31">        this.studentRepository = studentRepository;</span>
+<span class="fc" id="L32">        this.subjectRepository = subjectRepository;</span>
+<span class="fc" id="L33">    }</span>
+
+    /**
+     * Saves marks for a student-subject pair, updating the existing record if there is one.
+     * (Previously used Optional.orElse(save(...)), which always inserted a new record.)
+     */
+    public Marks addOrUpdateMarks(Marks marks) {
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (!studentRepository.existsById(marks.getStudentId())) {</span>
+<span class="fc" id="L41">            throw new NotFoundException(&quot;Student not found&quot;);</span>
+        }
+<span class="fc" id="L43">        Subject subject = subjectRepository.findById(marks.getSubjectId())</span>
+<span class="fc" id="L44">                .orElseThrow(() -&gt; new NotFoundException(&quot;Subject not found&quot;));</span>
+<span class="fc" id="L45">        checkWithinMaxMarks(marks.getInternalMarks(), marks.getExternalMarks(), subject);</span>
+
+<span class="fc" id="L47">        List&lt;Marks&gt; existing = marksRepository.findAllByStudentIdAndSubjectId(</span>
+<span class="fc" id="L48">                marks.getStudentId(), marks.getSubjectId());</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        Marks target = existing.isEmpty() ? new Marks() : existing.get(0);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (existing.size() &gt; 1) {</span>
+            // Clean up duplicates created by the old bug
+<span class="fc" id="L52">            marksRepository.deleteAll(existing.subList(1, existing.size()));</span>
+        }
+
+<span class="fc" id="L55">        target.setStudentId(marks.getStudentId());</span>
+<span class="fc" id="L56">        target.setSubjectId(marks.getSubjectId());</span>
+<span class="fc" id="L57">        target.setInternalMarks(marks.getInternalMarks());</span>
+<span class="fc" id="L58">        target.setExternalMarks(marks.getExternalMarks());</span>
+<span class="fc" id="L59">        target.setMaxMarks(subject.getMaxMarks());</span>
+<span class="fc" id="L60">        return marksRepository.save(target);</span>
+    }
+
+    public Marks updateMarks(String id, MarksUpdateRequest request) {
+<span class="fc" id="L64">        Marks marks = marksRepository.findById(id)</span>
+<span class="pc" id="L65">                .orElseThrow(() -&gt; new NotFoundException(&quot;Marks record not found&quot;));</span>
+<span class="fc" id="L66">        Subject subject = subjectRepository.findById(marks.getSubjectId())</span>
+<span class="pc" id="L67">                .orElseThrow(() -&gt; new NotFoundException(&quot;Subject not found&quot;));</span>
+<span class="nc" id="L68">        checkWithinMaxMarks(request.internalMarks(), request.externalMarks(), subject);</span>
+
+<span class="nc" id="L70">        marks.setInternalMarks(request.internalMarks());</span>
+<span class="nc" id="L71">        marks.setExternalMarks(request.externalMarks());</span>
+<span class="nc" id="L72">        marks.setMaxMarks(subject.getMaxMarks());</span>
+<span class="nc" id="L73">        return marksRepository.save(marks);</span>
+    }
+
+    public void deleteMarks(String id) {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (!marksRepository.existsById(id)) {</span>
+<span class="fc" id="L78">            throw new NotFoundException(&quot;Marks record not found&quot;);</span>
+        }
+<span class="nc" id="L80">        marksRepository.deleteById(id);</span>
+<span class="nc" id="L81">    }</span>
+
+    private void checkWithinMaxMarks(double internal, double external, Subject subject) {
+<span class="fc" id="L84">        double total = internal + external;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (total &gt; subject.getMaxMarks()) {</span>
+<span class="fc" id="L86">            throw new BadRequestException(&quot;Total marks (&quot; + formatMarks(total) + &quot;) cannot exceed the maximum of &quot;</span>
+<span class="fc" id="L87">                    + subject.getMaxMarks() + &quot; for &quot; + subject.getName() + &quot;.&quot;);</span>
+        }
+<span class="fc" id="L89">    }</span>
+
+    private static String formatMarks(double value) {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        return value == Math.floor(value) ? String.valueOf((long) value) : String.valueOf(value);</span>
+    }
+
+    public List&lt;Marks&gt; getAllMarks() {
+<span class="nc" id="L96">        return marksRepository.findAll();</span>
+    }
+
+    public List&lt;Marks&gt; getMarksByStudent(String studentId) {
+<span class="nc" id="L100">        return marksRepository.findByStudentId(studentId);</span>
+    }
+
+    public List&lt;Marks&gt; getMarksBySubject(String subjectId) {
+<span class="nc" id="L104">        return marksRepository.findBySubjectId(subjectId);</span>
+    }
+
+    public List&lt;MarksDetailDTO&gt; getAllMarksWithDetails() {
+<span class="fc" id="L108">        List&lt;Marks&gt; allMarks = marksRepository.findAll();</span>
+<span class="fc" id="L109">        Map&lt;String, Student&gt; studentMap = studentRepository.findAll().stream()</span>
+<span class="fc" id="L110">                .collect(Collectors.toMap(Student::getId, Function.identity()));</span>
+<span class="fc" id="L111">        Map&lt;String, Subject&gt; subjectMap = subjectRepository.findAll().stream()</span>
+<span class="fc" id="L112">                .collect(Collectors.toMap(Subject::getId, Function.identity()));</span>
+
+<span class="fc" id="L114">        return allMarks.stream()</span>
+<span class="fc" id="L115">                .map(m -&gt; buildDetail(m, studentMap, subjectMap))</span>
+<span class="fc" id="L116">                .collect(Collectors.toList());</span>
+    }
+
+    public List&lt;MarksDetailDTO&gt; getMarksByStudentWithDetails(String studentId) {
+<span class="nc" id="L120">        List&lt;Marks&gt; marks = marksRepository.findByStudentId(studentId);</span>
+<span class="nc" id="L121">        Map&lt;String, Student&gt; studentMap = studentRepository.findAll().stream()</span>
+<span class="nc" id="L122">                .collect(Collectors.toMap(Student::getId, Function.identity()));</span>
+<span class="nc" id="L123">        Map&lt;String, Subject&gt; subjectMap = subjectRepository.findAll().stream()</span>
+<span class="nc" id="L124">                .collect(Collectors.toMap(Subject::getId, Function.identity()));</span>
+
+<span class="nc" id="L126">        return marks.stream()</span>
+<span class="nc" id="L127">                .map(m -&gt; buildDetail(m, studentMap, subjectMap))</span>
+<span class="nc" id="L128">                .collect(Collectors.toList());</span>
+    }
+
+    private MarksDetailDTO buildDetail(Marks m,
+                                       Map&lt;String, Student&gt; studentMap,
+                                       Map&lt;String, Subject&gt; subjectMap) {
+<span class="fc" id="L134">        MarksDetailDTO dto = new MarksDetailDTO();</span>
+<span class="fc" id="L135">        dto.setMarksId(m.getId());</span>
+<span class="fc" id="L136">        dto.setStudentId(m.getStudentId());</span>
+<span class="fc" id="L137">        dto.setSubjectId(m.getSubjectId());</span>
+<span class="fc" id="L138">        dto.setInternalMarks(m.getInternalMarks());</span>
+<span class="fc" id="L139">        dto.setExternalMarks(m.getExternalMarks());</span>
+<span class="fc" id="L140">        dto.setTotalMarks(m.getTotalMarks());</span>
+<span class="fc" id="L141">        dto.setMaxMarks(m.effectiveMaxMarks());</span>
+<span class="fc" id="L142">        dto.setPassed(m.isPassed());</span>
+<span class="fc" id="L143">        dto.setPercentage(Math.round(m.getPercentage() * 100.0) / 100.0);</span>
+
+<span class="fc" id="L145">        Student student = studentMap.get(m.getStudentId());</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (student != null) {</span>
+<span class="fc" id="L147">            dto.setStudentName(student.getName());</span>
+<span class="fc" id="L148">            dto.setRegisterNumber(student.getRegisterNumber());</span>
+<span class="fc" id="L149">            dto.setDepartment(student.getDepartment());</span>
+<span class="fc" id="L150">            dto.setSemester(student.getSemester());</span>
+        }
+
+<span class="fc" id="L153">        Subject subject = subjectMap.get(m.getSubjectId());</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        if (subject != null) {</span>
+<span class="fc" id="L155">            dto.setSubjectName(subject.getName());</span>
+        }
+
+<span class="fc" id="L158">        return dto;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

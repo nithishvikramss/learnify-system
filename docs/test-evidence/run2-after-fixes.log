@@ -1,0 +1,368 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.learnify:server >-------------------------
+[INFO] Building server 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ server ---
+[INFO] Deleting E:\learnify-system\server\target
+[INFO] 
+[INFO] --- jacoco:0.8.16:prepare-agent (prepare-agent) @ server ---
+[INFO] argLine set to "-javaagent:C:\\Users\\NITHISH VIKRAM SS\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.16\\org.jacoco.agent-0.8.16-runtime.jar=destfile=E:\\learnify-system\\server\\target\\jacoco.exec"
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ server ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ server ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 39 source files with javac [debug parameters release 17] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ server ---
+[INFO] skip non existing resourceDirectory E:\learnify-system\server\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ server ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 19 source files with javac [debug parameters release 17] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ server ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.learnify.server.config.DemoDataSeederTest
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\NITHISH VIKRAM SS\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+12:07:43.414 [main] INFO com.learnify.server.config.DemoDataSeeder -- Demo data loaded: 5 subjects, 20 students, 100 marks records.
+12:07:43.599 [main] INFO com.learnify.server.config.DemoDataSeeder -- Demo data skipped: database already contains students or subjects.
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.011 s -- in com.learnify.server.config.DemoDataSeederTest
+[INFO] Running com.learnify.server.config.UserSeederTest
+12:07:43.791 [main] WARN com.learnify.server.config.UserSeeder -- Skipping creation of ADMIN account 'admin': set APP_ADMIN_PASSWORD (at least 8 characters) in server/.env
+12:07:43.792 [main] WARN com.learnify.server.config.UserSeeder -- Skipping creation of TEACHER account 'teacher': set APP_TEACHER_PASSWORD (at least 8 characters) in server/.env
+12:07:43.887 [main] INFO com.learnify.server.config.UserSeeder -- Created ADMIN account 'admin'
+12:07:43.957 [main] INFO com.learnify.server.config.UserSeeder -- Created TEACHER account 'teacher'
+12:07:44.107 [main] INFO com.learnify.server.config.UserSeeder -- Created ADMIN account 'admin'
+12:07:44.108 [main] WARN com.learnify.server.config.UserSeeder -- Skipping creation of TEACHER account 'teacher': set APP_TEACHER_PASSWORD (at least 8 characters) in server/.env
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.496 s -- in com.learnify.server.config.UserSeederTest
+[INFO] Running com.learnify.server.controller.AnalyticsControllerTest
+12:07:44.255 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.learnify.server.controller.AnalyticsControllerTest]: AnalyticsControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:07:44.502 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.AnalyticsControllerTest
+12:07:44.506 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.learnify.server.controller.AnalyticsControllerTest]: AnalyticsControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:07:44.523 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.AnalyticsControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:45.144+05:30  INFO 5728 --- [server] [           main] c.l.s.c.AnalyticsControllerTest          : Starting AnalyticsControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:45.147+05:30  INFO 5728 --- [server] [           main] c.l.s.c.AnalyticsControllerTest          : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:46.820+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:47.564+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:47.564+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:47.567+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-11-03T12:07:47.608+05:30  INFO 5728 --- [server] [           main] c.l.s.c.AnalyticsControllerTest          : Started AnalyticsControllerTest in 2.989 seconds (process running for 7.366)
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.423 s -- in com.learnify.server.controller.AnalyticsControllerTest
+[INFO] Running com.learnify.server.controller.AuthControllerTest
+2026-11-03T12:07:48.557+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.controller.AuthControllerTest]: AuthControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:48.570+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.AuthControllerTest
+2026-11-03T12:07:48.570+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.controller.AuthControllerTest]: AuthControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:48.581+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.AuthControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:48.634+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:48.634+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:49.001+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:49.068+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:49.068+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:49.069+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:49.082+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.493 seconds (process running for 8.84)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:49.317+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:49.318+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:49.584+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:49.647+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:49.647+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:49.649+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-03T12:07:49.656+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.362 seconds (process running for 9.414)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:49.766+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:49.766+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:50.018+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:50.066+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:50.066+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:50.067+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:50.073+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.326 seconds (process running for 9.832)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:50.282+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:50.282+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:50.515+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:50.573+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:50.573+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:50.574+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:50.579+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.322 seconds (process running for 10.337)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:50.698+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:50.699+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:50.961+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:50.998+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:50.999+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:51.000+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:51.006+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.337 seconds (process running for 10.764)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:51.114+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:51.115+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:51.332+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:51.366+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:51.366+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:51.367+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:51.371+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.273 seconds (process running for 11.129)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:51.633+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:51.633+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:51.840+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:51.870+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:51.870+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:51.871+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:51.876+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.259 seconds (process running for 11.634)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:51.994+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:51.995+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:52.199+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:52.230+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:52.230+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:52.231+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:52.234+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.262 seconds (process running for 11.993)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:52.708+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Starting AuthControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:52.708+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:52.948+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:52.995+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:52.996+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:52.997+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:53.003+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.AuthControllerTest      : Started AuthControllerTest in 0.31 seconds (process running for 12.761)
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.626 s -- in com.learnify.server.controller.AuthControllerTest
+[INFO] Running com.learnify.server.controller.MarksControllerTest
+2026-11-03T12:07:53.189+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.controller.MarksControllerTest]: MarksControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:53.197+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.MarksControllerTest
+2026-11-03T12:07:53.197+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.controller.MarksControllerTest]: MarksControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:53.202+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.MarksControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:53.226+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.MarksControllerTest     : Starting MarksControllerTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:53.226+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.MarksControllerTest     : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:53.435+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:53.473+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:53.473+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:53.474+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:53.477+05:30  INFO 5728 --- [server] [           main] c.l.s.controller.MarksControllerTest     : Started MarksControllerTest in 0.271 seconds (process running for 13.236)
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.398 s -- in com.learnify.server.controller.MarksControllerTest
+[INFO] Running com.learnify.server.controller.StudentControllerCrudTest
+2026-11-03T12:07:53.587+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.controller.StudentControllerCrudTest]: StudentControllerCrudTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:53.593+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.StudentControllerCrudTest
+2026-11-03T12:07:53.593+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.controller.StudentControllerCrudTest]: StudentControllerCrudTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:53.598+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.StudentControllerCrudTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:53.615+05:30  INFO 5728 --- [server] [           main] c.l.s.c.StudentControllerCrudTest        : Starting StudentControllerCrudTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:53.616+05:30  INFO 5728 --- [server] [           main] c.l.s.c.StudentControllerCrudTest        : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:53.830+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:53.870+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:53.870+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:53.871+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-03T12:07:53.876+05:30  INFO 5728 --- [server] [           main] c.l.s.c.StudentControllerCrudTest        : Started StudentControllerCrudTest in 0.275 seconds (process running for 13.635)
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.455 s -- in com.learnify.server.controller.StudentControllerCrudTest
+[INFO] Running com.learnify.server.controller.StudentControllerTest
+2026-11-03T12:07:54.044+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.controller.StudentControllerTest]: StudentControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:54.048+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.StudentControllerTest
+2026-11-03T12:07:54.048+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.controller.StudentControllerTest]: StudentControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:54.053+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.controller.StudentControllerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.093 s -- in com.learnify.server.controller.StudentControllerTest
+[INFO] Running com.learnify.server.entity.StudentValidationTest
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.096 s -- in com.learnify.server.entity.StudentValidationTest
+[INFO] Running com.learnify.server.security.JwtServiceTest
+2026-11-03T12:07:54.240+05:30  WARN 5728 --- [server] [           main] c.learnify.server.security.JwtService    : JWT_SECRET is missing or shorter than 32 bytes; using a random key for this run. Users will need to log in again after every restart.
+2026-11-03T12:07:54.244+05:30  WARN 5728 --- [server] [           main] c.learnify.server.security.JwtService    : JWT_SECRET is missing or shorter than 32 bytes; using a random key for this run. Users will need to log in again after every restart.
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in com.learnify.server.security.JwtServiceTest
+[INFO] Running com.learnify.server.security.LoginAttemptServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in com.learnify.server.security.LoginAttemptServiceTest
+[INFO] Running com.learnify.server.security.SecurityRulesTest
+2026-11-03T12:07:54.280+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.security.SecurityRulesTest]: SecurityRulesTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:54.296+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.security.SecurityRulesTest
+2026-11-03T12:07:54.296+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.security.SecurityRulesTest]: SecurityRulesTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:54.301+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.security.SecurityRulesTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:54.321+05:30  INFO 5728 --- [server] [           main] c.l.server.security.SecurityRulesTest    : Starting SecurityRulesTest using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:54.322+05:30  INFO 5728 --- [server] [           main] c.l.server.security.SecurityRulesTest    : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:54.507+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:54.541+05:30  INFO 5728 --- [server] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-03T12:07:54.541+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-03T12:07:54.541+05:30  INFO 5728 --- [server] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-03T12:07:54.545+05:30  INFO 5728 --- [server] [           main] c.l.server.security.SecurityRulesTest    : Started SecurityRulesTest in 0.241 seconds (process running for 14.303)
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.328 s -- in com.learnify.server.security.SecurityRulesTest
+[INFO] Running com.learnify.server.ServerApplicationTests
+2026-11-03T12:07:54.609+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.ServerApplicationTests]: ServerApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:54.615+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.ServerApplicationTests
+2026-11-03T12:07:54.618+05:30  INFO 5728 --- [server] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.learnify.server.ServerApplicationTests]: ServerApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-03T12:07:54.620+05:30  INFO 5728 --- [server] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.learnify.server.ServerApplication for test class com.learnify.server.ServerApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-03T12:07:54.635+05:30  INFO 5728 --- [server] [           main] c.l.server.ServerApplicationTests        : Starting ServerApplicationTests using Java 25.0.2 with PID 5728 (started by NITHISH VIKRAM SS in E:\learnify-system\server)
+2026-11-03T12:07:54.635+05:30  INFO 5728 --- [server] [           main] c.l.server.ServerApplicationTests        : No active profile set, falling back to 1 default profile: "default"
+2026-11-03T12:07:54.849+05:30  INFO 5728 --- [server] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-11-03T12:07:54.897+05:30  INFO 5728 --- [server] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 39 ms. Found 4 MongoDB repository interfaces.
+2026-11-03T12:07:55.207+05:30  INFO 5728 --- [server] [           main] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|spring-boot|sync", "version": "5.6.4"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Oracle Corporation/25.0.2+10-LTS-69"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, commandListeners=[], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@474d6f81, com.mongodb.Jep395RecordCodecProvider@16e206e7, com.mongodb.KotlinCodecProvider@486a74f2, EnumCodecProvider{}]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[localhost:27017], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverMonitoringMode=AUTO, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=UNSPECIFIED, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null, timeoutMS=null}
+2026-11-03T12:07:55.233+05:30  INFO 5728 --- [server] [localhost:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=localhost:27017, type=STANDALONE, cryptd=false, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=27, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=28095700, minRoundTripTimeNanos=0}
+2026-11-03T12:07:55.697+05:30  INFO 5728 --- [server] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-11-03T12:07:55.863+05:30  INFO 5728 --- [server] [           main] c.l.server.ServerApplicationTests        : Started ServerApplicationTests in 1.24 seconds (process running for 15.62)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.260 s -- in com.learnify.server.ServerApplicationTests
+[INFO] Running com.learnify.server.service.AnalyticsEdgeCaseTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in com.learnify.server.service.AnalyticsEdgeCaseTest
+[INFO] Running com.learnify.server.service.AnalyticsServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.learnify.server.service.AnalyticsServiceTest
+[INFO] Running com.learnify.server.service.MarksBoundaryTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.066 s -- in com.learnify.server.service.MarksBoundaryTest
+[INFO] Running com.learnify.server.service.MarksServiceTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in com.learnify.server.service.MarksServiceTest
+[INFO] Running com.learnify.server.service.StudentServiceTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in com.learnify.server.service.StudentServiceTest
+[INFO] Running com.learnify.server.service.SubjectServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.learnify.server.service.SubjectServiceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 124, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jacoco:0.8.16:report (report) @ server ---
+[INFO] Loading execution data file E:\learnify-system\server\target\jacoco.exec
+[INFO] Analyzed bundle 'server' with 37 classes
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  23.079 s
+[INFO] Finished at: 2026-11-03T12:07:56+05:30
+[INFO] ------------------------------------------------------------------------

@@ -1,11 +1,24 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { ClipboardList, Plus, X, CheckCircle } from 'lucide-react';
+import { ClipboardList, Plus, X, CheckCircle, Edit2, Trash2, Save, Search } from 'lucide-react';
 import {
-  getAllStudents, getAllSubjects, addMarks, getAllMarks
+  getAllStudents, getAllSubjects, addMarks, getAllMarks, updateMarks, deleteMarks, getErrorMessage
 } from '../api/api';
 import type { Student, Subject, Marks, MarksDetail } from '../types';
 
-const PASS_MARK = 40;
+/** A subject is passed with at least 40% of its max marks (same rule as the backend). */
+const PASS_PERCENTAGE = 40;
+
+type Entry = { subjectId: string; internal: string; external: string };
+
+/** Returns an error message for a row of marks, or '' if it is valid. */
+function validateScores(internal: string, external: string, maxMarks: number): string {
+  if (internal === '' || external === '') return 'Enter both internal and external marks';
+  const i = Number(internal), ex = Number(external);
+  if (!Number.isFinite(i) || !Number.isFinite(ex)) return 'Marks must be numbers';
+  if (i < 0 || ex < 0) return 'Marks cannot be negative';
+  if (i + ex > maxMarks) return `Total cannot exceed ${maxMarks}`;
+  return '';
+}
 
 export default function MarksEntry() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -17,19 +30,38 @@ export default function MarksEntry() {
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
   const [selectedStudent, setSelectedStudent] = useState('');
-  const [entries, setEntries] = useState<{ subjectId: string; internal: string; external: string }[]>([
+  const [entries, setEntries] = useState<Entry[]>([
     { subjectId: '', internal: '', external: '' }
   ]);
+  const [rowErrors, setRowErrors] = useState<string[]>([]);
+
+  // Table filters (applied to the loaded records)
+  const [search, setSearch] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState('');
+  const [resultFilter, setResultFilter] = useState<'' | 'pass' | 'fail'>('');
+
+  const [editTarget, setEditTarget] = useState<MarksDetail | null>(null);
+  const [editScores, setEditScores] = useState({ internal: '', external: '' });
+  const [editError, setEditError] = useState('');
+
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([getAllStudents(), getAllSubjects(), getAllMarks()])
+      .then(([s, sub, m]) => {
+        if (!active) return;
+        setStudents(s); setSubjects(sub); setAllMarks(m);
+      })
+      .catch(err => { if (active) setAlert({ type: 'error', msg: getErrorMessage(err, 'Failed to load data') }); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [reloadKey]);
 
   const load = () => {
     setLoading(true);
-    Promise.all([getAllStudents(), getAllSubjects(), getAllMarks()])
-      .then(([s, sub, m]) => { setStudents(s); setSubjects(sub); setAllMarks(m); })
-      .catch(() => showAlert('error', 'Failed to load data'))
-      .finally(() => setLoading(false));
+    setReloadKey(k => k + 1);
   };
-
-  useEffect(() => { load(); }, []);
 
   const showAlert = (type: 'success' | 'error', msg: string) => {
     setAlert({ type, msg });
@@ -39,11 +71,17 @@ export default function MarksEntry() {
   const openModal = () => {
     setSelectedStudent('');
     setEntries([{ subjectId: '', internal: '', external: '' }]);
+    setRowErrors([]);
     setShowModal(true);
   };
 
   const addEntry = () => setEntries(e => [...e, { subjectId: '', internal: '', external: '' }]);
-  const removeEntry = (i: number) => setEntries(e => e.filter((_, idx) => idx !== i));
+  const removeEntry = (i: number) => {
+    setEntries(e => e.filter((_, idx) => idx !== i));
+    setRowErrors(r => r.filter((_, idx) => idx !== i));
+  };
+
+  const maxFor = (subjectId: string) => subjects.find(s => s.id === subjectId)?.maxMarks ?? 100;
 
   const updateEntry = (i: number, field: string, value: string) => {
     setEntries(e => e.map((entry, idx) => idx === i ? { ...entry, [field]: value } : entry));
@@ -52,8 +90,13 @@ export default function MarksEntry() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!selectedStudent) { showAlert('error', 'Select a student'); return; }
-    const invalid = entries.some(en => !en.subjectId || en.internal === '' || en.external === '');
-    if (invalid) { showAlert('error', 'Fill all fields in each row'); return; }
+    const errors = entries.map((en, i) => {
+      if (!en.subjectId) return 'Select a subject';
+      if (entries.findIndex(other => other.subjectId === en.subjectId) !== i) return 'Subject already listed above';
+      return validateScores(en.internal, en.external, maxFor(en.subjectId));
+    });
+    setRowErrors(errors);
+    if (errors.some(Boolean)) return;
 
     setSaving(true);
     try {
@@ -69,17 +112,64 @@ export default function MarksEntry() {
       showAlert('success', `Marks saved for ${entries.length} subject(s)`);
       setShowModal(false);
       load();
-    } catch {
-      showAlert('error', 'Failed to save marks');
+    } catch (err) {
+      showAlert('error', getErrorMessage(err, 'Failed to save marks'));
     } finally {
       setSaving(false);
     }
   };
 
-  const getTotal = (en: typeof entries[0]) => {
+  const openEdit = (m: MarksDetail) => {
+    setEditTarget(m);
+    setEditScores({ internal: String(m.internalMarks), external: String(m.externalMarks) });
+    setEditError('');
+  };
+
+  const handleEditSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editTarget) return;
+    const error = validateScores(editScores.internal, editScores.external, editTarget.maxMarks);
+    setEditError(error);
+    if (error) return;
+
+    setSaving(true);
+    try {
+      await updateMarks(editTarget.marksId, {
+        internalMarks: Number(editScores.internal),
+        externalMarks: Number(editScores.external),
+      });
+      showAlert('success', `Marks updated for ${editTarget.studentName} — ${editTarget.subjectName}`);
+      setEditTarget(null);
+      load();
+    } catch (err) {
+      setEditError(getErrorMessage(err, 'Failed to update marks'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (m: MarksDetail) => {
+    if (!confirm(`Delete ${m.subjectName} marks for ${m.studentName}?`)) return;
+    try {
+      await deleteMarks(m.marksId);
+      showAlert('success', 'Marks deleted');
+      load();
+    } catch (err) {
+      showAlert('error', getErrorMessage(err, 'Delete failed'));
+    }
+  };
+
+  const getTotal = (en: Entry) => {
     const i = Number(en.internal), ex = Number(en.external);
     return isNaN(i) || isNaN(ex) || en.internal === '' || en.external === '' ? null : i + ex;
   };
+
+  const q = search.trim().toLowerCase();
+  const visibleMarks = allMarks.filter(m =>
+    (!q || m.studentName?.toLowerCase().includes(q) || m.registerNumber?.toLowerCase().includes(q)) &&
+    (!subjectFilter || m.subjectId === subjectFilter) &&
+    (!resultFilter || (resultFilter === 'pass') === m.passed)
+  );
 
   // Group marks by student for the table
   const byStudent: Record<string, MarksDetail[]> = {};
@@ -96,11 +186,33 @@ export default function MarksEntry() {
         <div className="section-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <ClipboardList size={18} color="var(--primary)" />
-            <span className="section-title">Marks Entry ({allMarks.length} records)</span>
+            <span className="section-title">
+              Marks Entry ({visibleMarks.length === allMarks.length ? allMarks.length : `${visibleMarks.length} of ${allMarks.length}`} records)
+            </span>
           </div>
-          <button className="btn btn-primary btn-sm" onClick={openModal} disabled={!students.length || !subjects.length}>
-            <Plus size={14} /> Enter Marks
-          </button>
+          <div className="toolbar">
+            <select className="form-control" value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)} aria-label="Filter by subject">
+              <option value="">All subjects</option>
+              {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <select className="form-control" value={resultFilter} onChange={e => setResultFilter(e.target.value as '' | 'pass' | 'fail')} aria-label="Filter by result">
+              <option value="">All results</option>
+              <option value="pass">Pass</option>
+              <option value="fail">Fail</option>
+            </select>
+            <div className="search-bar">
+              <Search size={14} />
+              <input
+                placeholder="Search student or register no…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                aria-label="Search marks by student"
+              />
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={openModal} disabled={!students.length || !subjects.length}>
+              <Plus size={14} /> Enter Marks
+            </button>
+          </div>
         </div>
 
         {(!students.length || !subjects.length) && !loading && (
@@ -116,6 +228,11 @@ export default function MarksEntry() {
             <ClipboardList size={40} />
             <p>No marks entered yet.</p>
           </div>
+        ) : visibleMarks.length === 0 ? (
+          <div className="empty-state">
+            <Search size={40} />
+            <p>No marks match your filters.</p>
+          </div>
         ) : (
           <div className="table-wrap">
             <table>
@@ -129,22 +246,33 @@ export default function MarksEntry() {
                   <th>Total</th>
                   <th>%</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {allMarks.map(m => (
+                {visibleMarks.map(m => (
                   <tr key={m.marksId}>
                     <td style={{ fontWeight: 500 }}>{m.studentName}</td>
                     <td><span className="badge badge-info">{m.department}</span></td>
                     <td>{m.subjectName}</td>
                     <td>{m.internalMarks}</td>
                     <td>{m.externalMarks}</td>
-                    <td style={{ fontWeight: 600 }}>{m.totalMarks}</td>
+                    <td style={{ fontWeight: 600 }}>{m.totalMarks} / {m.maxMarks}</td>
                     <td style={{ fontWeight: 500 }}>{m.percentage}%</td>
                     <td>
                       <span className={`badge ${m.passed ? 'badge-success' : 'badge-danger'}`}>
                         {m.passed ? 'Pass' : 'Fail'}
                       </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <button className="btn btn-secondary btn-sm btn-icon" title="Edit" onClick={() => openEdit(m)}>
+                          <Edit2 size={13} />
+                        </button>
+                        <button className="btn btn-danger btn-sm btn-icon" title="Delete" onClick={() => handleDelete(m)}>
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -164,7 +292,7 @@ export default function MarksEntry() {
                 <X size={14} />
               </button>
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="modal-body">
                 <div className="form-group">
                   <label className="form-label">Select Student *</label>
@@ -176,7 +304,7 @@ export default function MarksEntry() {
                   >
                     <option value="">-- Select Student --</option>
                     {students.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} — {s.department} (Sem {s.semester})</option>
+                      <option key={s.id} value={s.id}>{s.registerNumber ? `${s.registerNumber} · ` : ''}{s.name} — {s.department} (Sem {s.semester})</option>
                     ))}
                   </select>
                 </div>
@@ -191,12 +319,11 @@ export default function MarksEntry() {
 
                   {entries.map((en, i) => {
                     const total = getTotal(en);
-                    const passed = total !== null && total >= PASS_MARK;
+                    const max = maxFor(en.subjectId);
+                    const passed = total !== null && (total / max) * 100 >= PASS_PERCENTAGE;
                     return (
-                      <div key={i} style={{
-                        display: 'grid', gridTemplateColumns: '1fr 80px 80px 60px auto',
-                        gap: 8, marginBottom: 8, alignItems: 'center'
-                      }}>
+                      <div key={i} style={{ marginBottom: 8 }}>
+                      <div className="marks-row">
                         <select
                           className="form-control"
                           value={en.subjectId}
@@ -205,12 +332,12 @@ export default function MarksEntry() {
                         >
                           <option value="">Subject</option>
                           {subjects.map(s => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
+                            <option key={s.id} value={s.id}>{s.name} (max {s.maxMarks})</option>
                           ))}
                         </select>
                         <input
                           className="form-control"
-                          type="number" min={0} max={50}
+                          type="number" min={0} max={max}
                           placeholder="Int."
                           value={en.internal}
                           onChange={e => updateEntry(i, 'internal', e.target.value)}
@@ -218,7 +345,7 @@ export default function MarksEntry() {
                         />
                         <input
                           className="form-control"
-                          type="number" min={0} max={50}
+                          type="number" min={0} max={max}
                           placeholder="Ext."
                           value={en.external}
                           onChange={e => updateEntry(i, 'external', e.target.value)}
@@ -237,11 +364,13 @@ export default function MarksEntry() {
                           </button>
                         ) : <div />}
                       </div>
+                      {rowErrors[i] && <div className="field-error">{rowErrors[i]}</div>}
+                      </div>
                     );
                   })}
 
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-                    Pass mark: {PASS_MARK}/100 | Internal (max 50) + External (max 50)
+                    Pass: {PASS_PERCENTAGE}% of the subject's max marks · Internal + External must not exceed the max
                   </div>
                 </div>
               </div>
@@ -252,6 +381,52 @@ export default function MarksEntry() {
                     ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 2 }} /> Saving…</>
                     : <><CheckCircle size={14} /> Save Marks</>
                   }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit single marks record */}
+      {editTarget && (
+        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setEditTarget(null)}>
+          <div className="modal" style={{ maxWidth: 420 }}>
+            <div className="modal-header">
+              <span className="modal-title">Edit Marks</span>
+              <button className="btn btn-secondary btn-sm btn-icon" onClick={() => setEditTarget(null)}>
+                <X size={14} />
+              </button>
+            </div>
+            <form onSubmit={handleEditSave} noValidate>
+              <div className="modal-body">
+                <p style={{ fontSize: 13, marginBottom: 12 }}>
+                  <strong>{editTarget.studentName}</strong> — {editTarget.subjectName} (max {editTarget.maxMarks})
+                </p>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label className="form-label">Internal</label>
+                    <input
+                      className="form-control" type="number" min={0} max={editTarget.maxMarks}
+                      value={editScores.internal}
+                      onChange={e => setEditScores(s => ({ ...s, internal: e.target.value }))}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">External</label>
+                    <input
+                      className="form-control" type="number" min={0} max={editTarget.maxMarks}
+                      value={editScores.external}
+                      onChange={e => setEditScores(s => ({ ...s, external: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                {editError && <div className="field-error">{editError}</div>}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setEditTarget(null)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  <Save size={14} /> Save
                 </button>
               </div>
             </form>

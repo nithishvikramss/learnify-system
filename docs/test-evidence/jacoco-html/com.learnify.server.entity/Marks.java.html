@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Marks.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.entity</a> &gt; <span class="el_source">Marks.java</span></div><h1>Marks.java</h1><pre class="source lang-java linenums">package com.learnify.server.entity;
+
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = &quot;marks&quot;)
+public class Marks {
+
+    @Id
+    private String id;
+
+    @NotBlank(message = &quot;Student is required&quot;)
+    private String studentId;
+
+    @NotBlank(message = &quot;Subject is required&quot;)
+    private String subjectId;
+
+    @DecimalMin(value = &quot;0&quot;, message = &quot;Internal marks cannot be negative&quot;)
+    @DecimalMax(value = &quot;200&quot;, message = &quot;Internal marks are too large&quot;)
+    private double internalMarks;
+
+    @DecimalMin(value = &quot;0&quot;, message = &quot;External marks cannot be negative&quot;)
+    @DecimalMax(value = &quot;200&quot;, message = &quot;External marks are too large&quot;)
+    private double externalMarks;
+
+    private double totalMarks;
+
+    /** Snapshot of the subject's max marks when these marks were saved (0 for legacy records = 100). */
+    private double maxMarks;
+
+    /** A subject is passed when the student scores at least this percentage. */
+    public static final double PASS_PERCENTAGE = 40.0;
+    public static final double DEFAULT_MAX_MARKS = 100.0;
+
+<span class="fc" id="L38">    public Marks() {}</span>
+
+<span class="fc" id="L40">    public Marks(String studentId, String subjectId, double internalMarks, double externalMarks) {</span>
+<span class="fc" id="L41">        this.studentId = studentId;</span>
+<span class="fc" id="L42">        this.subjectId = subjectId;</span>
+<span class="fc" id="L43">        this.internalMarks = internalMarks;</span>
+<span class="fc" id="L44">        this.externalMarks = externalMarks;</span>
+<span class="fc" id="L45">        this.totalMarks = internalMarks + externalMarks;</span>
+<span class="fc" id="L46">    }</span>
+
+<span class="fc" id="L48">    public String getId() { return id; }</span>
+<span class="fc" id="L49">    public void setId(String id) { this.id = id; }</span>
+
+<span class="fc" id="L51">    public String getStudentId() { return studentId; }</span>
+<span class="fc" id="L52">    public void setStudentId(String studentId) { this.studentId = studentId; }</span>
+
+<span class="fc" id="L54">    public String getSubjectId() { return subjectId; }</span>
+<span class="fc" id="L55">    public void setSubjectId(String subjectId) { this.subjectId = subjectId; }</span>
+
+<span class="fc" id="L57">    public double getInternalMarks() { return internalMarks; }</span>
+    public void setInternalMarks(double internalMarks) {
+<span class="fc" id="L59">        this.internalMarks = internalMarks;</span>
+<span class="fc" id="L60">        this.totalMarks = this.internalMarks + this.externalMarks;</span>
+<span class="fc" id="L61">    }</span>
+
+<span class="fc" id="L63">    public double getExternalMarks() { return externalMarks; }</span>
+    public void setExternalMarks(double externalMarks) {
+<span class="fc" id="L65">        this.externalMarks = externalMarks;</span>
+<span class="fc" id="L66">        this.totalMarks = this.internalMarks + this.externalMarks;</span>
+<span class="fc" id="L67">    }</span>
+
+<span class="fc" id="L69">    public double getTotalMarks() { return totalMarks; }</span>
+<span class="nc" id="L70">    public void setTotalMarks(double totalMarks) { this.totalMarks = totalMarks; }</span>
+
+<span class="fc" id="L72">    public double getMaxMarks() { return maxMarks; }</span>
+<span class="fc" id="L73">    public void setMaxMarks(double maxMarks) { this.maxMarks = maxMarks; }</span>
+
+    /** Max marks used for calculations; legacy records without a value are treated as out of 100. */
+    public double effectiveMaxMarks() {
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        return maxMarks &gt; 0 ? maxMarks : DEFAULT_MAX_MARKS;</span>
+    }
+
+    public double getPercentage() {
+<span class="fc" id="L81">        return (this.totalMarks / effectiveMaxMarks()) * 100.0;</span>
+    }
+
+    public boolean isPassed() {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        return getPercentage() &gt;= PASS_PERCENTAGE;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

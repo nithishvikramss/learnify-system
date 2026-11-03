@@ -1,0 +1,61 @@
+
+> client@0.0.0 test
+> npm run test:unit && npm run test:e2e
+
+
+> client@0.0.0 test:unit
+> node --test --experimental-test-coverage --test-coverage-include="src/**" "tests/unit/*.test.ts"
+
+✔ FE-CSV-P-01 plain values are joined with commas and CRLF (2.414ms)
+✔ FE-CSV-E-01 commas, quotes and newlines are quoted (0.2986ms)
+✔ FE-CSV-N-01 spreadsheet formulas are neutralised (CSV injection) (0.3164ms)
+✔ FE-CSV-E-02 negative numbers, null and undefined are kept/blank (0.1642ms)
+✔ FE-AUTH-P-01 saved session is returned while valid (3.0296ms)
+✔ FE-AUTH-N-01 expired session is cleared and treated as logged out (0.3548ms)
+✔ FE-AUTH-N-02 corrupted storage does not crash (0.308ms)
+✔ FE-AUTH-P-02 teacher is not admin; logout clears session (1.3165ms)
+✔ FE-STU-P-01 valid student has no errors (3.8782ms)
+✔ FE-STU-B-01 semester boundaries 1 and 8 accepted, 0 and 9 rejected (0.4344ms)
+✔ FE-STU-B-02 name 100 chars accepted, 101 rejected, blank rejected (0.2125ms)
+✔ FE-STU-B-03 register number length 3..20 letters/digits (0.4747ms)
+✔ FE-STU-N-01 invalid email rejected, empty email allowed (0.4438ms)
+✔ FE-SUB-B-01 max marks boundaries 1 and 200 accepted, 0, 201 and NaN rejected (0.5891ms)
+✔ FE-SUB-B-02 subject code 2..15 chars (0.3334ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 245.4638
+ℹ start of coverage report
+ℹ ----------------------------------------------------------------
+ℹ file            | line % | branch % | funcs % | uncovered lines
+ℹ ----------------------------------------------------------------
+ℹ src             |        |          |         | 
+ℹ  auth           |        |          |         | 
+ℹ   session.ts    | 100.00 |   100.00 |  100.00 | 
+ℹ  utils          |        |          |         | 
+ℹ   csv.ts        |  62.50 |   100.00 |   75.00 | 16-24
+ℹ   validation.ts | 100.00 |    90.00 |  100.00 | 
+ℹ ----------------------------------------------------------------
+ℹ all files       |  90.91 |    95.24 |   90.91 | 
+ℹ ----------------------------------------------------------------
+ℹ end of coverage report
+
+> client@0.0.0 test:e2e
+> playwright test
+
+
+Running 7 tests using 1 worker
+
+  ok 1 tests\e2e\student-workflow.spec.ts:17:1 › UI-01 protected page redirects to login when not signed in (1.3s)
+  ok 2 tests\e2e\student-workflow.spec.ts:24:1 › UI-02 wrong password shows an error and stays on login (1.3s)
+  ok 3 tests\e2e\student-workflow.spec.ts:31:1 › UI-03 admin logs in, sees dashboard, adds a student with validation (4.1s)
+  ok 4 tests\e2e\student-workflow.spec.ts:69:1 › UI-04 duplicate register number shows the server message (1.7s)
+  ok 5 tests\e2e\student-workflow.spec.ts:81:1 › UI-05 teacher sees students read-only (no add/edit/delete) (1.5s)
+  ok 6 tests\e2e\student-workflow.spec.ts:92:1 › UI-06 logout returns to login and protects pages again (1.9s)
+  ok 7 tests\e2e\student-workflow.spec.ts:101:1 › UI-07 mobile layout: menu button opens the sidebar (1.9s)
+
+  7 passed (17.9s)

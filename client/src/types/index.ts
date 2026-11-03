@@ -1,6 +1,7 @@
 export interface Student {
   id?: string;
   name: string;
+  registerNumber: string;
   department: string;
   semester: number;
   email: string;
@@ -26,6 +27,7 @@ export interface MarksDetail {
   marksId: string;
   studentId: string;
   studentName: string;
+  registerNumber?: string;
   department: string;
   semester: number;
   subjectId: string;
@@ -33,6 +35,7 @@ export interface MarksDetail {
   internalMarks: number;
   externalMarks: number;
   totalMarks: number;
+  maxMarks: number;
   passed: boolean;
   percentage: number;
 }

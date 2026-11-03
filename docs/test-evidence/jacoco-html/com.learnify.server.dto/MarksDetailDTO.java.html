@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MarksDetailDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.dto</a> &gt; <span class="el_source">MarksDetailDTO.java</span></div><h1>MarksDetailDTO.java</h1><pre class="source lang-java linenums">package com.learnify.server.dto;
+
+public class MarksDetailDTO {
+    private String marksId;
+    private String studentId;
+    private String studentName;
+    private String registerNumber;
+    private String department;
+    private int semester;
+    private String subjectId;
+    private String subjectName;
+    private double internalMarks;
+    private double externalMarks;
+    private double totalMarks;
+    private double maxMarks;
+    private boolean passed;
+    private double percentage;
+
+<span class="fc" id="L19">    public MarksDetailDTO() {}</span>
+
+<span class="fc" id="L21">    public String getRegisterNumber() { return registerNumber; }</span>
+<span class="fc" id="L22">    public void setRegisterNumber(String registerNumber) { this.registerNumber = registerNumber; }</span>
+
+<span class="fc" id="L24">    public double getMaxMarks() { return maxMarks; }</span>
+<span class="fc" id="L25">    public void setMaxMarks(double maxMarks) { this.maxMarks = maxMarks; }</span>
+
+<span class="nc" id="L27">    public String getMarksId() { return marksId; }</span>
+<span class="fc" id="L28">    public void setMarksId(String marksId) { this.marksId = marksId; }</span>
+
+<span class="nc" id="L30">    public String getStudentId() { return studentId; }</span>
+<span class="fc" id="L31">    public void setStudentId(String studentId) { this.studentId = studentId; }</span>
+
+<span class="fc" id="L33">    public String getStudentName() { return studentName; }</span>
+<span class="fc" id="L34">    public void setStudentName(String studentName) { this.studentName = studentName; }</span>
+
+<span class="nc" id="L36">    public String getDepartment() { return department; }</span>
+<span class="fc" id="L37">    public void setDepartment(String department) { this.department = department; }</span>
+
+<span class="nc" id="L39">    public int getSemester() { return semester; }</span>
+<span class="fc" id="L40">    public void setSemester(int semester) { this.semester = semester; }</span>
+
+<span class="nc" id="L42">    public String getSubjectId() { return subjectId; }</span>
+<span class="fc" id="L43">    public void setSubjectId(String subjectId) { this.subjectId = subjectId; }</span>
+
+<span class="nc" id="L45">    public String getSubjectName() { return subjectName; }</span>
+<span class="fc" id="L46">    public void setSubjectName(String subjectName) { this.subjectName = subjectName; }</span>
+
+<span class="nc" id="L48">    public double getInternalMarks() { return internalMarks; }</span>
+<span class="fc" id="L49">    public void setInternalMarks(double internalMarks) { this.internalMarks = internalMarks; }</span>
+
+<span class="nc" id="L51">    public double getExternalMarks() { return externalMarks; }</span>
+<span class="fc" id="L52">    public void setExternalMarks(double externalMarks) { this.externalMarks = externalMarks; }</span>
+
+<span class="nc" id="L54">    public double getTotalMarks() { return totalMarks; }</span>
+<span class="fc" id="L55">    public void setTotalMarks(double totalMarks) { this.totalMarks = totalMarks; }</span>
+
+<span class="fc" id="L57">    public boolean isPassed() { return passed; }</span>
+<span class="fc" id="L58">    public void setPassed(boolean passed) { this.passed = passed; }</span>
+
+<span class="fc" id="L60">    public double getPercentage() { return percentage; }</span>
+<span class="fc" id="L61">    public void setPercentage(double percentage) { this.percentage = percentage; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

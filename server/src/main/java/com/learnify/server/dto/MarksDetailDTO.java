@@ -4,6 +4,7 @@ public class MarksDetailDTO {
     private String marksId;
     private String studentId;
     private String studentName;
+    private String registerNumber;
     private String department;
     private int semester;
     private String subjectId;
@@ -11,10 +12,17 @@ public class MarksDetailDTO {
     private double internalMarks;
     private double externalMarks;
     private double totalMarks;
+    private double maxMarks;
     private boolean passed;
     private double percentage;
 
     public MarksDetailDTO() {}
+
+    public String getRegisterNumber() { return registerNumber; }
+    public void setRegisterNumber(String registerNumber) { this.registerNumber = registerNumber; }
+
+    public double getMaxMarks() { return maxMarks; }
+    public void setMaxMarks(double maxMarks) { this.maxMarks = maxMarks; }
 
     public String getMarksId() { return marksId; }
     public void setMarksId(String marksId) { this.marksId = marksId; }

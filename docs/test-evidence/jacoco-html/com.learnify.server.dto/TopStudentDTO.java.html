@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TopStudentDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.dto</a> &gt; <span class="el_source">TopStudentDTO.java</span></div><h1>TopStudentDTO.java</h1><pre class="source lang-java linenums">package com.learnify.server.dto;
+
+public class TopStudentDTO {
+    private String studentId;
+    private String studentName;
+    private String department;
+    private int semester;
+    private double averageMarks;
+    private double percentage;
+    private int rank;
+
+<span class="nc" id="L12">    public TopStudentDTO() {}</span>
+
+    public TopStudentDTO(String studentId, String studentName, String department, int semester,
+<span class="fc" id="L15">                         double averageMarks, int rank) {</span>
+<span class="fc" id="L16">        this.studentId = studentId;</span>
+<span class="fc" id="L17">        this.studentName = studentName;</span>
+<span class="fc" id="L18">        this.department = department;</span>
+<span class="fc" id="L19">        this.semester = semester;</span>
+<span class="fc" id="L20">        this.averageMarks = Math.round(averageMarks * 100.0) / 100.0;</span>
+<span class="fc" id="L21">        this.percentage = Math.round((averageMarks / 100.0) * 100.0 * 100.0) / 100.0;</span>
+<span class="fc" id="L22">        this.rank = rank;</span>
+<span class="fc" id="L23">    }</span>
+
+<span class="nc" id="L25">    public String getStudentId() { return studentId; }</span>
+<span class="nc" id="L26">    public void setStudentId(String studentId) { this.studentId = studentId; }</span>
+
+<span class="fc" id="L28">    public String getStudentName() { return studentName; }</span>
+<span class="nc" id="L29">    public void setStudentName(String studentName) { this.studentName = studentName; }</span>
+
+<span class="nc" id="L31">    public String getDepartment() { return department; }</span>
+<span class="nc" id="L32">    public void setDepartment(String department) { this.department = department; }</span>
+
+<span class="nc" id="L34">    public int getSemester() { return semester; }</span>
+<span class="nc" id="L35">    public void setSemester(int semester) { this.semester = semester; }</span>
+
+<span class="fc" id="L37">    public double getAverageMarks() { return averageMarks; }</span>
+<span class="nc" id="L38">    public void setAverageMarks(double averageMarks) { this.averageMarks = averageMarks; }</span>
+
+<span class="fc" id="L40">    public double getPercentage() { return percentage; }</span>
+<span class="nc" id="L41">    public void setPercentage(double percentage) { this.percentage = percentage; }</span>
+
+<span class="fc" id="L43">    public int getRank() { return rank; }</span>
+<span class="nc" id="L44">    public void setRank(int rank) { this.rank = rank; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

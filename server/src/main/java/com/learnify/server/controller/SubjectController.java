@@ -1,7 +1,9 @@
 package com.learnify.server.controller;
 
 import com.learnify.server.entity.Subject;
+import com.learnify.server.exception.NotFoundException;
 import com.learnify.server.service.SubjectService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,7 @@ public class SubjectController {
     }
 
     @PostMapping
-    public ResponseEntity<Subject> addSubject(@RequestBody Subject subject) {
+    public ResponseEntity<Subject> addSubject(@Valid @RequestBody Subject subject) {
         return ResponseEntity.status(HttpStatus.CREATED).body(subjectService.addSubject(subject));
     }
 
@@ -33,12 +35,19 @@ public class SubjectController {
     public ResponseEntity<Subject> getSubjectById(@PathVariable String id) {
         return subjectService.getSubjectById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new NotFoundException("Subject not found"));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Subject> updateSubject(@PathVariable String id,
+                                                 @Valid @RequestBody Subject subject) {
+        return ResponseEntity.ok(subjectService.updateSubject(id, subject));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteSubject(@PathVariable String id) {
-        subjectService.deleteSubject(id);
+    public ResponseEntity<Map<String, String>> deleteSubject(@PathVariable String id,
+                                                             @RequestParam(defaultValue = "false") boolean cascade) {
+        subjectService.deleteSubject(id, cascade);
         return ResponseEntity.ok(Map.of("message", "Subject deleted successfully"));
     }
 }
