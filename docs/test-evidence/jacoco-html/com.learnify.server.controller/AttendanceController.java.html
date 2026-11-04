@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AttendanceController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.controller</a> &gt; <span class="el_source">AttendanceController.java</span></div><h1>AttendanceController.java</h1><pre class="source lang-java linenums">package com.learnify.server.controller;
+
+import com.learnify.server.dto.AttendanceSheetRequest;
+import com.learnify.server.dto.AttendanceSummaryDTO;
+import com.learnify.server.entity.Attendance;
+import com.learnify.server.service.AttendanceService;
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/attendance&quot;)
+public class AttendanceController {
+
+    private final AttendanceService attendanceService;
+
+<span class="fc" id="L21">    public AttendanceController(AttendanceService attendanceService) {</span>
+<span class="fc" id="L22">        this.attendanceService = attendanceService;</span>
+<span class="fc" id="L23">    }</span>
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Attendance&gt;&gt; getSheet(
+            @RequestParam String subjectId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+<span class="nc" id="L29">        return ResponseEntity.ok(attendanceService.getSheet(subjectId, date));</span>
+    }
+
+    @PutMapping
+    public ResponseEntity&lt;List&lt;Attendance&gt;&gt; saveSheet(@Valid @RequestBody AttendanceSheetRequest request) {
+<span class="fc" id="L34">        return ResponseEntity.ok(attendanceService.saveSheet(request));</span>
+    }
+
+    @GetMapping(&quot;/student/{studentId}&quot;)
+    public ResponseEntity&lt;List&lt;AttendanceSummaryDTO&gt;&gt; getStudentSummary(@PathVariable String studentId) {
+<span class="nc" id="L39">        return ResponseEntity.ok(attendanceService.getStudentSummary(studentId));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

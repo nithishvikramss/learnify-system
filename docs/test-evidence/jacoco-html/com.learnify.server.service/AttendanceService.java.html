@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AttendanceService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.service</a> &gt; <span class="el_source">AttendanceService.java</span></div><h1>AttendanceService.java</h1><pre class="source lang-java linenums">package com.learnify.server.service;
+
+import com.learnify.server.dto.AttendanceSheetRequest;
+import com.learnify.server.dto.AttendanceSummaryDTO;
+import com.learnify.server.entity.Attendance;
+import com.learnify.server.entity.Subject;
+import com.learnify.server.exception.BadRequestException;
+import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.repository.AttendanceRepository;
+import com.learnify.server.repository.StudentRepository;
+import com.learnify.server.repository.SubjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Service
+public class AttendanceService {
+
+    /** Below this percentage a student is flagged on reports. */
+    public static final double MINIMUM_PERCENTAGE = 75.0;
+
+    private final AttendanceRepository attendanceRepository;
+    private final StudentRepository studentRepository;
+    private final SubjectRepository subjectRepository;
+    private final Clock clock;
+
+    @Autowired
+    public AttendanceService(AttendanceRepository attendanceRepository, StudentRepository studentRepository,
+                             SubjectRepository subjectRepository) {
+<span class="fc" id="L40">        this(attendanceRepository, studentRepository, subjectRepository, Clock.systemDefaultZone());</span>
+<span class="fc" id="L41">    }</span>
+
+    AttendanceService(AttendanceRepository attendanceRepository, StudentRepository studentRepository,
+<span class="fc" id="L44">                      SubjectRepository subjectRepository, Clock clock) {</span>
+<span class="fc" id="L45">        this.attendanceRepository = attendanceRepository;</span>
+<span class="fc" id="L46">        this.studentRepository = studentRepository;</span>
+<span class="fc" id="L47">        this.subjectRepository = subjectRepository;</span>
+<span class="fc" id="L48">        this.clock = clock;</span>
+<span class="fc" id="L49">    }</span>
+
+    public List&lt;Attendance&gt; getSheet(String subjectId, LocalDate date) {
+<span class="nc" id="L52">        return attendanceRepository.findBySubjectIdAndDate(subjectId, date.toString());</span>
+    }
+
+    /** Saves a subject's attendance for a date. Saving the same date again updates it, never duplicates. */
+    public List&lt;Attendance&gt; saveSheet(AttendanceSheetRequest request) {
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (request.date().isAfter(LocalDate.now(clock))) {</span>
+<span class="fc" id="L58">            throw new BadRequestException(&quot;Attendance cannot be recorded for a future date.&quot;);</span>
+        }
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (!subjectRepository.existsById(request.subjectId())) {</span>
+<span class="fc" id="L61">            throw new NotFoundException(&quot;Subject not found&quot;);</span>
+        }
+<span class="fc" id="L63">        Set&lt;String&gt; studentIds = request.entries().stream()</span>
+<span class="fc" id="L64">                .map(AttendanceSheetRequest.Entry::studentId).collect(Collectors.toSet());</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (studentIds.size() != request.entries().size()) {</span>
+<span class="fc" id="L66">            throw new BadRequestException(&quot;A student appears more than once.&quot;);</span>
+        }
+<span class="fc" id="L68">        Set&lt;String&gt; known = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L69">        studentRepository.findAllById(studentIds).forEach(s -&gt; known.add(s.getId()));</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (!known.containsAll(studentIds)) {</span>
+<span class="fc" id="L71">            throw new NotFoundException(&quot;Student not found&quot;);</span>
+        }
+
+<span class="fc" id="L74">        String date = request.date().toString();</span>
+<span class="fc" id="L75">        Map&lt;String, Attendance&gt; existing = attendanceRepository.findBySubjectIdAndDate(request.subjectId(), date).stream()</span>
+<span class="pc" id="L76">                .collect(Collectors.toMap(Attendance::getStudentId, Function.identity(), (first, second) -&gt; first));</span>
+<span class="fc" id="L77">        List&lt;Attendance&gt; records = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        for (AttendanceSheetRequest.Entry entry : request.entries()) {</span>
+<span class="fc" id="L79">            Attendance record = existing.get(entry.studentId());</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            if (record == null) {</span>
+<span class="fc" id="L81">                record = new Attendance(entry.studentId(), request.subjectId(), date, entry.present());</span>
+            } else {
+<span class="fc" id="L83">                record.setPresent(entry.present());</span>
+            }
+<span class="fc" id="L85">            records.add(record);</span>
+<span class="fc" id="L86">        }</span>
+<span class="fc" id="L87">        return attendanceRepository.saveAll(records);</span>
+    }
+
+    public List&lt;AttendanceSummaryDTO&gt; getStudentSummary(String studentId) {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (!studentRepository.existsById(studentId)) {</span>
+<span class="fc" id="L92">            throw new NotFoundException(&quot;Student not found&quot;);</span>
+        }
+<span class="fc" id="L94">        Map&lt;String, String&gt; subjectNames = subjectRepository.findAll().stream()</span>
+<span class="fc" id="L95">                .collect(Collectors.toMap(Subject::getId, Subject::getName));</span>
+<span class="fc" id="L96">        return attendanceRepository.findByStudentId(studentId).stream()</span>
+<span class="fc" id="L97">                .collect(Collectors.groupingBy(Attendance::getSubjectId))</span>
+<span class="fc" id="L98">                .entrySet().stream()</span>
+<span class="fc" id="L99">                .map(e -&gt; {</span>
+<span class="fc" id="L100">                    int total = e.getValue().size();</span>
+<span class="fc" id="L101">                    int attended = (int) e.getValue().stream().filter(Attendance::isPresent).count();</span>
+<span class="fc" id="L102">                    double percentage = Math.round(attended * 10000.0 / total) / 100.0;</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                    return new AttendanceSummaryDTO(e.getKey(), subjectNames.getOrDefault(e.getKey(), &quot;Unknown&quot;),</span>
+                            attended, total, percentage, percentage &lt; MINIMUM_PERCENTAGE);
+                })
+<span class="fc" id="L106">                .sorted(Comparator.comparing(AttendanceSummaryDTO::subjectName))</span>
+<span class="fc" id="L107">                .toList();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

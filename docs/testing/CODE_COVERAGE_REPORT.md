@@ -7,6 +7,8 @@ Every figure here was **measured by a tool** on 2026-11-03; none are estimates.
 | Backend (Java) | **JaCoCo 0.8.16** (Maven plugin, runs with `./mvnw test`) | HTML: [`docs/test-evidence/jacoco-html/index.html`](../test-evidence/jacoco-html/index.html) (copy of `server/target/site/jacoco/`). CSV: `jacoco-final.csv`, baseline `jacoco-baseline.csv` |
 | Frontend utilities (TypeScript) | **Node.js built-in coverage** (`--experimental-test-coverage`) | Console table in `docs/test-evidence/frontend-final.log` |
 
+> **Latest measurement (2026-11-04, 166 tests):** instructions 4225/4818 = **87.7 %**, branches 224/258 = **86.8 %**, lines 818/928 = **88.1 %**. The tables below are the 2026-11-03 QA run, kept as a record; `jacoco-final.csv` and `jacoco-html/` hold the latest.
+
 ## 1. Backend overall: before vs. after the QA work
 
 "Before" is the 50 tests that existed after development; "after" is the final 124-test suite.

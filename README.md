@@ -9,10 +9,12 @@ A web application for managing students, subjects and marks, with dashboards and
 | Area | What you can do |
 |---|---|
 | Login | Secure sign-in (JWT). Passwords are BCrypt-hashed. Accounts lock for 15 minutes after 5 failed attempts. |
-| Roles | **Administrator:** everything. **Teacher:** view data, enter and edit marks. |
-| Students | Add, edit, delete and search (name or register number). Filter by department and semester. Register numbers and emails are unique. |
+| Roles | **Administrator:** everything. **Teacher:** view data, enter and edit marks and attendance. |
+| Staff accounts | Admins create, disable, re-enable and delete teacher accounts. Anyone can change their own password. Disabled accounts are locked out immediately. |
+| Students | Add, view details, edit, delete and search (name or register number). Filter by department and semester, 10/25/50 rows per page. Register numbers and emails are unique. |
 | Subjects | Add, edit and delete subjects with their own max marks. Deleting a subject that has marks needs a second confirmation. |
 | Marks | Enter internal and external marks for several subjects at once. Edit or delete a single record. Totals cannot exceed the subject's max. |
+| Attendance | Mark present/absent per subject and date. Attendance % appears on the report card and student details, flagged below 75%. |
 | Dashboard | Class average, pass rate, top performers, weakest subject, charts and insights. |
 | Reports | Subject overview, per-student report card (print or CSV export), weak-student list with an adjustable threshold. |
 
@@ -70,11 +72,11 @@ Open http://localhost:5173 and sign in with the admin or teacher account from `s
 
 ## Tests and quality checks
 ```bash
-cd server && ./mvnw clean test  # 124 backend tests + JaCoCo report (server/target/site/jacoco/index.html); no database needed
-cd client && npm run test:unit  # 15 frontend unit tests with coverage
+cd server && ./mvnw clean test  # 166 backend tests + JaCoCo report (server/target/site/jacoco/index.html); no database needed
+cd client && npm run test:unit  # 17 frontend unit tests with coverage
 cd client && npm run test:e2e   # 7 Playwright UI workflow tests in Microsoft Edge (simulated API)
-cd client && npm run test:live  # 8 live UI tests: real backend + real MongoDB (start the backend first)
-cd server && python scripts/live_api_check.py   # 23 live API checks verified directly in MongoDB (needs: pip install pymongo)
+cd client && npm run test:live  # 12 live UI tests: real backend + real MongoDB (start the backend first)
+cd server && python scripts/live_api_check.py   # 45 live API checks verified directly in MongoDB (needs: pip install pymongo)
 cd client && npm run lint       # ESLint
 cd client && npm run build      # type-check + production build
 ```
@@ -93,6 +95,11 @@ All endpoints except login need `Authorization: Bearer <token>`.
 | POST / PUT / DELETE | `/api/subjects`, `/api/subjects/{id}` (`?cascade=true`) | Admin |
 | GET | `/api/marks`, `/api/marks/student/{id}` | Logged in |
 | POST / PUT / DELETE | `/api/marks`, `/api/marks/{id}` | Admin, Teacher |
+| GET | `/api/students/page`, `/api/marks/page` (`?page=&size=` plus filters) | Logged in |
+| GET | `/api/attendance?subjectId=&date=`, `/api/attendance/student/{id}` | Logged in |
+| PUT | `/api/attendance` | Admin, Teacher |
+| GET / POST / PUT / DELETE | `/api/users`, `/api/users/{id}/status`, `/api/users/{id}` (teacher accounts) | Admin |
+| PUT | `/api/users/me/password` | Logged in |
 | GET | `/api/analytics/summary`, `/subject-averages`, `/top-students`, `/pass-fail`, `/class-average`, `/below-threshold` | Logged in |
 
 Errors are returned as JSON: `{ status, error, message, path, fieldErrors }`.

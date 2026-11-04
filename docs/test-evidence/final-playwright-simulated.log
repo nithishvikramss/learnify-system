@@ -5,12 +5,12 @@
 
 Running 7 tests using 1 worker
 
-  ok 1 tests\e2e\student-workflow.spec.ts:17:1 › UI-01 protected page redirects to login when not signed in (1.3s)
-  ok 2 tests\e2e\student-workflow.spec.ts:24:1 › UI-02 wrong password shows an error and stays on login (1.3s)
-  ok 3 tests\e2e\student-workflow.spec.ts:31:1 › UI-03 admin logs in, sees dashboard, adds a student with validation (4.2s)
-  ok 4 tests\e2e\student-workflow.spec.ts:69:1 › UI-04 duplicate register number shows the server message (1.7s)
-  ok 5 tests\e2e\student-workflow.spec.ts:81:1 › UI-05 teacher sees students read-only (no add/edit/delete) (1.4s)
+  ok 1 tests\e2e\student-workflow.spec.ts:17:1 › UI-01 protected page redirects to login when not signed in (1.0s)
+  ok 2 tests\e2e\student-workflow.spec.ts:24:1 › UI-02 wrong password shows an error and stays on login (1.1s)
+  ok 3 tests\e2e\student-workflow.spec.ts:31:1 › UI-03 admin logs in, sees dashboard, adds a student with validation (4.1s)
+  ok 4 tests\e2e\student-workflow.spec.ts:69:1 › UI-04 duplicate register number shows the server message (1.5s)
+  ok 5 tests\e2e\student-workflow.spec.ts:81:1 › UI-05 teacher sees students read-only (no add/edit/delete) (1.2s)
   ok 6 tests\e2e\student-workflow.spec.ts:92:1 › UI-06 logout returns to login and protects pages again (1.5s)
-  ok 7 tests\e2e\student-workflow.spec.ts:101:1 › UI-07 mobile layout: menu button opens the sidebar (1.8s)
+  ok 7 tests\e2e\student-workflow.spec.ts:101:1 › UI-07 mobile layout: menu button opens the sidebar (2.0s)
 
-  7 passed (17.3s)
+  7 passed (15.3s)

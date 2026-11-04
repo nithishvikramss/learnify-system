@@ -75,6 +75,9 @@ MongoDB 8.2 was installed locally, so the open live test could be executed. Noth
 
 This was executed AI-assisted on Nithish vikram ss's machine. SCRUM-1's acceptance criteria also ask a team member to repeat it on their own machine.
 
+## 4c. Latest full run (2026-11-04)
+Includes staff accounts, pagination and attendance. Backend 166/166 · live API 45/45 · frontend unit 17/17 · simulated UI 7/7 · live UI 12/12 · lint and build pass. Logs: `test-evidence/final-*.log`. The figures in §1–§4 are the earlier runs, kept as a record.
+
 ## 5. Not executed and limitations
 - ~~No test ran against a real MongoDB.~~ **Resolved 2026-11-03:** see §4b. The original note follows for the record: The configured Atlas host does not resolve, and a local MongoDB could not be started in this environment. Repositories were mocked, and the UI tests used a simulated API that follows the real JSON contracts. A live end-to-end run with a database is still **open**.
 - Coverage was not measured for UI tests (they test behaviour, not lines).

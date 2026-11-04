@@ -13,29 +13,34 @@ public class User {
     private String passwordHash;
     private String fullName;
     private Role role;
+    /** Disabled accounts cannot log in, and their existing tokens stop working. */
+    private boolean disabled;
 
-<span class="nc" id="L17">    public User() {}</span>
+<span class="nc" id="L19">    public User() {}</span>
 
-<span class="fc" id="L19">    public User(String username, String passwordHash, String fullName, Role role) {</span>
-<span class="fc" id="L20">        this.username = username;</span>
-<span class="fc" id="L21">        this.passwordHash = passwordHash;</span>
-<span class="fc" id="L22">        this.fullName = fullName;</span>
-<span class="fc" id="L23">        this.role = role;</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L21">    public User(String username, String passwordHash, String fullName, Role role) {</span>
+<span class="fc" id="L22">        this.username = username;</span>
+<span class="fc" id="L23">        this.passwordHash = passwordHash;</span>
+<span class="fc" id="L24">        this.fullName = fullName;</span>
+<span class="fc" id="L25">        this.role = role;</span>
+<span class="fc" id="L26">    }</span>
 
-<span class="nc" id="L26">    public String getId() { return id; }</span>
-<span class="nc" id="L27">    public void setId(String id) { this.id = id; }</span>
+<span class="fc" id="L28">    public String getId() { return id; }</span>
+<span class="fc" id="L29">    public void setId(String id) { this.id = id; }</span>
 
-<span class="fc" id="L29">    public String getUsername() { return username; }</span>
-<span class="nc" id="L30">    public void setUsername(String username) { this.username = username; }</span>
+<span class="fc" id="L31">    public String getUsername() { return username; }</span>
+<span class="nc" id="L32">    public void setUsername(String username) { this.username = username; }</span>
 
-<span class="fc" id="L32">    public String getPasswordHash() { return passwordHash; }</span>
-<span class="nc" id="L33">    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }</span>
+<span class="fc" id="L34">    public String getPasswordHash() { return passwordHash; }</span>
+<span class="fc" id="L35">    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }</span>
 
-<span class="fc" id="L35">    public String getFullName() { return fullName; }</span>
-<span class="nc" id="L36">    public void setFullName(String fullName) { this.fullName = fullName; }</span>
+<span class="fc" id="L37">    public String getFullName() { return fullName; }</span>
+<span class="nc" id="L38">    public void setFullName(String fullName) { this.fullName = fullName; }</span>
 
-<span class="fc" id="L38">    public Role getRole() { return role; }</span>
-<span class="nc" id="L39">    public void setRole(Role role) { this.role = role; }</span>
+<span class="fc" id="L40">    public Role getRole() { return role; }</span>
+<span class="nc" id="L41">    public void setRole(Role role) { this.role = role; }</span>
+
+<span class="fc" id="L43">    public boolean isDisabled() { return disabled; }</span>
+<span class="fc" id="L44">    public void setDisabled(boolean disabled) { this.disabled = disabled; }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

@@ -2,29 +2,31 @@
 > client@0.0.0 test:unit
 > node --test --experimental-test-coverage --test-coverage-include="src/**" "tests/unit/*.test.ts"
 
-✔ FE-CSV-P-01 plain values are joined with commas and CRLF (2.189ms)
-✔ FE-CSV-E-01 commas, quotes and newlines are quoted (0.284ms)
-✔ FE-CSV-N-01 spreadsheet formulas are neutralised (CSV injection) (0.3178ms)
-✔ FE-CSV-E-02 negative numbers, null and undefined are kept/blank (0.211ms)
-✔ FE-AUTH-P-01 saved session is returned while valid (4.1624ms)
-✔ FE-AUTH-N-01 expired session is cleared and treated as logged out (0.4423ms)
-✔ FE-AUTH-N-02 corrupted storage does not crash (0.3909ms)
-✔ FE-AUTH-P-02 teacher is not admin; logout clears session (1.3806ms)
-✔ FE-STU-P-01 valid student has no errors (2.7153ms)
-✔ FE-STU-B-01 semester boundaries 1 and 8 accepted, 0 and 9 rejected (0.2347ms)
-✔ FE-STU-B-02 name 100 chars accepted, 101 rejected, blank rejected (0.1599ms)
-✔ FE-STU-B-03 register number length 3..20 letters/digits (0.2069ms)
-✔ FE-STU-N-01 invalid email rejected, empty email allowed (0.2472ms)
-✔ FE-SUB-B-01 max marks boundaries 1 and 200 accepted, 0, 201 and NaN rejected (0.2941ms)
-✔ FE-SUB-B-02 subject code 2..15 chars (0.1569ms)
-ℹ tests 15
+✔ FE-CSV-P-01 plain values are joined with commas and CRLF (1.6605ms)
+✔ FE-CSV-E-01 commas, quotes and newlines are quoted (0.2463ms)
+✔ FE-CSV-N-01 spreadsheet formulas are neutralised (CSV injection) (0.2876ms)
+✔ FE-CSV-E-02 negative numbers, null and undefined are kept/blank (0.2054ms)
+✔ FE-AUTH-P-01 saved session is returned while valid (2.567ms)
+✔ FE-AUTH-N-01 expired session is cleared and treated as logged out (0.3854ms)
+✔ FE-AUTH-N-02 corrupted storage does not crash (0.3747ms)
+✔ FE-AUTH-P-02 teacher is not admin; logout clears session (0.2703ms)
+✔ FE-STU-P-01 valid student has no errors (2.01ms)
+✔ FE-STU-B-01 semester boundaries 1 and 8 accepted, 0 and 9 rejected (0.2222ms)
+✔ FE-STU-B-02 name 100 chars accepted, 101 rejected, blank rejected (0.1441ms)
+✔ FE-STU-B-03 register number length 3..20 letters/digits (0.2028ms)
+✔ FE-STU-N-01 invalid email rejected, empty email allowed (0.2332ms)
+✔ FE-SUB-B-01 max marks boundaries 1 and 200 accepted, 0, 201 and NaN rejected (0.2998ms)
+✔ FE-SUB-B-02 subject code 2..15 chars (0.1769ms)
+✔ FE-STAFF-B-01 new staff: username 3 chars ok, 2 rejected; password 8 ok, 7 and 73 rejected (0.2542ms)
+✔ FE-STAFF-N-01 password change: confirm must match and new must differ (0.2088ms)
+ℹ tests 17
 ℹ suites 0
-ℹ pass 15
+ℹ pass 17
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 263.0263
+ℹ duration_ms 238.57
 ℹ start of coverage report
 ℹ ----------------------------------------------------------------
 ℹ file            | line % | branch % | funcs % | uncovered lines
@@ -36,6 +38,6 @@
 ℹ   csv.ts        |  62.50 |   100.00 |   75.00 | 16-24
 ℹ   validation.ts | 100.00 |    90.00 |  100.00 | 
 ℹ ----------------------------------------------------------------
-ℹ all files       |  90.91 |    95.24 |   90.91 | 
+ℹ all files       |  92.31 |    94.23 |   92.31 | 
 ℹ ----------------------------------------------------------------
 ℹ end of coverage report

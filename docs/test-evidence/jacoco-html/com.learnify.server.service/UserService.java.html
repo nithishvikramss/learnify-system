@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.service</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package com.learnify.server.service;
+
+import com.learnify.server.dto.ChangePasswordRequest;
+import com.learnify.server.dto.CreateUserRequest;
+import com.learnify.server.dto.UserResponse;
+import com.learnify.server.entity.Role;
+import com.learnify.server.entity.User;
+import com.learnify.server.exception.BadRequestException;
+import com.learnify.server.exception.ConflictException;
+import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
+@Service
+public class UserService {
+
+    /** BCrypt only uses the first 72 bytes, and non-ASCII characters take more than one byte. */
+    private static final int MAX_PASSWORD_BYTES = 72;
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+<span class="fc" id="L29">    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {</span>
+<span class="fc" id="L30">        this.userRepository = userRepository;</span>
+<span class="fc" id="L31">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L32">    }</span>
+
+    public List&lt;UserResponse&gt; listUsers() {
+<span class="fc" id="L35">        return userRepository.findAll().stream()</span>
+<span class="fc" id="L36">                .sorted(Comparator.comparing(User::getUsername))</span>
+<span class="fc" id="L37">                .map(UserResponse::from)</span>
+<span class="fc" id="L38">                .toList();</span>
+    }
+
+    /** New accounts are always teachers; admin accounts come only from the server configuration. */
+    public UserResponse createTeacher(CreateUserRequest request) {
+<span class="fc" id="L43">        String username = request.username().trim().toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (userRepository.existsByUsername(username)) {</span>
+<span class="fc" id="L45">            throw new ConflictException(&quot;Username &quot; + username + &quot; is already in use.&quot;);</span>
+        }
+<span class="fc" id="L47">        checkPasswordBytes(request.password());</span>
+<span class="fc" id="L48">        User user = new User(username, passwordEncoder.encode(request.password()),</span>
+<span class="fc" id="L49">                request.fullName().trim(), Role.TEACHER);</span>
+<span class="fc" id="L50">        return UserResponse.from(userRepository.save(user));</span>
+    }
+
+    public UserResponse setDisabled(String id, boolean disabled) {
+<span class="fc" id="L54">        User user = userRepository.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (user.getRole() != Role.TEACHER) {</span>
+<span class="fc" id="L56">            throw new BadRequestException(&quot;Only teacher accounts can be disabled.&quot;);</span>
+        }
+<span class="fc" id="L58">        user.setDisabled(disabled);</span>
+<span class="fc" id="L59">        return UserResponse.from(userRepository.save(user));</span>
+    }
+
+    public void deleteTeacher(String id) {
+<span class="pc" id="L63">        User user = userRepository.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (user.getRole() != Role.TEACHER) {</span>
+<span class="fc" id="L65">            throw new BadRequestException(&quot;Only teacher accounts can be deleted.&quot;);</span>
+        }
+<span class="fc" id="L67">        userRepository.delete(user);</span>
+<span class="fc" id="L68">    }</span>
+
+    public void changeOwnPassword(String username, ChangePasswordRequest request) {
+<span class="fc" id="L71">        User user = userRepository.findByUsername(username)</span>
+<span class="pc" id="L72">                .orElseThrow(() -&gt; new NotFoundException(&quot;User not found&quot;));</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {</span>
+<span class="fc" id="L74">            throw new BadRequestException(&quot;Current password is incorrect.&quot;);</span>
+        }
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (request.currentPassword().equals(request.newPassword())) {</span>
+<span class="fc" id="L77">            throw new BadRequestException(&quot;New password must be different from the current password.&quot;);</span>
+        }
+<span class="fc" id="L79">        checkPasswordBytes(request.newPassword());</span>
+<span class="fc" id="L80">        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));</span>
+<span class="fc" id="L81">        userRepository.save(user);</span>
+<span class="fc" id="L82">    }</span>
+
+    private static void checkPasswordBytes(String password) {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (password.getBytes(StandardCharsets.UTF_8).length &gt; MAX_PASSWORD_BYTES) {</span>
+<span class="fc" id="L86">            throw new BadRequestException(&quot;Password is too long.&quot;);</span>
+        }
+<span class="fc" id="L88">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

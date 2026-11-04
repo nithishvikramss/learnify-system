@@ -2,6 +2,7 @@
 
 import com.learnify.server.security.JwtAuthenticationFilter;
 import com.learnify.server.security.JwtService;
+import com.learnify.server.security.UserStatusChecker;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,42 +35,46 @@ import java.util.List;
  * &lt;ul&gt;
  *   &lt;li&gt;POST /api/auth/login is public; every other /api endpoint needs a valid token.&lt;/li&gt;
  *   &lt;li&gt;Students and subjects: anyone logged in can read; only ADMIN can create/update/delete.&lt;/li&gt;
- *   &lt;li&gt;Marks: ADMIN and TEACHER can create/update/delete.&lt;/li&gt;
+ *   &lt;li&gt;Marks and attendance: ADMIN and TEACHER can create/update/delete.&lt;/li&gt;
+ *   &lt;li&gt;Staff accounts: ADMIN only; anyone logged in can change their own password.&lt;/li&gt;
  * &lt;/ul&gt;
  */
 @Configuration
 @EnableWebSecurity
-<span class="fc" id="L42">public class SecurityConfig {</span>
+<span class="fc" id="L44">public class SecurityConfig {</span>
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService) throws Exception {
-<span class="fc" id="L46">        http</span>
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService,
+                                                   UserStatusChecker userStatusChecker) throws Exception {
+<span class="fc" id="L49">        http</span>
                 // Tokens are sent in the Authorization header (not cookies), so CSRF protection is not needed.
-<span class="fc" id="L48">                .csrf(csrf -&gt; csrf.disable())</span>
-<span class="fc" id="L49">                .cors(Customizer.withDefaults())</span>
-<span class="fc" id="L50">                .sessionManagement(s -&gt; s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</span>
-<span class="fc" id="L51">                .httpBasic(b -&gt; b.disable())</span>
-<span class="fc" id="L52">                .formLogin(f -&gt; f.disable())</span>
-<span class="fc" id="L53">                .authorizeHttpRequests(auth -&gt; auth</span>
-<span class="fc" id="L54">                        .requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll()</span>
-<span class="fc" id="L55">                        .requestMatchers(HttpMethod.POST, &quot;/api/auth/login&quot;).permitAll()</span>
-<span class="fc" id="L56">                        .requestMatchers(&quot;/error&quot;).permitAll()</span>
-<span class="fc" id="L57">                        .requestMatchers(HttpMethod.GET, &quot;/api/**&quot;).authenticated()</span>
-<span class="fc" id="L58">                        .requestMatchers(&quot;/api/students/**&quot;, &quot;/api/subjects/**&quot;).hasRole(&quot;ADMIN&quot;)</span>
-<span class="fc" id="L59">                        .requestMatchers(&quot;/api/marks/**&quot;).hasAnyRole(&quot;ADMIN&quot;, &quot;TEACHER&quot;)</span>
-<span class="fc" id="L60">                        .anyRequest().denyAll())</span>
-<span class="fc" id="L61">                .exceptionHandling(e -&gt; e</span>
-<span class="fc" id="L62">                        .authenticationEntryPoint((req, res, ex) -&gt; writeError(req, res, HttpStatus.UNAUTHORIZED,</span>
+<span class="fc" id="L51">                .csrf(csrf -&gt; csrf.disable())</span>
+<span class="fc" id="L52">                .cors(Customizer.withDefaults())</span>
+<span class="fc" id="L53">                .sessionManagement(s -&gt; s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</span>
+<span class="fc" id="L54">                .httpBasic(b -&gt; b.disable())</span>
+<span class="fc" id="L55">                .formLogin(f -&gt; f.disable())</span>
+<span class="fc" id="L56">                .authorizeHttpRequests(auth -&gt; auth</span>
+<span class="fc" id="L57">                        .requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll()</span>
+<span class="fc" id="L58">                        .requestMatchers(HttpMethod.POST, &quot;/api/auth/login&quot;).permitAll()</span>
+<span class="fc" id="L59">                        .requestMatchers(&quot;/error&quot;).permitAll()</span>
+<span class="fc" id="L60">                        .requestMatchers(HttpMethod.PUT, &quot;/api/users/me/password&quot;).authenticated()</span>
+<span class="fc" id="L61">                        .requestMatchers(&quot;/api/users/**&quot;).hasRole(&quot;ADMIN&quot;)</span>
+<span class="fc" id="L62">                        .requestMatchers(HttpMethod.GET, &quot;/api/**&quot;).authenticated()</span>
+<span class="fc" id="L63">                        .requestMatchers(&quot;/api/students/**&quot;, &quot;/api/subjects/**&quot;).hasRole(&quot;ADMIN&quot;)</span>
+<span class="fc" id="L64">                        .requestMatchers(&quot;/api/marks/**&quot;, &quot;/api/attendance/**&quot;).hasAnyRole(&quot;ADMIN&quot;, &quot;TEACHER&quot;)</span>
+<span class="fc" id="L65">                        .anyRequest().denyAll())</span>
+<span class="fc" id="L66">                .exceptionHandling(e -&gt; e</span>
+<span class="fc" id="L67">                        .authenticationEntryPoint((req, res, ex) -&gt; writeError(req, res, HttpStatus.UNAUTHORIZED,</span>
                                 &quot;Please log in to continue.&quot;))
-<span class="fc" id="L64">                        .accessDeniedHandler((req, res, ex) -&gt; writeError(req, res, HttpStatus.FORBIDDEN,</span>
+<span class="fc" id="L69">                        .accessDeniedHandler((req, res, ex) -&gt; writeError(req, res, HttpStatus.FORBIDDEN,</span>
                                 &quot;You do not have permission to perform this action.&quot;)))
-<span class="fc" id="L66">                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);</span>
-<span class="fc" id="L67">        return http.build();</span>
+<span class="fc" id="L71">                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userStatusChecker), UsernamePasswordAuthenticationFilter.class);</span>
+<span class="fc" id="L72">        return http.build();</span>
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-<span class="fc" id="L72">        return new BCryptPasswordEncoder();</span>
+<span class="fc" id="L77">        return new BCryptPasswordEncoder();</span>
     }
 
     /**
@@ -78,42 +83,42 @@ import java.util.List;
      */
     @Bean
     public UserDetailsService userDetailsService() {
-<span class="fc" id="L81">        return username -&gt; {</span>
-<span class="nc" id="L82">            throw new UsernameNotFoundException(username);</span>
+<span class="fc" id="L86">        return username -&gt; {</span>
+<span class="nc" id="L87">            throw new UsernameNotFoundException(username);</span>
         };
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
             @Value(&quot;${app.cors.allowed-origins:http://localhost:5173,http://localhost:3000}&quot;) String origins) {
-<span class="fc" id="L89">        CorsConfiguration config = new CorsConfiguration();</span>
-<span class="fc" id="L90">        config.setAllowedOrigins(Arrays.stream(origins.split(&quot;,&quot;)).map(String::trim).toList());</span>
-<span class="fc" id="L91">        config.setAllowedMethods(List.of(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;));</span>
-<span class="fc" id="L92">        config.setAllowedHeaders(List.of(&quot;Authorization&quot;, &quot;Content-Type&quot;));</span>
-<span class="fc" id="L93">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
-<span class="fc" id="L94">        source.registerCorsConfiguration(&quot;/api/**&quot;, config);</span>
-<span class="fc" id="L95">        return source;</span>
+<span class="fc" id="L94">        CorsConfiguration config = new CorsConfiguration();</span>
+<span class="fc" id="L95">        config.setAllowedOrigins(Arrays.stream(origins.split(&quot;,&quot;)).map(String::trim).toList());</span>
+<span class="fc" id="L96">        config.setAllowedMethods(List.of(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;));</span>
+<span class="fc" id="L97">        config.setAllowedHeaders(List.of(&quot;Authorization&quot;, &quot;Content-Type&quot;));</span>
+<span class="fc" id="L98">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
+<span class="fc" id="L99">        source.registerCorsConfiguration(&quot;/api/**&quot;, config);</span>
+<span class="fc" id="L100">        return source;</span>
     }
 
     /** Writes the same JSON shape as GlobalExceptionHandler for 401/403 responses. */
     private static void writeError(HttpServletRequest req, HttpServletResponse res, HttpStatus status,
                                    String message) throws IOException {
-<span class="fc" id="L101">        res.setStatus(status.value());</span>
-<span class="fc" id="L102">        res.setContentType(MediaType.APPLICATION_JSON_VALUE);</span>
-<span class="fc" id="L103">        res.setCharacterEncoding(&quot;UTF-8&quot;);</span>
-<span class="fc" id="L104">        res.getWriter().write(&quot;{\&quot;timestamp\&quot;:\&quot;&quot; + Instant.now() + &quot;\&quot;,\&quot;status\&quot;:&quot; + status.value()</span>
-<span class="fc" id="L105">                + &quot;,\&quot;error\&quot;:\&quot;&quot; + status.getReasonPhrase() + &quot;\&quot;,\&quot;message\&quot;:\&quot;&quot; + message</span>
-<span class="fc" id="L106">                + &quot;\&quot;,\&quot;path\&quot;:\&quot;&quot; + jsonEscape(req.getRequestURI()) + &quot;\&quot;,\&quot;fieldErrors\&quot;:{}}&quot;);</span>
-<span class="fc" id="L107">    }</span>
+<span class="fc" id="L106">        res.setStatus(status.value());</span>
+<span class="fc" id="L107">        res.setContentType(MediaType.APPLICATION_JSON_VALUE);</span>
+<span class="fc" id="L108">        res.setCharacterEncoding(&quot;UTF-8&quot;);</span>
+<span class="fc" id="L109">        res.getWriter().write(&quot;{\&quot;timestamp\&quot;:\&quot;&quot; + Instant.now() + &quot;\&quot;,\&quot;status\&quot;:&quot; + status.value()</span>
+<span class="fc" id="L110">                + &quot;,\&quot;error\&quot;:\&quot;&quot; + status.getReasonPhrase() + &quot;\&quot;,\&quot;message\&quot;:\&quot;&quot; + message</span>
+<span class="fc" id="L111">                + &quot;\&quot;,\&quot;path\&quot;:\&quot;&quot; + jsonEscape(req.getRequestURI()) + &quot;\&quot;,\&quot;fieldErrors\&quot;:{}}&quot;);</span>
+<span class="fc" id="L112">    }</span>
 
     private static String jsonEscape(String s) {
-<span class="fc" id="L110">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (char c : s.toCharArray()) {</span>
-<span class="pc bpc" id="L112" title="2 of 4 branches missed.">            if (c == '&quot;' || c == '\\') sb.append('\\').append(c);</span>
-<span class="pc bpc" id="L113" title="1 of 2 branches missed.">            else if (c &lt; 0x20) sb.append(String.format(&quot;\\u%04x&quot;, (int) c));</span>
-<span class="fc" id="L114">            else sb.append(c);</span>
+<span class="fc" id="L115">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        for (char c : s.toCharArray()) {</span>
+<span class="pc bpc" id="L117" title="2 of 4 branches missed.">            if (c == '&quot;' || c == '\\') sb.append('\\').append(c);</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">            else if (c &lt; 0x20) sb.append(String.format(&quot;\\u%04x&quot;, (int) c));</span>
+<span class="fc" id="L119">            else sb.append(c);</span>
         }
-<span class="fc" id="L116">        return sb.toString();</span>
+<span class="fc" id="L121">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

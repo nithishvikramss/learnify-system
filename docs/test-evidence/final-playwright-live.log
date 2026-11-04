@@ -3,15 +3,19 @@
 > playwright test -c playwright.live.config.ts
 
 
-Running 8 tests using 1 worker
+Running 12 tests using 1 worker
 
-  ok 1 tests\live\explore.spec.ts:7:1 › LIVE-00 every page loads without browser errors (3.4s)
-  ok 2 tests\live\workflows.spec.ts:56:1 › LIVE-01 login rejects a wrong password and accepts the real admin (1.3s)
-  ok 3 tests\live\workflows.spec.ts:66:1 › LIVE-02 dashboard figures come from the database (1.6s)
-  ok 4 tests\live\workflows.spec.ts:79:1 › LIVE-03 student CRUD through the UI is persisted (2.5s)
-  ok 5 tests\live\workflows.spec.ts:120:1 › LIVE-04 subjects and marks: create, filter, edit, report card, CSV (4.0s)
-  ok 6 tests\live\workflows.spec.ts:185:1 › LIVE-05 teacher: read-only students, can view details, cannot see admin actions (1.9s)
-  ok 7 tests\live\workflows.spec.ts:202:1 › LIVE-06 clean-up through the UI: delete marks, subject (cascade) and student (1.9s)
-  ok 8 tests\live\workflows.spec.ts:222:1 › LIVE-07 logout ends the session (1.4s)
+  ok  1 tests\live\explore.spec.ts:7:1 › LIVE-00 every page loads without browser errors (3.1s)
+  ok  2 tests\live\workflows.spec.ts:60:1 › LIVE-01 login rejects a wrong password and accepts the real admin (1.3s)
+  ok  3 tests\live\workflows.spec.ts:70:1 › LIVE-02 dashboard figures come from the database (2.0s)
+  ok  4 tests\live\workflows.spec.ts:83:1 › LIVE-03 student CRUD through the UI is persisted (2.7s)
+  ok  5 tests\live\workflows.spec.ts:124:1 › LIVE-04 subjects and marks: create, filter, edit, report card, CSV (4.2s)
+  ok  6 tests\live\workflows.spec.ts:189:1 › LIVE-11 attendance: mark, save, reload, report card (3.2s)
+  ok  7 tests\live\workflows.spec.ts:229:1 › LIVE-05 teacher: read-only students, can view details, cannot see admin actions (1.6s)
+  ok  8 tests\live\workflows.spec.ts:246:1 › LIVE-06 clean-up through the UI: delete marks, subject (cascade) and student (2.8s)
+  ok  9 tests\live\workflows.spec.ts:266:1 › LIVE-08 staff accounts: admin creates, disables and deletes a teacher (1.9s)
+  ok 10 tests\live\workflows.spec.ts:291:1 › LIVE-09 teacher has no staff page; change-password form validates (1.9s)
+  ok 11 tests\live\workflows.spec.ts:309:1 › LIVE-10 pagination on students and marks, with filters (2.4s)
+  ok 12 tests\live\workflows.spec.ts:340:1 › LIVE-07 logout ends the session (1.2s)
 
-  8 passed (21.0s)
+  12 passed (33.1s)

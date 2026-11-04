@@ -383,3 +383,31 @@ SCRUM-8 SCRUM-11 SCRUM-6 Add student details view, marks filters and live end-to
 - Dashboard metric cards: long names no longer overflow
 - Live API check (pymongo) and Playwright live UI tests against real MongoDB
 ```
+
+---
+
+## Feature 9 — Remaining issues: leak fix, staff accounts, pagination, attendance, bundle size (SCRUM-14, SCRUM-20, SCRUM-21, SCRUM-24)
+
+**Date:** 2026-11-04 · AI-assisted (Claude) under the direction of Nithish vikram ss. Branch `feature/remaining-issues`, one commit per item, not pushed.
+
+| Commit | What |
+|---|---|
+| `SCRUM-14` report leak | The live Playwright HTML report recorded typed values, so the local admin and teacher passwords were in `playwright-live-report/index.html`, which was pushed in `2bdd555`. The report and results are now untracked and ignored, and the live config uses the console reporter without traces. Both passwords were changed through the API and updated in `server/.env`; old passwords verified rejected (401). |
+| `SCRUM-20` staff accounts | `UserController`, `UserService`, `StaffManagement.tsx`, `ChangePasswordModal.tsx`. Disabled accounts cannot log in, and `JwtAuthenticationFilter` now checks the account on every request, so their existing tokens stop working. |
+| `SCRUM-21` pagination | `GET /api/students/page`, `GET /api/marks/page`, `PageResponse`, `Pagination.tsx`. Filtering happens on the server in memory, which is fine at class scale; a database query would be needed for very large data. |
+| `SCRUM-24` attendance | `AttendanceController`, `AttendanceService`, `Attendance.tsx`, `AttendanceSummaryTable.tsx`. Records are removed with their student or subject. Built as its own commit because the earlier plan kept attendance in the backlog; it can be left out by not merging that commit. |
+| `SCRUM-14` bundle size | Pages load on demand (`React.lazy`). The largest file is now 372 kB (charts), and the 500 kB build warning is gone. |
+
+**Jira was not changed.** SCRUM-20, 21 and 24 still show To Do there.
+
+### Testing (all executed 2026-11-04)
+| Suite | Result | Log |
+|---|---|---|
+| Backend `./mvnw clean test` | ✅ 166/166 (87.7% instructions, 86.8% branches, JaCoCo) | `docs/test-evidence/final-backend.log` |
+| Live API check (real MongoDB) | ✅ 45/45 | `final-live-api.log` |
+| Frontend unit | ✅ 17/17 | `final-frontend-unit.log` |
+| UI, simulated API | ✅ 7/7 (also 21/21 across 3 repeats) | `final-playwright-simulated.log` |
+| UI, live backend + MongoDB | ✅ 12/12 | `final-playwright-live.log` |
+| Lint / build | ✅ exit 0 / ✅ exit 0, no size warning | `final-lint.log`, `final-build.log` |
+| Secret scan, including zips inside HTML reports | ✅ 0 hits in files Git would commit | — |
+| Database before and after | identical: 20 students, 5 subjects, 100 marks, 2 users, 0 attendance | — |

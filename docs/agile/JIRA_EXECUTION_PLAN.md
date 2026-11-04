@@ -206,3 +206,9 @@ Story points: Sprint 0 **15 SP** (was 17) · Sprint 1 **16 SP** · backlog featu
 **Incident during execution:** 6 sub-task creates for SCRUM-11 were blocked once by a transient tool-permission check (no verdict). A JQL check confirmed none had been created, then they were retried; **no duplicates**.
 
 **Done-status check:** no issue in SCRUM is Done.
+
+---
+
+## Update 2026-11-04 (Jira not changed)
+SCRUM-20 (staff accounts), SCRUM-21 (pagination) and SCRUM-24 (attendance) are implemented on branch `feature/remaining-issues` and tested, but still show To Do in Jira, as you asked that Jira not be modified automatically. The Sprint 1 and backlog placement no longer reflects the code. Decide whether to move them.
+SCRUM-3's description names commit `0b4e635`; the scan shows the password in `7e6ec3d`, `0b4e635` and `61a57d6` as well.

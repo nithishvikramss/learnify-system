@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">server</a> &gt; <a href="index.source.html" class="el_package">com.learnify.server.controller</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.learnify.server.controller;
+
+import com.learnify.server.dto.ChangePasswordRequest;
+import com.learnify.server.dto.CreateUserRequest;
+import com.learnify.server.dto.UserResponse;
+import com.learnify.server.dto.UserStatusRequest;
+import com.learnify.server.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping(&quot;/api/users&quot;)
+public class UserController {
+
+    private final UserService userService;
+
+<span class="fc" id="L23">    public UserController(UserService userService) {</span>
+<span class="fc" id="L24">        this.userService = userService;</span>
+<span class="fc" id="L25">    }</span>
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;UserResponse&gt;&gt; listUsers() {
+<span class="fc" id="L29">        return ResponseEntity.ok(userService.listUsers());</span>
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;UserResponse&gt; createTeacher(@Valid @RequestBody CreateUserRequest request) {
+<span class="fc" id="L34">        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createTeacher(request));</span>
+    }
+
+    @PutMapping(&quot;/{id}/status&quot;)
+    public ResponseEntity&lt;UserResponse&gt; setStatus(@PathVariable String id,
+                                                  @Valid @RequestBody UserStatusRequest request) {
+<span class="nc" id="L40">        return ResponseEntity.ok(userService.setDisabled(id, request.disabled()));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; deleteTeacher(@PathVariable String id) {
+<span class="nc" id="L45">        userService.deleteTeacher(id);</span>
+<span class="nc" id="L46">        return ResponseEntity.ok(Map.of(&quot;message&quot;, &quot;Account deleted successfully&quot;));</span>
+    }
+
+    @PutMapping(&quot;/me/password&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; changeOwnPassword(Authentication authentication,
+                                                                 @Valid @RequestBody ChangePasswordRequest request) {
+<span class="fc" id="L52">        userService.changeOwnPassword(authentication.getName(), request);</span>
+<span class="fc" id="L53">        return ResponseEntity.ok(Map.of(&quot;message&quot;, &quot;Password changed successfully&quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.16.202610240946</span></div></body></html>

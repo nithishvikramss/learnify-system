@@ -16,10 +16,32 @@ PASS Re-entering marks updates, no duplicate (B3)
 PASS Marks above subject max -> 400
 PASS Report card data -> registerNumber and percentage
 PASS Dashboard counts match MongoDB
+PASS Teacher saves attendance -> 200
+PASS Saving the same date updates, no duplicate
+PASS Future date -> 400
+PASS Attendance without login -> 401
+PASS Summary: 0 of 1, flagged below 75%
 PASS Teacher cannot delete student -> 403
 PASS Delete student -> 200
 PASS Student and their marks removed from MongoDB
+PASS Student's attendance removed from MongoDB
 PASS Total students back to the original count
 PASS Deleted student -> 404
+PASS Student page: 10 rows and correct total
+PASS Student page filter matches MongoDB
+PASS Oversized page -> 400
+PASS Marks page 2: correct total
+PASS Teacher cannot list staff -> 403
+PASS Admin creates teacher account -> 201
+PASS Staff password stored as a hash
+PASS Duplicate username -> 409
+PASS New teacher can log in
+PASS Change password with wrong current -> 400
+PASS Change own password -> 200
+PASS Login with the new password
+PASS Disabled account: existing token stops working -> 401
+PASS Disabled account cannot log in -> 401
+PASS Admin account cannot be disabled -> 400
+PASS Delete teacher account -> 200 and gone from MongoDB
 
-23/23 checks passed
+45/45 checks passed
