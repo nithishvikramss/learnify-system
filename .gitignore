@@ -43,3 +43,7 @@ build/
 ### Test artifacts (traces/videos are large; reports and screenshots are kept) ###
 docs/test-evidence/playwright-results/
 client/test-results/
+
+### Live test artifacts (traces and reports can record typed values) ###
+docs/test-evidence/playwright-live-results/
+docs/test-evidence/playwright-live-report/

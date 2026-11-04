@@ -115,7 +115,7 @@ Excluded on purpose: **Faculty management.** The code has no faculty module; sta
 
 ### 4.3 Story and task details, with sub-tasks
 
-Sub-task status key: ✅ Done · 🔍 In Review · ⬜ To Do. **Implementation sub-tasks already finished are assigned to Nithish vikram ss with label `ai-assisted`**, because they were produced with the AI assistant in his workspace. Review and verification sub-tasks go to the members who will actually do them. **Nobody reviews their own work.**
+Sub-task status key: ✅ Done · 🔍 In Review · ⬜ To Do. **Implementation sub-tasks already finished are assigned to Nithish vikram ss with label `ai-assisted`**, because they were produced with the AI assistant in Nithish vikram ss's workspace. Review and verification sub-tasks go to the members who will actually do them. **Nobody reviews their own work.**
 
 #### S1 · SCRUM-2 (reuse) — User authentication and role-based login · Highest · 8 SP · Nithish vikram ss
 **Description:** As a staff member, I want to log in securely so that only authorised people can see and change student data.

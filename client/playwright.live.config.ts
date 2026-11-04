@@ -12,16 +12,13 @@ export default defineConfig({
   timeout: 60_000,
   fullyParallel: false,
   workers: 1,
-  reporter: [
-    ['list'],
-    ['html', { outputFolder: '../docs/test-evidence/playwright-live-report', open: 'never' }],
-  ],
+  // Console output only: HTML reports and traces record typed values, including real passwords.
+  reporter: 'list',
   use: {
     baseURL: 'http://localhost:5173',
     channel: 'msedge',
     headless: true,
-    screenshot: 'on',
-    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
   },
   outputDir: '../docs/test-evidence/playwright-live-results',
   webServer: {

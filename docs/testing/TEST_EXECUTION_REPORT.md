@@ -70,7 +70,7 @@ MongoDB 8.2 was installed locally, so the open live test could be executed. Noth
 | Suite | Result | Evidence |
 |---|---|---|
 | Live API check: login, roles, student and marks CRUD verified **directly in MongoDB** | ✅ 23/23 | `test-evidence/final-live-api.log` |
-| Live UI (Edge → real React app → real API → real MongoDB): LIVE-00 all pages without browser errors; LIVE-01 login; LIVE-02 dashboard = DB; LIVE-03 student CRUD persisted; LIVE-04 subjects, marks, filters, report card, CSV; LIVE-05 teacher restrictions; LIVE-06 deletes; LIVE-07 logout | ✅ 8/8 | `test-evidence/final-playwright-live.log`, `playwright-live-report/index.html`, `screenshots/live/` |
+| Live UI (Edge → real React app → real API → real MongoDB): LIVE-00 all pages without browser errors; LIVE-01 login; LIVE-02 dashboard = DB; LIVE-03 student CRUD persisted; LIVE-04 subjects, marks, filters, report card, CSV; LIVE-05 teacher restrictions; LIVE-06 deletes; LIVE-07 logout | ✅ 8/8 | `test-evidence/final-playwright-live.log`, `screenshots/live/` |
 | Database state before and after | identical (20 / 5 / 100 / 2) | — |
 
 This was executed AI-assisted on Nithish vikram ss's machine. SCRUM-1's acceptance criteria also ask a team member to repeat it on their own machine.
