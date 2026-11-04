@@ -36,7 +36,7 @@ Team (Jira names): Nithish vikram ss · Keerthi Varma · Nirandjan
 | `MONGODB_URI=mongodb://config-check-host:27017/x ./mvnw test` | Passed. The Mongo driver log shows `config-check-host:27017`, which proves the URI comes from the environment. |
 
 ### ⚠ Manual action still required
-The old password is **still in Git history** on GitHub (commit `0b4e635`). **Rotate the Atlas database user's password**, then update `server/.env`.
+The old password is **still in Git history** on GitHub (commit `a4ae3bf`). **Rotate the Atlas database user's password**, then update `server/.env`.
 
 ### Commit message
 ```
@@ -300,7 +300,7 @@ SCRUM-16 SCRUM-14 Add demo data seeder and project documentation
 | Backend automated tests | ✅ 50/50 passing, with no database needed |
 | Frontend lint / type-check / build | ✅ |
 | **End-to-end run in a browser against a real database** | ❌ **Not yet done.** The Atlas cluster in the old config does not resolve in DNS, and starting a local MongoDB was not possible in this session. Run it as described in README "Running locally" and record the result here. |
-| Manual action | ❗ Rotate or replace the Atlas credentials. The old password is in public Git history (commit `0b4e635`). |
+| Manual action | ❗ Rotate or replace the Atlas credentials. The old password is in public Git history (commit `a4ae3bf`). |
 
 ---
 
@@ -392,7 +392,7 @@ SCRUM-8 SCRUM-11 SCRUM-6 Add student details view, marks filters and live end-to
 
 | Commit | What |
 |---|---|
-| `SCRUM-14` report leak | The live Playwright HTML report recorded typed values, so the local admin and teacher passwords were in `playwright-live-report/index.html`, which was pushed in `2bdd555`. The report and results are now untracked and ignored, and the live config uses the console reporter without traces. Both passwords were changed through the API and updated in `server/.env`; old passwords verified rejected (401). |
+| `SCRUM-14` report leak | The live Playwright HTML report recorded typed values, so the local admin and teacher passwords were in `playwright-live-report/index.html`, which was pushed in `36313e8`. The report and results are now untracked and ignored, and the live config uses the console reporter without traces. Both passwords were changed through the API and updated in `server/.env`; old passwords verified rejected (401). |
 | `SCRUM-20` staff accounts | `UserController`, `UserService`, `StaffManagement.tsx`, `ChangePasswordModal.tsx`. Disabled accounts cannot log in, and `JwtAuthenticationFilter` now checks the account on every request, so their existing tokens stop working. |
 | `SCRUM-21` pagination | `GET /api/students/page`, `GET /api/marks/page`, `PageResponse`, `Pagination.tsx`. Filtering happens on the server in memory, which is fine at class scale; a database query would be needed for very large data. |
 | `SCRUM-24` attendance | `AttendanceController`, `AttendanceService`, `Attendance.tsx`, `AttendanceSummaryTable.tsx`. Records are removed with their student or subject. Built as its own commit because the earlier plan kept attendance in the backlog; it can be left out by not merging that commit. |

@@ -41,7 +41,7 @@ Jira Triage Agent, Jira Delivery Agent and Jira Coding Agent are Atlassian AI ag
 All four were created by Keerthi Varma on 2026-11-02 between 13:26:22 and 13:26:25 IST. They have **no content and duplicate nothing real**, so they are placeholders.
 
 ### Code state (from the repository)
-- Commits: only 3, all by `nithishvikramsakthivel` on 2026-04-11 (`257c46e`, `7e6ec3d`, `0b4e635`).
+- Commits: only 3, all by `nithishvikramsakthivel` on 2026-04-11 (`257c46e`, `0964cf0`, `a4ae3bf`).
 - **94 changed files remain uncommitted.** That is all work in DEVELOPMENT_LOG.md (features 1–7 and the QA phase), produced with an AI assistant (Claude) in Nithish's workspace.
 - Automated tests pass: 124 backend, 15 frontend unit, 7 UI. **Not yet done:** commits and PRs, peer review, a live run with a real database, rotation of the leaked database password.
 
@@ -91,7 +91,7 @@ Until "Testing" exists, keep live verification as a separate sub-task, so the pa
 | Ref | Key | Type | Summary | Priority | SP | Assignee | Proposed status | Sprint |
 |---|---|---|---|---|---|---|---|---|
 | S1 | **SCRUM-2** (reuse) | Story | User authentication and role-based login | Highest | 8 | Nithish vikram ss | In Review | Sprint 0 (already) |
-| S2 | SCRUM-6 | Story | Admin dashboard | Medium | 5 | Nithish vikram ss | **Done** (commit `0b4e635`) | none: completed before Jira tracking |
+| S2 | SCRUM-6 | Story | Admin dashboard | Medium | 5 | Nithish vikram ss | **Done** (commit `a4ae3bf`) | none: completed before Jira tracking |
 | S3 | SCRUM-7 | Story | Student registration | High | 5 | Keerthi Varma | In Review | Sprint 0 |
 | S4 | SCRUM-8 | Story | View and search student information | Medium | 3 | Keerthi Varma | In Review | Sprint 0 |
 | S5 | SCRUM-9 | Story | Update student information | Medium | 3 | Keerthi Varma | In Review | Sprint 0 |
@@ -140,7 +140,7 @@ Sub-task status key: ✅ Done · 🔍 In Review · ⬜ To Do. **Implementation s
 #### S2 · SCRUM-6 — Admin dashboard · Medium · 5 SP · Nithish vikram ss · **Done**
 **Description:** As an admin, I want a dashboard of key figures and charts so that I can see class performance at a glance.
 **AC:** shows total students and subjects, class average, pass rate, top performers, weakest subject, subject-average chart, pass/fail chart and insights.
-**Evidence:** committed in `0b4e635` (2026-04-11). Not placed in any sprint. Later changes are tracked in S7 and S10.
+**Evidence:** committed in `a4ae3bf` (2026-04-11). Not placed in any sprint. Later changes are tracked in S7 and S10.
 Sub-tasks: *Analytics summary API* ✅ · *Dashboard page and charts* ✅. Both Nithish vikram ss, from the commit, no `ai-assisted` label.
 
 #### S3 · SCRUM-7 — Student registration · High · 5 SP · Keerthi Varma
@@ -220,7 +220,7 @@ Sub-tasks: *Analytics summary API* ✅ · *Dashboard page and charts* ✅. Both 
 
 | Sub-task | Assignee | Status | Evidence |
 |---|---|---|---|
-| Report pages (original version) | Nithish vikram ss | ✅ | commit `0b4e635` |
+| Report pages (original version) | Nithish vikram ss | ✅ | commit `a4ae3bf` |
 | Percentages, print view, CSV export | Nithish vikram ss `ai-assisted` | ✅ | `csv.test.ts` |
 | Bug: negative top-students limit returned 500 (DEF-01) `bug` | Nithish vikram ss `ai-assisted` | ✅ | `AnalyticsControllerTest` |
 | Review and merge PR | **Nirandjan** | ⬜ | PR link |
@@ -265,7 +265,7 @@ Sub-tasks: *Analytics summary API* ✅ · *Dashboard page and charts* ✅. Both 
 **AC:** the app runs locally against a real database; UI-01 to UI-07 pass manually or with Playwright without the simulated API; screenshots are attached; results are added to TEST_EXECUTION_REPORT.md; any failure is logged as a `bug` sub-task.
 
 #### T2 · SCRUM-3 (reuse) — Rotate the leaked MongoDB Atlas credentials · Highest · 1 SP · Nithish vikram ss · Sprint 0
-**Description:** The old database password is in public Git history (commit `0b4e635`). The configured Atlas host no longer resolves.
+**Description:** The old database password is in public Git history (commit `a4ae3bf`). The configured Atlas host no longer resolves.
 **AC:** the old password no longer works, or the old cluster is confirmed deleted; any new cluster uses a new password stored only in `server/.env`; Atlas network access is restricted; result recorded in DEFECT_LOG (B1, OPEN-01).
 
 #### T3 · SCRUM-15 — Commit the work per story, open PRs, connect GitHub for Jira · High · 2 SP · Nithish vikram ss
@@ -363,7 +363,7 @@ Executed in this order. ✏️ = edit of an existing issue · ➕ = create · �
 | 5 | ✏️ Edit | **SCRUM-3** | Summary "Rotate the leaked MongoDB Atlas credentials"; description and AC (T2); assignee Nithish vikram ss; 1 SP; Highest; label `review-2`; parent SCRUM-5 |
 | 6 | 🔀 Transition | SCRUM-3 | In Progress → **To Do** (work not started) |
 | 7 | ➕ Create stories | S2–S10 → SCRUM-6…14 | Fields from §4.2/§4.3; parent SCRUM-5 |
-| 8 | 🔀 Transition | SCRUM-6 (S2) | To Do → **Done** (evidence: commit `0b4e635`); stays outside sprints |
+| 8 | 🔀 Transition | SCRUM-6 (S2) | To Do → **Done** (evidence: commit `a4ae3bf`); stays outside sprints |
 | 9 | 🔀 Transition | SCRUM-7…14 | To Do → **In Review** |
 | 10 | ➕ Create tasks | T3, T4 → SCRUM-15, 16 | Status To Do |
 | 11 | ➕ Create sub-tasks | 53 sub-tasks under SCRUM-2, 6…14 | Assignees and statuses as in §4.3 (✅ → transition to Done after creation) |

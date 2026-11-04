@@ -10,7 +10,7 @@ Defects found by the QA tests on 2026-11-03 are DEF-01 to DEF-04. Defects found 
 | DEF-02 | Failed-login counter never expires, so old typos eventually lock the account | M1 Authentication | Medium | AUTH-B-06 | ✅ Verified |
 | DEF-03 | Updating a non-existent student can return 409 instead of 404 | M2 Student CRUD | Low | STU-N-05 | ✅ Verified |
 | DEF-04 | On phones the whole page scrolls sideways (182 px overflow) | M2 UI / layout | Medium | UI-07 | ✅ Verified |
-| DEF-05 | Live test HTML report recorded the local admin and teacher passwords and was pushed to the public repo (`2bdd555`) | Test tooling / security | High | Secret scan of the zips inside reports, 2026-11-04 | ✅ Fixed going forward: report removed and no longer generated, both passwords changed and old ones verified rejected. The old file stays in Git history until history is rewritten (not done: rewriting history needs your decision) |
+| DEF-05 | Live test HTML report recorded the local admin and teacher passwords and was pushed to the public repo (`36313e8`) | Test tooling / security | High | Secret scan of the zips inside reports, 2026-11-04 | ✅ Fixed going forward: report removed and no longer generated, both passwords changed and old ones verified rejected. Removed from all Git history on 2026-11-04 |
 
 ---
 
@@ -72,7 +72,7 @@ Defects found by the QA tests on 2026-11-03 are DEF-01 to DEF-04. Defects found 
 ## Earlier defects (fixed during development; see PROJECT_AUDIT.md and DEVELOPMENT_LOG.md)
 | ID | Title | Severity | Status | Regression test |
 |---|---|---|---|---|
-| B1 | Database password committed to the public repository (touched by commits `7e6ec3d`, `0b4e635`, `61a57d6`; removed in `2bdd555`, still in history) | Critical | Fixed in code; **password rotation still required** | — (secret scan) |
+| B1 | Database password committed to the public repository (removed from all Git history on 2026-11-04) | Critical | Fixed in code; **password rotation still required** | — (secret scan) |
 | B2 | No real authentication; demo passwords in the frontend | High | Verified | `SecurityRulesTest`, `AuthControllerTest` |
 | B3 | Re-saving marks creates duplicates, then a 500 error | High | Verified | `MarksServiceTest.reEntryUpdatesExistingRecord…` |
 | B4 / B9 | No server validation; wrong status codes | High / Medium | Verified | `StudentControllerTest`, `StudentValidationTest` |

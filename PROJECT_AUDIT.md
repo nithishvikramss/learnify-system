@@ -1,7 +1,7 @@
 # Project Audit — Student Management System (Learnify)
 
 **Audit date:** 2026-11-03
-**Branch audited:** `backend.setup` (commit `0b4e635`)
+**Branch audited:** `backend.setup` (commit `a4ae3bf`)
 **Repository:** https://github.com/nithishvikramss/learnify-system
 **Scope:** Read-only audit and planning. No application code was changed.
 
@@ -160,7 +160,7 @@ Severity: 🔴 Critical · 🟠 High · 🟡 Medium · 🟢 Low
 
 | ID | Severity | Problem | Where | Plain-language explanation |
 |---|---|---|---|---|
-| **B1** | 🔴 | **Database username and password are committed to Git and pushed to GitHub** | `server/src/main/resources/application.properties`, root `src/main/resources/application.properties`, commit `0b4e635`, branch `origin/backend.setup` | Anyone who can see the repo can log in to your MongoDB Atlas cluster and read or delete all data. Deleting the line later does **not** remove it from Git history. **Action now:** change (rotate) the password in MongoDB Atlas, and restrict Atlas "Network Access" to your own IPs. |
+| **B1** | 🔴 | **Database username and password are committed to Git and pushed to GitHub** | `server/src/main/resources/application.properties`, root `src/main/resources/application.properties`, commit `a4ae3bf`, branch `origin/backend.setup` | Anyone who can see the repo can log in to your MongoDB Atlas cluster and read or delete all data. Deleting the line later does **not** remove it from Git history. **Action now:** change (rotate) the password in MongoDB Atlas, and restrict Atlas "Network Access" to your own IPs. |
 | **B2** | 🟠 | Login is fake and the API has no authentication | `client/src/pages/Login.tsx`, `App.tsx`, all controllers | Explained in §4.4. Examiners often ask "how is the password stored?". Right now the answer is "in the JavaScript file". |
 | **B3** | 🟠 | **Saving marks twice for the same student + subject creates duplicates, and the third save crashes** | `server/.../service/MarksService.java`, method `addOrUpdateMarks` | The code uses `.orElse(marksRepository.save(marks))`. In Java, the value inside `orElse(...)` is **always** calculated, even when a record already exists. So the second save updates the old record **and** inserts a new one. The third save finds two records and Spring throws an error (HTTP 500). Analytics also double-count those marks. Fix: use `.orElseGet(() -> marksRepository.save(marks))`. |
 | **B4** | 🟡 | No server-side validation | Entities and controllers | The API accepts empty names, negative marks, marks above 100 and semester 99. The "max 50" limit only exists in the HTML input box, which is easy to bypass. |
@@ -232,7 +232,7 @@ Ordered by importance for the Review 2 demo. Full details, subtasks and acceptan
 - **Epic:** SMS — Student Management System
 - **Stories:** 22 in total: 6 already implemented in code, 1 partially done (US-04, marks bug), 14 to do and 1 stretch.
 - **Bugs:** 12 Jira Bug issues (B1–B12), each linked to the story that fixes it.
-- **Status of existing work** is based **only** on code in commits `7e6ec3d` and `0b4e635`. Those stories should be logged in Jira as **Done** with the commit link as evidence. They should **not** be put into a fake past sprint.
+- **Status of existing work** is based **only** on code in commits `0964cf0` and `a4ae3bf`. Those stories should be logged in Jira as **Done** with the commit link as evidence. They should **not** be put into a fake past sprint.
 
 | Status | Stories | Story points |
 |---|---|---|

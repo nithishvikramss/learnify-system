@@ -66,7 +66,7 @@ All stories below are children of this epic.
 
 ### US-01 — Project setup
 *As a developer, I want a working frontend, backend and database skeleton so that the team can build features on it.*
-**Evidence:** commits `7e6ec3d` (Spring Boot + MongoDB) and `0b4e635` (React client).
+**Evidence:** commits `0964cf0` (Spring Boot + MongoDB) and `a4ae3bf` (React client).
 **Acceptance criteria**
 - [x] Spring Boot project with MongoDB dependency builds with Maven.
 - [x] React + TypeScript + Vite client builds with `npm run build`.
@@ -130,7 +130,7 @@ All stories below are children of this epic.
 
 ### US-04 — Enter and maintain student marks · Highest · 5 SP · Nithish Vikram
 *As a teacher, I want to enter, correct and remove a student's marks per subject so that results are accurate.*
-**Already done:** entering marks for several subjects at once and the marks table (commit `0b4e635`).
+**Already done:** entering marks for several subjects at once and the marks table (commit `a4ae3bf`).
 **Remaining:** bug B3 (duplicate record or crash on re-entry), plus edit and delete of individual marks.
 **Acceptance criteria**
 - [ ] Saving marks for a student + subject that already has marks **updates** the record and doesn't create a new one.
@@ -337,7 +337,7 @@ Jira → *Project settings / System → External system import → CSV*. Map `Is
 
 ```csv
 Issue Type,Summary,Priority,Story Points,Status,Parent,Description
-Story,US-01 Project setup (frontend + backend + DB),High,3,Done,SMS-EPIC,"Evidence: commits 7e6ec3d, 0b4e635"
+Story,US-01 Project setup (frontend + backend + DB),High,3,Done,SMS-EPIC,"Evidence: commits 0964cf0, a4ae3bf"
 Story,US-02 Manage student records,High,5,Done,SMS-EPIC,"Evidence: StudentController, StudentManagement.tsx"
 Story,US-03 Manage subjects (add/list/delete),High,3,Done,SMS-EPIC,"Evidence: SubjectController, Subjects.tsx"
 Story,US-04 Enter and maintain student marks,Highest,5,In Progress,SMS-EPIC,"Fix duplicate-on-update bug B3; add edit/delete marks"

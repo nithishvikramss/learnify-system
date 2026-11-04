@@ -47,7 +47,7 @@ Descriptions and acceptance criteria are as in JIRA_CHANGE_PROPOSAL.md §4.3. **
 
 | Ref | Expected key | Summary | Assignee | SP | Priority | Labels | Status after creation |
 |---|---|---|---|---|---|---|---|
-| S2 | SCRUM-6 | Admin dashboard | Nithish vikram ss | 5 | Medium | — (April commit `0b4e635`, origin not AI-verified) | In Progress |
+| S2 | SCRUM-6 | Admin dashboard | Nithish vikram ss | 5 | Medium | — (April commit `a4ae3bf`, origin not AI-verified) | In Progress |
 | S3 | SCRUM-7 | Student registration | Nithish vikram ss | 5 | High | `ai-assisted` | In Progress |
 | S4 | SCRUM-8 | View and search student information | Nithish vikram ss | 3 | Medium | `ai-assisted` | In Progress |
 | S5 | SCRUM-9 | Update student information | Nithish vikram ss | 3 | Medium | `ai-assisted` | In Progress |
@@ -118,7 +118,7 @@ Assignee for all: **Nithish vikram ss**. Label `ai-assisted` on all except the t
 | SCRUM-9 (3) | Update-student API and rules · Edit-student modal · Bug: updating a missing student returned 409 instead of 404 (DEF-03) `bug` |
 | SCRUM-10 (2) | Delete-student API with marks clean-up · Delete button and confirmation |
 | SCRUM-11 (6) | Subjects: edit, unique code, safe delete · Marks: entry fix, edit/delete, max-marks validation · Unified pass rule and percentage calculations · Bug: re-saving marks created duplicates then a 500 (B3) `bug` · Bug: deleting a subject left orphaned marks (B5) `bug` · Bug: dashboard and report card used different pass rules (B7) `bug` |
-| SCRUM-12 (3) | Report pages, original version (commit `0b4e635`) † · Percentages, print view and CSV export · Bug: negative top-students limit returned 500 (DEF-01) `bug` |
+| SCRUM-12 (3) | Report pages, original version (commit `a4ae3bf`) † · Percentages, print view and CSV export · Bug: negative top-students limit returned 500 (DEF-01) `bug` |
 | SCRUM-13 (3) | Backend unit/API tests and JaCoCo coverage · Frontend unit tests and Playwright UI tests · Test documentation (7 reports) |
 | SCRUM-14 (4) | Move secrets to .env and remove duplicate backend · Validation and global error handling · Lint fixes, responsive layout, configurable API URL · Bug: Spring Boot 4 ignored the MongoDB URI setting (B15) `bug` |
 
@@ -129,7 +129,7 @@ Each sub-task description names its evidence (test class or file).
 |---|---|---|---|
 | AI-assisted **code** written 2026-11-03 | **31** | everything except the 4 below | `ai-assisted` |
 | AI-assisted **documentation** (not code) | **1** | SCRUM-13 "Test documentation (7 reports)" | `ai-assisted`, `documentation` |
-| Code from commit `0b4e635` (2026-04-11, author `nithishvikramsakthivel`); use of AI tools not recorded | **3** | SCRUM-6 ×2, SCRUM-12 "Report pages, original version" | none |
+| Code from commit `a4ae3bf` (2026-04-11, author `nithishvikramsakthivel`); use of AI tools not recorded | **3** | SCRUM-6 ×2, SCRUM-12 "Report pages, original version" | none |
 | **Evidence by file only, no dedicated automated test** | 3 of the 31 | Edit-student modal, Delete button and confirmation, Lint/responsive/API URL | noted in each description |
 **Removed from the earlier proposal to avoid duplicates:** the per-story "Review & merge PR" and "Live verification" sub-tasks are now covered once by SCRUM-16/17/18 and SCRUM-1.
 
@@ -211,4 +211,6 @@ Story points: Sprint 0 **15 SP** (was 17) · Sprint 1 **16 SP** · backlog featu
 
 ## Update 2026-11-04 (Jira not changed)
 SCRUM-20 (staff accounts), SCRUM-21 (pagination) and SCRUM-24 (attendance) are implemented on branch `feature/remaining-issues` and tested, but still show To Do in Jira, as you asked that Jira not be modified automatically. The Sprint 1 and backlog placement no longer reflects the code. Decide whether to move them.
-SCRUM-3's description names commit `0b4e635`; the scan shows the password in `7e6ec3d`, `0b4e635` and `61a57d6` as well.
+SCRUM-3's description names commit `a4ae3bf`; the scan shows the password in `0964cf0`, `a4ae3bf` and `b53e457` as well.
+
+**History rewrite (2026-11-04):** the Atlas username and password and the leaked live test report were removed from all Git history, at Nithish vikram ss's request. Commit IDs from the first affected commit onward changed, and these documents use the new IDs. **Descriptions in Jira still quote the old IDs**: `0b4e635` is now `a4ae3bf`. Teammates must clone again. SCRUM-3 is still open: the Atlas password itself must still be changed.
