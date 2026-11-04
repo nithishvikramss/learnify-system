@@ -440,3 +440,10 @@ tbody tr:hover { background: #fafbfc; }
 .details-heading { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
 .details-summary { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; margin-top: 12px;
   padding: 10px 14px; background: var(--surface-2); border-radius: 8px; font-size: 13px; }
+
+/* ── Pagination ── */
+.pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 12px 4px 0; font-size: 13px; color: var(--text-muted); }
+.pagination-size { display: flex; align-items: center; gap: 8px; }
+.pagination-size .form-control { width: auto; padding-top: 4px; padding-bottom: 4px; }
+.pagination-buttons { display: flex; align-items: center; gap: 8px; }

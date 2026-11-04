@@ -1,6 +1,6 @@
 import axios, { isAxiosError } from 'axios';
 import type {
-  Student, Subject, Marks, MarksDetail, StaffUser, NewStaffUser,
+  Student, Subject, Marks, MarksDetail, StaffUser, NewStaffUser, PageResponse,
   SubjectAverage, TopStudent, PassFailStats, AnalyticsSummary
 } from '../types';
 import { getSession, clearSession, type Session } from '../auth/session';
@@ -83,6 +83,9 @@ export const addStudent = (student: Student) =>
 export const getAllStudents = (params?: { department?: string; search?: string }) =>
   api.get<Student[]>('/students', { params }).then(r => r.data);
 
+export const getStudentPage = (params: { page: number; size: number; search?: string; department?: string; semester?: string }) =>
+  api.get<PageResponse<Student>>('/students/page', { params }).then(r => r.data);
+
 export const getStudentById = (id: string) =>
   api.get<Student>(`/students/${id}`).then(r => r.data);
 
@@ -112,6 +115,9 @@ export const addMarks = (marks: Marks) =>
 
 export const getAllMarks = () =>
   api.get<MarksDetail[]>('/marks').then(r => r.data);
+
+export const getMarksPage = (params: { page: number; size: number; search?: string; subjectId?: string; result?: string }) =>
+  api.get<PageResponse<MarksDetail>>('/marks/page', { params }).then(r => r.data);
 
 export const updateMarks = (id: string, marks: { internalMarks: number; externalMarks: number }) =>
   api.put<Marks>(`/marks/${id}`, marks).then(r => r.data);

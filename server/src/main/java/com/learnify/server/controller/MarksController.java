@@ -2,6 +2,7 @@ package com.learnify.server.controller;
 
 import com.learnify.server.dto.MarksDetailDTO;
 import com.learnify.server.dto.MarksUpdateRequest;
+import com.learnify.server.dto.PageResponse;
 import com.learnify.server.entity.Marks;
 import com.learnify.server.service.MarksService;
 import jakarta.validation.Valid;
@@ -30,6 +31,16 @@ public class MarksController {
     @GetMapping
     public ResponseEntity<List<MarksDetailDTO>> getAllMarks() {
         return ResponseEntity.ok(marksService.getAllMarksWithDetails());
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<PageResponse<MarksDetailDTO>> getMarksPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String subjectId,
+            @RequestParam(required = false) String result) {
+        return ResponseEntity.ok(marksService.getMarksPage(page, size, search, subjectId, result));
     }
 
     @GetMapping("/student/{studentId}")

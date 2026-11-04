@@ -107,6 +107,28 @@ class StudentServiceTest {
     }
 
     @Test
+    void pagedSearchCombinesAllFilters() {
+        Student a = student("21CS001", null);
+        a.setName("Asha");
+        Student b = student("21CS002", null);
+        b.setName("Bala");
+        b.setSemester(5);
+        Student c = student("21ME003", null);
+        c.setName("Chitra");
+        c.setDepartment("Mechanical");
+        Student legacy = student(null, null); // created before register numbers existed
+        legacy.setName("Devi");
+        when(studentRepository.findAll()).thenReturn(java.util.List.of(a, b, c, legacy));
+
+        assertThat(studentService.getStudentPage(0, 10, null, null, null).totalElements()).isEqualTo(4);
+        assertThat(studentService.getStudentPage(0, 10, " 21cs ", null, null).content()).containsExactly(a, b);
+        assertThat(studentService.getStudentPage(0, 10, "CHI", null, null).content()).containsExactly(c);
+        assertThat(studentService.getStudentPage(0, 10, null, "Mechanical", null).content()).containsExactly(c);
+        assertThat(studentService.getStudentPage(0, 10, "21cs", "Computer Science", 5).content()).containsExactly(b);
+        assertThat(studentService.getStudentPage(1, 3, null, null, null).content()).containsExactly(legacy);
+    }
+
+    @Test
     void deleteRemovesStudentsMarks() {
         when(studentRepository.existsById("s1")).thenReturn(true);
 

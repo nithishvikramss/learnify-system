@@ -2,6 +2,7 @@ package com.learnify.server.service;
 
 import com.learnify.server.dto.MarksDetailDTO;
 import com.learnify.server.dto.MarksUpdateRequest;
+import com.learnify.server.dto.PageResponse;
 import com.learnify.server.entity.Marks;
 import com.learnify.server.entity.Student;
 import com.learnify.server.entity.Subject;
@@ -114,6 +115,24 @@ public class MarksService {
         return allMarks.stream()
                 .map(m -> buildDetail(m, studentMap, subjectMap))
                 .collect(Collectors.toList());
+    }
+
+    /** Search (student name or register number), subject and result (pass/fail) combine; each is optional. */
+    public PageResponse<MarksDetailDTO> getMarksPage(int page, int size, String search, String subjectId, String result) {
+        if (result != null && !result.isBlank() && !result.equals("pass") && !result.equals("fail")) {
+            throw new BadRequestException("result must be pass or fail.");
+        }
+        String q = search == null ? "" : search.trim().toLowerCase();
+        List<MarksDetailDTO> matches = getAllMarksWithDetails().stream()
+                .filter(m -> q.isEmpty() || contains(m.getStudentName(), q) || contains(m.getRegisterNumber(), q))
+                .filter(m -> subjectId == null || subjectId.isBlank() || subjectId.equals(m.getSubjectId()))
+                .filter(m -> result == null || result.isBlank() || result.equals("pass") == m.isPassed())
+                .toList();
+        return PageResponse.of(matches, page, size);
+    }
+
+    private static boolean contains(String value, String lowerCaseQuery) {
+        return value != null && value.toLowerCase().contains(lowerCaseQuery);
     }
 
     public List<MarksDetailDTO> getMarksByStudentWithDetails(String studentId) {

@@ -81,6 +81,37 @@ class MarksBoundaryTest {
     }
 
     @Test
+    void pagedMarksCombineFilters() {
+        Student asha = new Student("Asha", "Civil", 2, null);
+        asha.setId("stu1");
+        asha.setRegisterNumber("21CV001");
+        Student bala = new Student("Bala", "Civil", 2, null);
+        bala.setId("stu2");
+        bala.setRegisterNumber("21CV002");
+        Subject maths = new Subject("Maths", "MA1", 100);
+        maths.setId("sub1");
+        Subject lab = new Subject("Lab", "LB1", 100);
+        lab.setId("sub2");
+        when(marksRepository.findAll()).thenReturn(List.of(
+                new Marks("stu1", "sub1", 30, 30), new Marks("stu1", "sub2", 10, 10), new Marks("stu2", "sub1", 10, 10)));
+        when(studentRepository.findAll()).thenReturn(List.of(asha, bala));
+        when(subjectRepository.findAll()).thenReturn(List.of(maths, lab));
+
+        assertThat(marksService.getMarksPage(0, 10, null, null, null).totalElements()).isEqualTo(3);
+        assertThat(marksService.getMarksPage(0, 10, "21cv002", null, null).totalElements()).isEqualTo(1);
+        assertThat(marksService.getMarksPage(0, 10, "asha", "sub2", null).totalElements()).isEqualTo(1);
+        assertThat(marksService.getMarksPage(0, 10, null, null, "pass").totalElements()).isEqualTo(1);
+        assertThat(marksService.getMarksPage(0, 10, null, "sub1", "fail").content().get(0).getStudentName()).isEqualTo("Bala");
+        assertThat(marksService.getMarksPage(0, 2, null, null, null).content()).hasSize(2);
+    }
+
+    @Test
+    void invalidResultFilterIsRejected() {
+        assertThatThrownBy(() -> marksService.getMarksPage(0, 10, null, null, "maybe"))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
     void unknownSubjectIsRejected() {
         when(studentRepository.existsById("stu1")).thenReturn(true);
         when(subjectRepository.findById("ghost")).thenReturn(Optional.empty());

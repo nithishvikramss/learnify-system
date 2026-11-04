@@ -3,10 +3,11 @@ import {
   UserPlus, Search, Trash2, Edit2, X, Users, Save, Eye
 } from 'lucide-react';
 import {
-  getAllStudents, addStudent, updateStudent, deleteStudent, getErrorMessage, getFieldErrors
+  getStudentPage, addStudent, updateStudent, deleteStudent, getErrorMessage, getFieldErrors
 } from '../api/api';
 import type { Student } from '../types';
 import FieldError from '../components/FieldError';
+import Pagination from '../components/Pagination';
 import StudentDetailsModal from '../components/StudentDetailsModal';
 import { getSession, isAdmin } from '../auth/session';
 import { validateStudent, hasErrors, type FieldErrors } from '../utils/validation';
@@ -19,6 +20,10 @@ const emptyForm = (): Student => ({ name: '', registerNumber: '', department: ''
 export default function StudentManagement() {
   const canEdit = isAdmin(getSession());
   const [students, setStudents] = useState<Student[]>([]);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('');
@@ -36,12 +41,22 @@ export default function StudentManagement() {
 
   useEffect(() => {
     let active = true;
-    getAllStudents(query ? { search: query } : {})
-      .then(data => { if (active) setStudents(data); })
+    getStudentPage({ page, size, search: query || undefined, department: deptFilter || undefined, semester: semFilter || undefined })
+      .then(data => {
+        if (!active) return;
+        // Deleting the last row of the last page leaves that page empty: step back one
+        if (data.content.length === 0 && page > 0) {
+          setPage(page - 1);
+          return;
+        }
+        setStudents(data.content);
+        setTotalElements(data.totalElements);
+        setTotalPages(data.totalPages);
+      })
       .catch(err => { if (active) setAlert({ type: 'error', msg: getErrorMessage(err, 'Failed to load students') }); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [query, reloadKey]);
+  }, [query, deptFilter, semFilter, page, size, reloadKey]);
 
   const reload = () => {
     setLoading(true);
@@ -107,15 +122,16 @@ export default function StudentManagement() {
     setSearch(q);
     if (q.length === 0 || q.length >= 2) {
       setLoading(true);
+      setPage(0);
       setQuery(q);
     }
   };
 
-  // Search runs on the server; department/semester filters are applied to the loaded list.
-  const filtered = students.filter(s =>
-    (!deptFilter || s.department === deptFilter) &&
-    (!semFilter || s.semester === Number(semFilter))
-  );
+  const changeFilter = (setter: (value: string) => void, value: string) => {
+    setLoading(true);
+    setPage(0);
+    setter(value);
+  };
 
   return (
     <div className="page-content">
@@ -129,14 +145,14 @@ export default function StudentManagement() {
         <div className="section-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={18} color="var(--primary)" />
-            <span className="section-title">Students ({filtered.length})</span>
+            <span className="section-title">Students ({totalElements})</span>
           </div>
           <div className="toolbar">
-            <select className="form-control" value={deptFilter} onChange={e => setDeptFilter(e.target.value)} aria-label="Filter by department">
+            <select className="form-control" value={deptFilter} onChange={e => changeFilter(setDeptFilter, e.target.value)} aria-label="Filter by department">
               <option value="">All departments</option>
               {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
             </select>
-            <select className="form-control" value={semFilter} onChange={e => setSemFilter(e.target.value)} aria-label="Filter by semester">
+            <select className="form-control" value={semFilter} onChange={e => changeFilter(setSemFilter, e.target.value)} aria-label="Filter by semester">
               <option value="">All semesters</option>
               {SEMESTERS.map(s => <option key={s} value={s}>Semester {s}</option>)}
             </select>
@@ -169,7 +185,7 @@ export default function StudentManagement() {
             <div className="spinner" />
             <span>Loading…</span>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : students.length === 0 ? (
           <div className="empty-state">
             <Users size={40} />
             <p>{search || deptFilter || semFilter ? 'No students match your filters' : 'No students yet. Add one to get started.'}</p>
@@ -189,9 +205,9 @@ export default function StudentManagement() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((s, i) => (
+                {students.map((s, i) => (
                   <tr key={s.id}>
-                    <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{i + 1}</td>
+                    <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{page * size + i + 1}</td>
                     <td><code className="reg-no">{s.registerNumber || '—'}</code></td>
                     <td style={{ fontWeight: 500 }}>{s.name}</td>
                     <td style={{ color: 'var(--text-muted)' }}>{s.email || '—'}</td>
@@ -230,6 +246,11 @@ export default function StudentManagement() {
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={page} size={size} totalElements={totalElements} totalPages={totalPages}
+              onPageChange={p => { setLoading(true); setPage(p); }}
+              onSizeChange={n => { setLoading(true); setPage(0); setSize(n); }}
+            />
           </div>
         )}
       </div>

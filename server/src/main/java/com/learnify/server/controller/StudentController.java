@@ -1,5 +1,6 @@
 package com.learnify.server.controller;
 
+import com.learnify.server.dto.PageResponse;
 import com.learnify.server.entity.Student;
 import com.learnify.server.exception.NotFoundException;
 import com.learnify.server.service.StudentService;
@@ -37,6 +38,16 @@ public class StudentController {
             return ResponseEntity.ok(studentService.getStudentsByDepartment(department));
         }
         return ResponseEntity.ok(studentService.getAllStudents());
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<PageResponse<Student>> getStudentPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String department,
+            @RequestParam(required = false) Integer semester) {
+        return ResponseEntity.ok(studentService.getStudentPage(page, size, search, department, semester));
     }
 
     @GetMapping("/{id}")

@@ -52,6 +52,9 @@ export async function installFakeApi(page: Page) {
       });
     }
     if (path === '/students' && method === 'GET') return json(route, 200, students);
+    if (path === '/students/page' && method === 'GET') {
+      return json(route, 200, { content: students, page: 0, size: 10, totalElements: students.length, totalPages: 1 });
+    }
     if (path === '/students' && method === 'POST') {
       if (role !== 'ADMIN') return error(route, 403, 'You do not have permission to perform this action.');
       const body = req.postDataJSON();

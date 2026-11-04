@@ -1,5 +1,6 @@
 package com.learnify.server.service;
 
+import com.learnify.server.dto.PageResponse;
 import com.learnify.server.entity.Student;
 import com.learnify.server.exception.ConflictException;
 import com.learnify.server.exception.NotFoundException;
@@ -49,6 +50,21 @@ public class StudentService {
     public List<Student> searchStudents(String query) {
         String q = query.trim();
         return studentRepository.findByNameContainingIgnoreCaseOrRegisterNumberContainingIgnoreCase(q, q);
+    }
+
+    /** Search, department and semester combine; each is optional. */
+    public PageResponse<Student> getStudentPage(int page, int size, String search, String department, Integer semester) {
+        String q = search == null ? "" : search.trim().toLowerCase();
+        List<Student> matches = studentRepository.findAll().stream()
+                .filter(s -> q.isEmpty() || contains(s.getName(), q) || contains(s.getRegisterNumber(), q))
+                .filter(s -> department == null || department.isBlank() || department.equals(s.getDepartment()))
+                .filter(s -> semester == null || semester == s.getSemester())
+                .toList();
+        return PageResponse.of(matches, page, size);
+    }
+
+    private static boolean contains(String value, String lowerCaseQuery) {
+        return value != null && value.toLowerCase().contains(lowerCaseQuery);
     }
 
     public Student updateStudent(String id, Student updated) {

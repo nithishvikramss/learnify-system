@@ -1,9 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ClipboardList, Plus, X, CheckCircle, Edit2, Trash2, Save, Search } from 'lucide-react';
 import {
-  getAllStudents, getAllSubjects, addMarks, getAllMarks, updateMarks, deleteMarks, getErrorMessage
+  getAllStudents, getAllSubjects, addMarks, getMarksPage, updateMarks, deleteMarks, getErrorMessage
 } from '../api/api';
 import type { Student, Subject, Marks, MarksDetail } from '../types';
+import Pagination from '../components/Pagination';
 
 /** A subject is passed with at least 40% of its max marks (same rule as the backend). */
 const PASS_PERCENTAGE = 40;
@@ -23,7 +24,11 @@ function validateScores(internal: string, external: string, maxMarks: number): s
 export default function MarksEntry() {
   const [students, setStudents] = useState<Student[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [allMarks, setAllMarks] = useState<MarksDetail[]>([]);
+  const [marksRows, setMarksRows] = useState<MarksDetail[]>([]);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -46,17 +51,49 @@ export default function MarksEntry() {
 
   const [reloadKey, setReloadKey] = useState(0);
 
+  // Students and subjects for the pickers
   useEffect(() => {
     let active = true;
-    Promise.all([getAllStudents(), getAllSubjects(), getAllMarks()])
-      .then(([s, sub, m]) => {
+    Promise.all([getAllStudents(), getAllSubjects()])
+      .then(([s, sub]) => {
         if (!active) return;
-        setStudents(s); setSubjects(sub); setAllMarks(m);
+        setStudents(s);
+        setSubjects(sub);
       })
-      .catch(err => { if (active) setAlert({ type: 'error', msg: getErrorMessage(err, 'Failed to load data') }); })
-      .finally(() => { if (active) setLoading(false); });
+      .catch(err => { if (active) setAlert({ type: 'error', msg: getErrorMessage(err, 'Failed to load data') }); });
     return () => { active = false; };
   }, [reloadKey]);
+
+  // One page of marks. The short delay avoids a request for every keystroke while searching.
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(() => {
+      getMarksPage({
+        page, size,
+        search: search.trim() || undefined,
+        subjectId: subjectFilter || undefined,
+        result: resultFilter || undefined,
+      })
+        .then(data => {
+          if (!active) return;
+          if (data.content.length === 0 && page > 0) {
+            setPage(page - 1);
+            return;
+          }
+          setMarksRows(data.content);
+          setTotalElements(data.totalElements);
+          setTotalPages(data.totalPages);
+        })
+        .catch(err => { if (active) setAlert({ type: 'error', msg: getErrorMessage(err, 'Failed to load marks') }); })
+        .finally(() => { if (active) setLoading(false); });
+    }, 200);
+    return () => { active = false; clearTimeout(timer); };
+  }, [page, size, search, subjectFilter, resultFilter, reloadKey]);
+
+  const changeFilter = <T,>(setter: (value: T) => void, value: T) => {
+    setPage(0);
+    setter(value);
+  };
 
   const load = () => {
     setLoading(true);
@@ -164,19 +201,7 @@ export default function MarksEntry() {
     return isNaN(i) || isNaN(ex) || en.internal === '' || en.external === '' ? null : i + ex;
   };
 
-  const q = search.trim().toLowerCase();
-  const visibleMarks = allMarks.filter(m =>
-    (!q || m.studentName?.toLowerCase().includes(q) || m.registerNumber?.toLowerCase().includes(q)) &&
-    (!subjectFilter || m.subjectId === subjectFilter) &&
-    (!resultFilter || (resultFilter === 'pass') === m.passed)
-  );
-
-  // Group marks by student for the table
-  const byStudent: Record<string, MarksDetail[]> = {};
-  allMarks.forEach(m => {
-    if (!byStudent[m.studentId]) byStudent[m.studentId] = [];
-    byStudent[m.studentId].push(m);
-  });
+  const hasFilters = Boolean(search.trim() || subjectFilter || resultFilter);
 
   return (
     <div className="page-content">
@@ -187,15 +212,15 @@ export default function MarksEntry() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <ClipboardList size={18} color="var(--primary)" />
             <span className="section-title">
-              Marks Entry ({visibleMarks.length === allMarks.length ? allMarks.length : `${visibleMarks.length} of ${allMarks.length}`} records)
+              Marks Entry ({totalElements} records)
             </span>
           </div>
           <div className="toolbar">
-            <select className="form-control" value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)} aria-label="Filter by subject">
+            <select className="form-control" value={subjectFilter} onChange={e => changeFilter(setSubjectFilter, e.target.value)} aria-label="Filter by subject">
               <option value="">All subjects</option>
               {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
-            <select className="form-control" value={resultFilter} onChange={e => setResultFilter(e.target.value as '' | 'pass' | 'fail')} aria-label="Filter by result">
+            <select className="form-control" value={resultFilter} onChange={e => changeFilter(setResultFilter, e.target.value as '' | 'pass' | 'fail')} aria-label="Filter by result">
               <option value="">All results</option>
               <option value="pass">Pass</option>
               <option value="fail">Fail</option>
@@ -205,7 +230,7 @@ export default function MarksEntry() {
               <input
                 placeholder="Search student or register no…"
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => changeFilter(setSearch, e.target.value)}
                 aria-label="Search marks by student"
               />
             </div>
@@ -223,12 +248,12 @@ export default function MarksEntry() {
 
         {loading ? (
           <div className="loading-overlay"><div className="spinner" /><span>Loading…</span></div>
-        ) : allMarks.length === 0 ? (
+        ) : marksRows.length === 0 && !hasFilters ? (
           <div className="empty-state">
             <ClipboardList size={40} />
             <p>No marks entered yet.</p>
           </div>
-        ) : visibleMarks.length === 0 ? (
+        ) : marksRows.length === 0 ? (
           <div className="empty-state">
             <Search size={40} />
             <p>No marks match your filters.</p>
@@ -250,7 +275,7 @@ export default function MarksEntry() {
                 </tr>
               </thead>
               <tbody>
-                {visibleMarks.map(m => (
+                {marksRows.map(m => (
                   <tr key={m.marksId}>
                     <td style={{ fontWeight: 500 }}>{m.studentName}</td>
                     <td><span className="badge badge-info">{m.department}</span></td>
@@ -278,6 +303,11 @@ export default function MarksEntry() {
                 ))}
               </tbody>
             </table>
+            <Pagination
+              page={page} size={size} totalElements={totalElements} totalPages={totalPages}
+              onPageChange={setPage}
+              onSizeChange={n => { setPage(0); setSize(n); }}
+            />
           </div>
         )}
       </div>

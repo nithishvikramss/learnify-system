@@ -252,7 +252,7 @@ test('LIVE-09 teacher has no staff page; change-password form validates', async 
   await login(page, TEACHER);
   await expect(page.getByRole('button', { name: 'Staff', exact: true })).toHaveCount(0);
   await page.goto('/staff');
-  await expect(page).toHaveURL(/\/login|\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/);
 
   await page.getByRole('button', { name: 'Change Password' }).click();
   const dialog = page.getByRole('dialog', { name: 'Change password' });
@@ -264,6 +264,37 @@ test('LIVE-09 teacher has no staff page; change-password form validates', async 
   await dialog.getByLabel('Confirm New Password').fill('NewSecret#2026');
   await dialog.getByRole('button', { name: 'Change Password' }).click();
   await expect(dialog.getByText('Current password is incorrect.')).toBeVisible();
+});
+
+test('LIVE-10 pagination on students and marks, with filters', async ({ page }) => {
+  await login(page, ADMIN);
+  await go(page, 'Students');
+  const total = (await api<unknown[]>(page, '/students')).length;
+  expect(total, 'demo data has more than one page').toBeGreaterThan(10);
+  await expect(page.getByText(`Showing 1–10 of ${total}`)).toBeVisible();
+  await expect(page.locator('tbody tr')).toHaveCount(10);
+  await page.getByRole('button', { name: 'Next page' }).click();
+  await expect(page.getByText(`Showing 11–${Math.min(20, total)} of ${total}`)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Previous page' })).toBeEnabled();
+
+  await page.getByLabel('Rows per page').selectOption('25');
+  await expect(page.getByText(`Showing 1–${Math.min(25, total)} of ${total}`)).toBeVisible();
+
+  // A filter applies across all pages and resets to the first page
+  await page.getByLabel('Filter by department').selectOption('Civil');
+  const civil = (await api<unknown[]>(page, '/students?department=Civil')).length;
+  await expect(page.getByText(`Showing 1–${civil} of ${civil}`)).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/LIVE-10-students-filtered.png` });
+
+  await go(page, 'Marks Entry');
+  await expect(page.locator('tbody tr')).toHaveCount(10);
+  await page.getByRole('button', { name: 'Next page' }).click();
+  await expect(page.getByText(/Showing 11–20 of/)).toBeVisible();
+  await page.getByLabel('Filter by result').selectOption('fail');
+  await expect(page.getByText(/Showing 1–/)).toBeVisible();
+  await expect(page.locator('tbody .badge-danger').first()).toBeVisible();
+  await expect(page.locator('tbody .badge-success')).toHaveCount(0);
+  await page.screenshot({ path: `${SHOTS}/LIVE-10-marks-paged.png` });
 });
 
 test('LIVE-07 logout ends the session', async ({ page }) => {

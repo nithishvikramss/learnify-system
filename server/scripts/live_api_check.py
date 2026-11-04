@@ -145,6 +145,17 @@ def main():
     status, _ = call("GET", f"/students/{sid}", admin)
     check("Deleted student -> 404", status == 404, status)
 
+    # --- Pagination (server-side, filters across all records) ---
+    total = students.count_documents({})
+    status, body = call("GET", "/students/page?page=0&size=10", teacher)
+    check("Student page: 10 rows and correct total", status == 200 and len(body["content"]) == min(10, total) and body["totalElements"] == total, status)
+    status, body = call("GET", "/students/page?page=0&size=100&department=Civil", teacher)
+    check("Student page filter matches MongoDB", body["totalElements"] == students.count_documents({"department": "Civil"}), body["totalElements"])
+    status, _ = call("GET", "/students/page?page=0&size=1000", teacher)
+    check("Oversized page -> 400", status == 400, status)
+    status, body = call("GET", "/marks/page?page=1&size=25", teacher)
+    check("Marks page 2: correct total", status == 200 and body["page"] == 1 and body["totalElements"] == marks.count_documents({}), status)
+
     # --- Staff accounts ---
     for u in db["users"].find({"username": STAFF}):
         call("DELETE", f"/users/{u['_id']}", admin)
