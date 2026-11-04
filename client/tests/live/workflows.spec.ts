@@ -203,6 +203,8 @@ test('LIVE-11 attendance: mark, save, reload, report card', async ({ page }) => 
   // Reload: the saved value comes back from the database
   await page.reload();
   await selectContaining(page.getByLabel('Subject'), 'Live UI Subject');
+  await expect(page.getByText(/Saved for \d+ of \d+ students/)).toBeVisible();
+  await page.getByLabel('Filter by department').selectOption('Mechanical');
   await expect(page.getByText('Saved for this date')).toBeVisible();
   await expect(page.getByRole('row', { name: /Live UI Student/ }).getByRole('button', { name: 'Absent' })).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/LIVE-11-attendance.png` });

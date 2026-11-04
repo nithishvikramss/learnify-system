@@ -42,7 +42,7 @@ test('UI-03 admin logs in, sees dashboard, adds a student with validation', asyn
   await page.screenshot({ path: `${SHOTS}/UI-03a-dashboard.png`, fullPage: true });
 
   await page.getByRole('button', { name: 'Students' }).click();
-  await expect(page.getByText('Asha Raman')).toBeVisible();
+  await expect(page.getByRole('cell', { name: '23SMS001' })).toBeVisible();
   await page.getByRole('button', { name: 'Add Student' }).click();
 
   // Submitting an empty form shows field errors and sends nothing
@@ -82,7 +82,7 @@ test('UI-05 teacher sees students read-only (no add/edit/delete)', async ({ page
   await login(page, 'teacher', 'Teach#2026');
   await expect(page).toHaveURL(/\/dashboard$/);
   await page.getByRole('button', { name: 'Students' }).click();
-  await expect(page.getByText('Asha Raman')).toBeVisible();
+  await expect(page.getByRole('cell', { name: '23SMS001' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add Student' })).toHaveCount(0);
   await expect(page.getByTitle('Delete')).toHaveCount(0);
   await expect(page.getByText('Teacher:')).toBeVisible();
@@ -105,7 +105,7 @@ test('UI-07 mobile layout: menu button opens the sidebar', async ({ page }) => {
   await page.getByRole('button', { name: 'Open menu' }).click();
   await page.getByRole('button', { name: 'Students' }).click();
   await expect(page).toHaveURL(/\/students$/);
-  await expect(page.getByText('Asha Raman')).toBeVisible();
+  await expect(page.getByRole('cell', { name: '23SMS001' })).toBeVisible();
   // The page itself must not scroll sideways on a phone (wide tables scroll inside their card)
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);

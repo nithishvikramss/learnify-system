@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import StudentManagement from './pages/StudentManagement';
-import Subjects from './pages/Subjects';
-import MarksEntry from './pages/MarksEntry';
-import Reports from './pages/Reports';
-import StaffManagement from './pages/StaffManagement';
-import Attendance from './pages/Attendance';
+
+// Each page is downloaded when first opened, so the login page stays small.
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const StudentManagement = lazy(() => import('./pages/StudentManagement'));
+const Subjects = lazy(() => import('./pages/Subjects'));
+const MarksEntry = lazy(() => import('./pages/MarksEntry'));
+const Reports = lazy(() => import('./pages/Reports'));
+const StaffManagement = lazy(() => import('./pages/StaffManagement'));
+const Attendance = lazy(() => import('./pages/Attendance'));
+
 import { getSession, isAdmin, ROLE_LABELS } from './auth/session';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -50,6 +53,7 @@ function AppLayout() {
             </span>
           </div>
         </header>
+        <Suspense fallback={<div className="loading-overlay"><div className="spinner" /><span>Loading…</span></div>}>
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/students"  element={<StudentManagement />} />
@@ -60,6 +64,7 @@ function AppLayout() {
           <Route path="/staff"     element={isAdmin(session) ? <StaffManagement /> : <Navigate to="/dashboard" replace />} />
           <Route path="*"          element={<Navigate to="/dashboard" replace />} />
         </Routes>
+        </Suspense>
       </div>
     </div>
   );

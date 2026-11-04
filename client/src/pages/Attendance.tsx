@@ -21,7 +21,7 @@ export default function Attendance() {
   const [department, setDepartment] = useState('');
   const [semester, setSemester] = useState('');
   const [present, setPresent] = useState<Record<string, boolean>>({});
-  const [alreadySaved, setAlreadySaved] = useState(false);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [sheetLoading, setSheetLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -48,7 +48,7 @@ export default function Attendance() {
       .then(records => {
         if (!active) return;
         setPresent(Object.fromEntries(records.map(r => [r.studentId, r.present])));
-        setAlreadySaved(records.length > 0);
+        setSavedIds(new Set(records.map(r => r.studentId)));
       })
       .catch(err => { if (active) setAlert({ type: 'error', msg: getErrorMessage(err, 'Failed to load attendance') }); })
       .finally(() => { if (active) setSheetLoading(false); });
@@ -64,6 +64,7 @@ export default function Attendance() {
   // A student without a saved record counts as present until changed
   const isPresent = (id: string) => present[id] ?? true;
   const presentCount = roster.filter(s => isPresent(s.id!)).length;
+  const savedCount = roster.filter(s => savedIds.has(s.id!)).length;
 
   const markAll = (value: boolean) =>
     setPresent(p => ({ ...p, ...Object.fromEntries(roster.map(s => [s.id!, value])) }));
@@ -76,7 +77,7 @@ export default function Attendance() {
         subjectId, date,
         entries: roster.map(s => ({ studentId: s.id!, present: isPresent(s.id!) })),
       });
-      setAlreadySaved(true);
+      setSavedIds(ids => new Set([...ids, ...roster.map(s => s.id!)]));
       setAlert({ type: 'success', msg: `Attendance saved for ${roster.length} student(s) on ${date}` });
     } catch (err) {
       setAlert({ type: 'error', msg: getErrorMessage(err, 'Failed to save attendance') });
@@ -130,8 +131,10 @@ export default function Attendance() {
         ) : (
           <>
             <div className="attendance-actions">
-              <span className={`badge ${alreadySaved ? 'badge-success' : 'badge-warning'}`}>
-                {alreadySaved ? 'Saved for this date' : 'Not saved yet'}
+              <span className={`badge ${savedCount === roster.length ? 'badge-success' : 'badge-warning'}`}>
+                {savedCount === 0 ? 'Not saved yet'
+                  : savedCount === roster.length ? 'Saved for this date'
+                  : `Saved for ${savedCount} of ${roster.length} students`}
               </span>
               <span>Present: <strong>{presentCount}</strong> / {roster.length}</span>
               <button className="btn btn-secondary btn-sm" onClick={() => markAll(true)}><CheckCheck size={13} /> All present</button>
