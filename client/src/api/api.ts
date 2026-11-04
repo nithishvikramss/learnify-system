@@ -1,6 +1,7 @@
 import axios, { isAxiosError } from 'axios';
 import type {
   Student, Subject, Marks, MarksDetail, StaffUser, NewStaffUser, PageResponse,
+  AttendanceRecord, AttendanceSummary,
   SubjectAverage, TopStudent, PassFailStats, AnalyticsSummary
 } from '../types';
 import { getSession, clearSession, type Session } from '../auth/session';
@@ -127,6 +128,16 @@ export const deleteMarks = (id: string) =>
 
 export const getMarksByStudent = (studentId: string) =>
   api.get<MarksDetail[]>(`/marks/student/${studentId}`).then(r => r.data);
+
+// --- Attendance APIs ---
+export const getAttendanceSheet = (subjectId: string, date: string) =>
+  api.get<AttendanceRecord[]>('/attendance', { params: { subjectId, date } }).then(r => r.data);
+
+export const saveAttendanceSheet = (sheet: { subjectId: string; date: string; entries: { studentId: string; present: boolean }[] }) =>
+  api.put<AttendanceRecord[]>('/attendance', sheet).then(r => r.data);
+
+export const getAttendanceSummary = (studentId: string) =>
+  api.get<AttendanceSummary[]>(`/attendance/student/${studentId}`).then(r => r.data);
 
 // --- Analytics APIs ---
 export const getAnalyticsSummary = () =>

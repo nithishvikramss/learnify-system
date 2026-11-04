@@ -7,6 +7,7 @@ import {
 import type { AnalyticsSummary, Student, MarksDetail, TopStudent } from '../types';
 import { SubjectBarChart } from '../components/Charts';
 import { toCsv, downloadCsv } from '../utils/csv';
+import AttendanceSummaryTable from '../components/AttendanceSummaryTable';
 
 type Tab = 'overview' | 'reportcard' | 'weak';
 
@@ -344,6 +345,9 @@ export default function Reports() {
                 <span>Total: <strong>{totalMarks} / {totalMax}</strong></span>
                 <span>Average: <strong>{avgMarks}%</strong></span>
               </div>
+
+              <h3 className="details-heading" style={{ marginTop: 20 }}>Attendance</h3>
+              <AttendanceSummaryTable key={student.id} studentId={student.id!} />
             </div>
           )}
 

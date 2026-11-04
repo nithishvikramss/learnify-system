@@ -93,7 +93,7 @@ export default function Subjects() {
       if (getErrorStatus(err) === 409 && confirm(`${getErrorMessage(err)}\n\nThis cannot be undone.`)) {
         try {
           await deleteSubject(id, true);
-          showAlert('success', `${name} and its marks deleted`);
+          showAlert('success', `${name} and its records deleted`);
           load();
         } catch (err2) {
           showAlert('error', getErrorMessage(err2, 'Delete failed'));

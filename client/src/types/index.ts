@@ -101,3 +101,20 @@ export interface PageResponse<T> {
   totalElements: number;
   totalPages: number;
 }
+
+export interface AttendanceRecord {
+  id: string;
+  studentId: string;
+  subjectId: string;
+  date: string;
+  present: boolean;
+}
+
+export interface AttendanceSummary {
+  subjectId: string;
+  subjectName: string;
+  attended: number;
+  total: number;
+  percentage: number;
+  belowMinimum: boolean;
+}

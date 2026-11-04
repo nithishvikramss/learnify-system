@@ -9,6 +9,7 @@ import Subjects from './pages/Subjects';
 import MarksEntry from './pages/MarksEntry';
 import Reports from './pages/Reports';
 import StaffManagement from './pages/StaffManagement';
+import Attendance from './pages/Attendance';
 import { getSession, isAdmin, ROLE_LABELS } from './auth/session';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -16,6 +17,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/students':  'Student Management',
   '/subjects':  'Subjects',
   '/marks':     'Marks Entry',
+  '/attendance': 'Attendance',
   '/reports':   'Reports & Analytics',
   '/staff':     'Staff Accounts',
 };
@@ -53,6 +55,7 @@ function AppLayout() {
           <Route path="/students"  element={<StudentManagement />} />
           <Route path="/subjects"  element={<Subjects />} />
           <Route path="/marks"     element={<MarksEntry />} />
+          <Route path="/attendance" element={<Attendance />} />
           <Route path="/reports"   element={<Reports />} />
           <Route path="/staff"     element={isAdmin(session) ? <StaffManagement /> : <Navigate to="/dashboard" replace />} />
           <Route path="*"          element={<Navigate to="/dashboard" replace />} />

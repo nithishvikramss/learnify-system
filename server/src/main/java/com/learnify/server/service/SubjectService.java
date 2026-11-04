@@ -5,6 +5,7 @@ import com.learnify.server.entity.Subject;
 import com.learnify.server.exception.BadRequestException;
 import com.learnify.server.exception.ConflictException;
 import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.repository.AttendanceRepository;
 import com.learnify.server.repository.MarksRepository;
 import com.learnify.server.repository.SubjectRepository;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,13 @@ public class SubjectService {
 
     private final SubjectRepository subjectRepository;
     private final MarksRepository marksRepository;
+    private final AttendanceRepository attendanceRepository;
 
-    public SubjectService(SubjectRepository subjectRepository, MarksRepository marksRepository) {
+    public SubjectService(SubjectRepository subjectRepository, MarksRepository marksRepository,
+                          AttendanceRepository attendanceRepository) {
         this.subjectRepository = subjectRepository;
         this.marksRepository = marksRepository;
+        this.attendanceRepository = attendanceRepository;
     }
 
     public Subject addSubject(Subject subject) {
@@ -70,21 +74,21 @@ public class SubjectService {
     }
 
     /**
-     * Deletes a subject. If marks exist for it, deletion is refused unless {@code cascade} is true,
-     * in which case those marks are deleted too (so no orphaned marks remain).
+     * Deletes a subject. If marks or attendance exist for it, deletion is refused unless {@code cascade}
+     * is true, in which case those records are deleted too (so no orphans remain).
      */
     public void deleteSubject(String id, boolean cascade) {
         if (!subjectRepository.existsById(id)) {
             throw new NotFoundException("Subject not found");
         }
         long marksCount = marksRepository.countBySubjectId(id);
-        if (marksCount > 0 && !cascade) {
-            throw new ConflictException("This subject has " + marksCount
-                    + " marks record(s). Delete the subject together with its marks?");
+        long attendanceCount = attendanceRepository.countBySubjectId(id);
+        if ((marksCount > 0 || attendanceCount > 0) && !cascade) {
+            throw new ConflictException("This subject has " + marksCount + " marks record(s) and "
+                    + attendanceCount + " attendance record(s). Delete the subject together with them?");
         }
-        if (marksCount > 0) {
-            marksRepository.deleteBySubjectId(id);
-        }
+        marksRepository.deleteBySubjectId(id);
+        attendanceRepository.deleteBySubjectId(id);
         subjectRepository.deleteById(id);
     }
 

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { X, BookOpen } from 'lucide-react';
+import { X, BookOpen, CalendarCheck } from 'lucide-react';
 import { getMarksByStudent, getErrorMessage } from '../api/api';
 import type { MarksDetail, Student } from '../types';
+import AttendanceSummaryTable from './AttendanceSummaryTable';
 
 interface Props {
   student: Student;
@@ -88,6 +89,9 @@ export default function StudentDetailsModal({ student, onClose }: Props) {
               </div>
             </>
           )}
+
+          <h3 className="details-heading" style={{ marginTop: 18 }}><CalendarCheck size={14} /> Attendance</h3>
+          <AttendanceSummaryTable studentId={student.id!} />
         </div>
       </div>
     </div>

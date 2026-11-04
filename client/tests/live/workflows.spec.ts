@@ -186,6 +186,44 @@ test('LIVE-04 subjects and marks: create, filter, edit, report card, CSV', async
   await expect(page.getByText(/Students Below 50%/)).toBeVisible();
 });
 
+test('LIVE-11 attendance: mark, save, reload, report card', async ({ page }) => {
+  await login(page, TEACHER);
+  await go(page, 'Attendance');
+  await expect(page.getByText('Select a subject and a date to take attendance.')).toBeVisible();
+  await selectContaining(page.getByLabel('Subject'), 'Live UI Subject');
+  await expect(page.getByText('Not saved yet')).toBeVisible();
+
+  await page.getByLabel('Filter by department').selectOption('Mechanical');
+  const row = page.getByRole('row', { name: /Live UI Student/ });
+  await row.getByRole('button', { name: 'Present' }).click();
+  await expect(row.getByRole('button', { name: 'Absent' })).toBeVisible();
+  await page.getByRole('button', { name: 'Save Attendance' }).click();
+  await expect(page.getByText(/Attendance saved for \d+ student/)).toBeVisible();
+
+  // Reload: the saved value comes back from the database
+  await page.reload();
+  await selectContaining(page.getByLabel('Subject'), 'Live UI Subject');
+  await expect(page.getByText('Saved for this date')).toBeVisible();
+  await expect(page.getByRole('row', { name: /Live UI Student/ }).getByRole('button', { name: 'Absent' })).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/LIVE-11-attendance.png` });
+
+  // A future date cannot be saved, even if the browser's date limit is bypassed
+  const token = await page.evaluate(() => JSON.parse(sessionStorage.getItem('sms.session') || '{}').token);
+  const res = await page.request.put('/api/attendance', {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { subjectId: 'any', date: '2999-01-01', entries: [{ studentId: 'any', present: true }] },
+  });
+  expect(res.status()).toBe(400);
+
+  // The report card shows 0 of 1 attended, flagged below 75%
+  await go(page, 'Reports & Analytics');
+  await page.getByRole('button', { name: 'Student Report Card' }).click();
+  await selectContaining(page.locator('select').first(), REG);
+  await page.getByRole('button', { name: 'View Report' }).click();
+  const attendanceRow = page.locator('.print-area').getByRole('row', { name: /0 \/ 1/ });
+  await expect(attendanceRow).toContainText('Below 75%');
+});
+
 test('LIVE-05 teacher: read-only students, can view details, cannot see admin actions', async ({ page }) => {
   await login(page, TEACHER);
   await expect(page.getByText('Teacher:')).toBeVisible();
@@ -214,7 +252,7 @@ test('LIVE-06 clean-up through the UI: delete marks, subject (cascade) and stude
 
   await go(page, 'Subjects');
   await page.getByRole('row', { name: /Live UI Subject/ }).getByTitle('Delete').click();
-  await expect(page.getByText('Live UI Subject deleted')).toBeVisible();
+  await expect(page.getByText(/Live UI Subject (and its records )?deleted/)).toBeVisible();
 
   await go(page, 'Students');
   await page.getByPlaceholder('Search name or register no…').fill(REG);

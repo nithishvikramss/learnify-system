@@ -4,6 +4,7 @@ import com.learnify.server.dto.PageResponse;
 import com.learnify.server.entity.Student;
 import com.learnify.server.exception.ConflictException;
 import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.repository.AttendanceRepository;
 import com.learnify.server.repository.MarksRepository;
 import com.learnify.server.repository.StudentRepository;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,13 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
     private final MarksRepository marksRepository;
+    private final AttendanceRepository attendanceRepository;
 
-    public StudentService(StudentRepository studentRepository, MarksRepository marksRepository) {
+    public StudentService(StudentRepository studentRepository, MarksRepository marksRepository,
+                          AttendanceRepository attendanceRepository) {
         this.studentRepository = studentRepository;
         this.marksRepository = marksRepository;
+        this.attendanceRepository = attendanceRepository;
     }
 
     public Student addStudent(Student student) {
@@ -90,6 +94,7 @@ public class StudentService {
             throw new NotFoundException("Student not found");
         }
         marksRepository.deleteByStudentId(id);
+        attendanceRepository.deleteByStudentId(id);
         studentRepository.deleteById(id);
     }
 

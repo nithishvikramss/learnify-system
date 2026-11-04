@@ -4,6 +4,7 @@ import com.learnify.server.entity.Marks;
 import com.learnify.server.entity.Subject;
 import com.learnify.server.exception.BadRequestException;
 import com.learnify.server.exception.ConflictException;
+import com.learnify.server.repository.AttendanceRepository;
 import com.learnify.server.repository.MarksRepository;
 import com.learnify.server.repository.SubjectRepository;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ class SubjectServiceTest {
 
     @Mock private SubjectRepository subjectRepository;
     @Mock private MarksRepository marksRepository;
+    @Mock private AttendanceRepository attendanceRepository;
     @InjectMocks private SubjectService subjectService;
 
     private static Subject subject(String id, int max) {
@@ -55,6 +57,17 @@ class SubjectServiceTest {
     }
 
     @Test
+    void deleteWithOnlyAttendanceIsAlsoBlocked() {
+        when(subjectRepository.existsById("sub1")).thenReturn(true);
+        when(attendanceRepository.countBySubjectId("sub1")).thenReturn(2L);
+
+        assertThatThrownBy(() -> subjectService.deleteSubject("sub1", false))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("2 attendance record(s)");
+        verify(subjectRepository, never()).deleteById(any());
+    }
+
+    @Test
     void cascadeDeleteRemovesMarksToo() {
         when(subjectRepository.existsById("sub1")).thenReturn(true);
         when(marksRepository.countBySubjectId("sub1")).thenReturn(3L);
@@ -62,6 +75,7 @@ class SubjectServiceTest {
         subjectService.deleteSubject("sub1", true);
 
         verify(marksRepository).deleteBySubjectId("sub1");
+        verify(attendanceRepository).deleteBySubjectId("sub1");
         verify(subjectRepository).deleteById("sub1");
     }
 

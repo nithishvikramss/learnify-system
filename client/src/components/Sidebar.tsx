@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, BookOpen, ClipboardList,
-  BarChart3, GraduationCap, LogOut, UserCog, KeyRound
+  BarChart3, GraduationCap, LogOut, UserCog, KeyRound, CalendarCheck
 } from 'lucide-react';
 import { useState } from 'react';
 import ChangePasswordModal from './ChangePasswordModal';
@@ -12,6 +12,7 @@ const navItems = [
   { path: '/students',   icon: Users,           label: 'Students'          },
   { path: '/subjects',   icon: BookOpen,        label: 'Subjects'          },
   { path: '/marks',      icon: ClipboardList,   label: 'Marks Entry'       },
+  { path: '/attendance', icon: CalendarCheck,   label: 'Attendance'        },
   { path: '/reports',    icon: BarChart3,       label: 'Reports & Analytics'},
   { path: '/staff',      icon: UserCog,         label: 'Staff', adminOnly: true },
 ];

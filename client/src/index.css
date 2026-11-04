@@ -447,3 +447,10 @@ tbody tr:hover { background: #fafbfc; }
 .pagination-size { display: flex; align-items: center; gap: 8px; }
 .pagination-size .form-control { width: auto; padding-top: 4px; padding-bottom: 4px; }
 .pagination-buttons { display: flex; align-items: center; gap: 8px; }
+
+/* ── Attendance ── */
+.attendance-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; }
+.attendance-save { display: flex; justify-content: flex-end; margin-top: 14px; }
+.btn-present { background: #dcfce7; color: #15803d; border-color: #86efac; min-width: 76px; justify-content: center; }
+.btn-present:hover:not(:disabled) { background: #bbf7d0; }
+.toolbar input[type=date] { min-width: 140px; }

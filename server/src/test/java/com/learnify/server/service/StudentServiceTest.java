@@ -3,6 +3,7 @@ package com.learnify.server.service;
 import com.learnify.server.entity.Student;
 import com.learnify.server.exception.ConflictException;
 import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.repository.AttendanceRepository;
 import com.learnify.server.repository.MarksRepository;
 import com.learnify.server.repository.StudentRepository;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ class StudentServiceTest {
 
     @Mock private StudentRepository studentRepository;
     @Mock private MarksRepository marksRepository;
+    @Mock private AttendanceRepository attendanceRepository;
     @InjectMocks private StudentService studentService;
 
     private static Student student(String regNo, String email) {
@@ -135,6 +137,7 @@ class StudentServiceTest {
         studentService.deleteStudent("s1");
 
         verify(marksRepository).deleteByStudentId("s1");
+        verify(attendanceRepository).deleteByStudentId("s1");
         verify(studentRepository).deleteById("s1");
     }
 

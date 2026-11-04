@@ -35,7 +35,7 @@ import java.util.List;
  * <ul>
  *   <li>POST /api/auth/login is public; every other /api endpoint needs a valid token.</li>
  *   <li>Students and subjects: anyone logged in can read; only ADMIN can create/update/delete.</li>
- *   <li>Marks: ADMIN and TEACHER can create/update/delete.</li>
+ *   <li>Marks and attendance: ADMIN and TEACHER can create/update/delete.</li>
  *   <li>Staff accounts: ADMIN only; anyone logged in can change their own password.</li>
  * </ul>
  */
@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/**").authenticated()
                         .requestMatchers("/api/students/**", "/api/subjects/**").hasRole("ADMIN")
-                        .requestMatchers("/api/marks/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers("/api/marks/**", "/api/attendance/**").hasAnyRole("ADMIN", "TEACHER")
                         .anyRequest().denyAll())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> writeError(req, res, HttpStatus.UNAUTHORIZED,

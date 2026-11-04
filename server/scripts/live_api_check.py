@@ -15,6 +15,7 @@ import os
 import sys
 import urllib.error
 import urllib.request
+from datetime import date, timedelta
 
 from pymongo import MongoClient
 
@@ -134,6 +135,23 @@ def main():
           status == 200 and body["totalStudents"] == students.count_documents({})
           and body["totalSubjects"] == db["subjects"].count_documents({}), status)
 
+    # --- Attendance ---
+    attendance = db["attendance"]
+    today = date.today().isoformat()
+    sheet = {"subjectId": sub_id, "date": today, "entries": [{"studentId": sid, "present": True}]}
+    status, _ = call("PUT", "/attendance", teacher, sheet)
+    check("Teacher saves attendance -> 200", status == 200, status)
+    sheet["entries"][0]["present"] = False
+    status, _ = call("PUT", "/attendance", teacher, sheet)
+    rows = list(attendance.find({"studentId": sid}))
+    check("Saving the same date updates, no duplicate", len(rows) == 1 and rows[0]["present"] is False and rows[0]["date"] == today, len(rows))
+    status, _ = call("PUT", "/attendance", teacher, {**sheet, "date": (date.today() + timedelta(days=1)).isoformat()})
+    check("Future date -> 400", status == 400, status)
+    status, _ = call("PUT", "/attendance", None, sheet)
+    check("Attendance without login -> 401", status == 401, status)
+    status, body = call("GET", f"/attendance/student/{sid}", teacher)
+    check("Summary: 0 of 1, flagged below 75%", status == 200 and body[0]["total"] == 1 and body[0]["attended"] == 0 and body[0]["belowMinimum"] is True, status)
+
     # --- Delete removes the student and their marks ---
     status, _ = call("DELETE", f"/students/{sid}", teacher)
     check("Teacher cannot delete student -> 403", status == 403, status)
@@ -141,6 +159,7 @@ def main():
     check("Delete student -> 200", status == 200, status)
     check("Student and their marks removed from MongoDB",
           students.find_one({"registerNumber": REG}) is None and marks.count_documents({"studentId": sid}) == 0)
+    check("Student's attendance removed from MongoDB", attendance.count_documents({"studentId": sid}) == 0)
     check("Total students back to the original count", students.count_documents({}) == count_before)
     status, _ = call("GET", f"/students/{sid}", admin)
     check("Deleted student -> 404", status == 404, status)
