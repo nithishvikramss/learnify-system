@@ -25,9 +25,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
+    private final UserStatusChecker userStatusChecker;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserStatusChecker userStatusChecker) {
         this.jwtService = jwtService;
+        this.userStatusChecker = userStatusChecker;
     }
 
     @Override
@@ -35,11 +37,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header != null && header.startsWith(BEARER_PREFIX)) {
-            jwtService.verify(header.substring(BEARER_PREFIX.length())).ifPresent(user -> {
-                var authority = new SimpleGrantedAuthority("ROLE_" + user.role().name());
-                var auth = new UsernamePasswordAuthenticationToken(user.username(), null, List.of(authority));
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            });
+            jwtService.verify(header.substring(BEARER_PREFIX.length()))
+                    .filter(user -> userStatusChecker.isActive(user.username()))
+                    .ifPresent(user -> {
+                        var authority = new SimpleGrantedAuthority("ROLE_" + user.role().name());
+                        var auth = new UsernamePasswordAuthenticationToken(user.username(), null, List.of(authority));
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    });
         }
         chain.doFilter(request, response);
     }

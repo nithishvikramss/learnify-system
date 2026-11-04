@@ -9,6 +9,7 @@ import { ADMIN, TEACHER } from './env';
 const SHOTS = '../docs/test-evidence/screenshots/live';
 const REG = 'LIVEUI01';
 const SUBJECT_CODE = 'LIVE-UI';
+const STAFF_USER = 'liveui.staff';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -26,6 +27,9 @@ test.beforeAll(async ({ request }) => {
   const headers = { Authorization: `Bearer ${token}` };
   for (const s of await (await request.get(`/api/students?search=${REG}`, { headers })).json()) {
     if (s.registerNumber === REG) await request.delete(`/api/students/${s.id}`, { headers });
+  }
+  for (const u of await (await request.get('/api/users', { headers })).json()) {
+    if (u.username === STAFF_USER) await request.delete(`/api/users/${u.id}`, { headers });
   }
   for (const s of await (await request.get('/api/subjects', { headers })).json()) {
     if (s.code === SUBJECT_CODE) await request.delete(`/api/subjects/${s.id}?cascade=true`, { headers });
@@ -217,6 +221,49 @@ test('LIVE-06 clean-up through the UI: delete marks, subject (cascade) and stude
   await page.getByRole('row', { name: /Live UI Student/ }).getByTitle('Delete').click();
   await expect(page.getByText('Live UI Student deleted')).toBeVisible();
   expect(await api<unknown[]>(page, `/students?search=${REG}`)).toEqual([]);
+});
+
+test('LIVE-08 staff accounts: admin creates, disables and deletes a teacher', async ({ page }) => {
+  await login(page, ADMIN);
+  page.on('dialog', d => d.accept());
+  await go(page, 'Staff');
+  await expect(page.getByRole('row', { name: /admin/ })).toContainText('Administrator');
+
+  await page.getByRole('button', { name: 'Add Teacher' }).click();
+  await page.getByRole('button', { name: 'Create Account' }).click();
+  await expect(page.getByText('Full name is required')).toBeVisible();
+  await page.getByLabel('Full Name').fill('Live Staff');
+  await page.getByLabel('Username').fill(STAFF_USER);
+  await page.getByLabel('Initial Password').fill('StaffPass#2026');
+  await page.getByRole('button', { name: 'Create Account' }).click();
+  const row = page.getByRole('row', { name: /liveui\.staff/ });
+  await expect(row).toContainText('Active');
+  await page.screenshot({ path: `${SHOTS}/LIVE-08-staff.png` });
+
+  await row.getByRole('button', { name: 'Disable' }).click();
+  await expect(row).toContainText('Disabled');
+  await row.getByRole('button', { name: 'Enable' }).click();
+  await expect(row).toContainText('Active');
+  await row.getByTitle('Delete').click();
+  await expect(row).toHaveCount(0);
+});
+
+test('LIVE-09 teacher has no staff page; change-password form validates', async ({ page }) => {
+  await login(page, TEACHER);
+  await expect(page.getByRole('button', { name: 'Staff', exact: true })).toHaveCount(0);
+  await page.goto('/staff');
+  await expect(page).toHaveURL(/\/login|\/dashboard$/);
+
+  await page.getByRole('button', { name: 'Change Password' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Change password' });
+  await dialog.getByLabel('Current Password').fill('wrong-current');
+  await dialog.getByLabel('New Password', { exact: true }).fill('NewSecret#2026');
+  await dialog.getByLabel('Confirm New Password').fill('different');
+  await dialog.getByRole('button', { name: 'Change Password' }).click();
+  await expect(dialog.getByText('Passwords do not match')).toBeVisible();
+  await dialog.getByLabel('Confirm New Password').fill('NewSecret#2026');
+  await dialog.getByRole('button', { name: 'Change Password' }).click();
+  await expect(dialog.getByText('Current password is incorrect.')).toBeVisible();
 });
 
 test('LIVE-07 logout ends the session', async ({ page }) => {

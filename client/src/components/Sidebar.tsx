@@ -1,9 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, BookOpen, ClipboardList,
-  BarChart3, GraduationCap, LogOut
+  BarChart3, GraduationCap, LogOut, UserCog, KeyRound
 } from 'lucide-react';
-import { clearSession } from '../auth/session';
+import { useState } from 'react';
+import ChangePasswordModal from './ChangePasswordModal';
+import { clearSession, getSession, isAdmin } from '../auth/session';
 
 const navItems = [
   { path: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard'         },
@@ -11,6 +13,7 @@ const navItems = [
   { path: '/subjects',   icon: BookOpen,        label: 'Subjects'          },
   { path: '/marks',      icon: ClipboardList,   label: 'Marks Entry'       },
   { path: '/reports',    icon: BarChart3,       label: 'Reports & Analytics'},
+  { path: '/staff',      icon: UserCog,         label: 'Staff', adminOnly: true },
 ];
 
 interface SidebarProps {
@@ -22,6 +25,8 @@ interface SidebarProps {
 export default function Sidebar({ open, onNavigate }: SidebarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [changingPassword, setChangingPassword] = useState(false);
+  const admin = isAdmin(getSession());
 
   const go = (path: string) => {
     navigate(path);
@@ -34,6 +39,7 @@ export default function Sidebar({ open, onNavigate }: SidebarProps) {
   };
 
   return (
+    <>
     <aside className={`sidebar${open ? ' open' : ''}`}>
       <div className="sidebar-logo">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
@@ -44,7 +50,7 @@ export default function Sidebar({ open, onNavigate }: SidebarProps) {
       </div>
 
       <nav className="sidebar-nav">
-        {navItems.map(({ path, icon: Icon, label }) => (
+        {navItems.filter(item => admin || !item.adminOnly).map(({ path, icon: Icon, label }) => (
           <button
             key={path}
             className={`nav-item${pathname === path ? ' active' : ''}`}
@@ -57,11 +63,17 @@ export default function Sidebar({ open, onNavigate }: SidebarProps) {
       </nav>
 
       <div className="sidebar-footer">
+        <button className="nav-item" onClick={() => setChangingPassword(true)}>
+          <KeyRound size={16} />
+          Change Password
+        </button>
         <button className="nav-item" onClick={handleLogout} style={{ color: '#fca5a5' }}>
           <LogOut size={16} />
           Logout
         </button>
       </div>
     </aside>
+    {changingPassword && <ChangePasswordModal onClose={() => setChangingPassword(false)} />}
+    </>
   );
 }

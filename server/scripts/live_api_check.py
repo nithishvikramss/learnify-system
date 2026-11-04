@@ -21,6 +21,7 @@ from pymongo import MongoClient
 API = os.environ.get("API_URL", "http://localhost:8080/api")
 HERE = os.path.dirname(os.path.abspath(__file__))
 REG = "E2ETEST001"
+STAFF = "e2e.staff"
 
 
 def load_env():
@@ -143,6 +144,38 @@ def main():
     check("Total students back to the original count", students.count_documents({}) == count_before)
     status, _ = call("GET", f"/students/{sid}", admin)
     check("Deleted student -> 404", status == 404, status)
+
+    # --- Staff accounts ---
+    for u in db["users"].find({"username": STAFF}):
+        call("DELETE", f"/users/{u['_id']}", admin)
+    status, _ = call("GET", "/users", teacher)
+    check("Teacher cannot list staff -> 403", status == 403, status)
+    status, body = call("POST", "/users", admin, {"username": STAFF, "fullName": "Live Staff", "password": "StaffPass#2026"})
+    check("Admin creates teacher account -> 201", status == 201 and body["role"] == "TEACHER", status)
+    uid = body["id"]
+    check("Staff password stored as a hash", db["users"].find_one({"username": STAFF})["passwordHash"].startswith("$2"))
+    status, _ = call("POST", "/users", admin, {"username": STAFF, "fullName": "Dup", "password": "StaffPass#2026"})
+    check("Duplicate username -> 409", status == 409, status)
+    status, body = call("POST", "/auth/login", body={"username": STAFF, "password": "StaffPass#2026"})
+    check("New teacher can log in", status == 200, status)
+    staff_token = body["token"]
+    status, _ = call("PUT", "/users/me/password", staff_token, {"currentPassword": "wrong", "newPassword": "StaffPass#2027"})
+    check("Change password with wrong current -> 400", status == 400, status)
+    status, _ = call("PUT", "/users/me/password", staff_token, {"currentPassword": "StaffPass#2026", "newPassword": "StaffPass#2027"})
+    check("Change own password -> 200", status == 200, status)
+    status, _ = call("POST", "/auth/login", body={"username": STAFF, "password": "StaffPass#2027"})
+    check("Login with the new password", status == 200, status)
+    call("PUT", f"/users/{uid}/status", admin, {"disabled": True})
+    status, _ = call("GET", "/students", staff_token)
+    check("Disabled account: existing token stops working -> 401", status == 401, status)
+    status, _ = call("POST", "/auth/login", body={"username": STAFF, "password": "StaffPass#2027"})
+    check("Disabled account cannot log in -> 401", status == 401, status)
+    admin_id = str(db["users"].find_one({"username": "admin"})["_id"])
+    status, _ = call("PUT", f"/users/{admin_id}/status", admin, {"disabled": True})
+    check("Admin account cannot be disabled -> 400", status == 400, status)
+    status, _ = call("DELETE", f"/users/{uid}", admin)
+    check("Delete teacher account -> 200 and gone from MongoDB",
+          status == 200 and db["users"].find_one({"username": STAFF}) is None, status)
 
     failed = [n for n, ok in results if not ok]
     print(f"\n{len(results) - len(failed)}/{len(results)} checks passed")

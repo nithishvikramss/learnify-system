@@ -5,6 +5,7 @@ import com.learnify.server.exception.BadRequestException;
 import com.learnify.server.service.MarksService;
 import com.learnify.server.config.SecurityConfig;
 import com.learnify.server.entity.Role;
+import com.learnify.server.security.AllUsersActive;
 import com.learnify.server.security.JwtService;
 import com.learnify.server.security.TestTokens;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MarksController.class)
-@Import({SecurityConfig.class, JwtService.class})
+@Import({SecurityConfig.class, JwtService.class, AllUsersActive.class})
 class MarksControllerTest {
 
     @Autowired

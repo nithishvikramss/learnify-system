@@ -2,6 +2,7 @@ package com.learnify.server.config;
 
 import com.learnify.server.security.JwtAuthenticationFilter;
 import com.learnify.server.security.JwtService;
+import com.learnify.server.security.UserStatusChecker;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,7 @@ import java.util.List;
  *   <li>POST /api/auth/login is public; every other /api endpoint needs a valid token.</li>
  *   <li>Students and subjects: anyone logged in can read; only ADMIN can create/update/delete.</li>
  *   <li>Marks: ADMIN and TEACHER can create/update/delete.</li>
+ *   <li>Staff accounts: ADMIN only; anyone logged in can change their own password.</li>
  * </ul>
  */
 @Configuration
@@ -42,7 +44,8 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService,
+                                                   UserStatusChecker userStatusChecker) throws Exception {
         http
                 // Tokens are sent in the Authorization header (not cookies), so CSRF protection is not needed.
                 .csrf(csrf -> csrf.disable())
@@ -54,6 +57,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/me/password").authenticated()
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/**").authenticated()
                         .requestMatchers("/api/students/**", "/api/subjects/**").hasRole("ADMIN")
                         .requestMatchers("/api/marks/**").hasAnyRole("ADMIN", "TEACHER")
@@ -63,7 +68,7 @@ public class SecurityConfig {
                                 "Please log in to continue."))
                         .accessDeniedHandler((req, res, ex) -> writeError(req, res, HttpStatus.FORBIDDEN,
                                 "You do not have permission to perform this action.")))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userStatusChecker), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

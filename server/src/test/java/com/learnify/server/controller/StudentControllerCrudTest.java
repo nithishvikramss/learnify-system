@@ -5,6 +5,7 @@ import com.learnify.server.entity.Role;
 import com.learnify.server.entity.Student;
 import com.learnify.server.exception.ConflictException;
 import com.learnify.server.exception.NotFoundException;
+import com.learnify.server.security.AllUsersActive;
 import com.learnify.server.security.JwtService;
 import com.learnify.server.security.TestTokens;
 import com.learnify.server.service.StudentService;
@@ -28,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Student CRUD through the HTTP layer (TEST_CASES.md: STU-P-*, STU-N-*). */
 @WebMvcTest(StudentController.class)
-@Import({SecurityConfig.class, JwtService.class})
+@Import({SecurityConfig.class, JwtService.class, AllUsersActive.class})
 class StudentControllerCrudTest {
 
     @Autowired private MockMvc mvc;

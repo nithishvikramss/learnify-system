@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validateStudent, validateSubject, hasErrors } from '../../src/utils/validation.ts';
+import { validateStudent, validateSubject, validateNewStaff, validatePasswordChange, hasErrors } from '../../src/utils/validation.ts';
 import type { Student, Subject } from '../../src/types/index.ts';
 
 const student = (over: Partial<Student> = {}): Student => ({
@@ -55,4 +55,21 @@ test('FE-SUB-B-02 subject code 2..15 chars', () => {
   assert.ok(validateSubject(subject({ code: 'M' })).code);
   assert.ok(validateSubject(subject({ code: 'A'.repeat(16) })).code);
   assert.ok(validateSubject(subject({ code: 'MA 101' })).code);
+});
+
+test('FE-STAFF-B-01 new staff: username 3 chars ok, 2 rejected; password 8 ok, 7 and 73 rejected', () => {
+  const ok = { username: 'abc', fullName: 'A', password: 'a'.repeat(8) };
+  assert.deepEqual(validateNewStaff(ok), {});
+  assert.ok(validateNewStaff({ ...ok, username: 'ab' }).username);
+  assert.ok(validateNewStaff({ ...ok, password: 'a'.repeat(7) }).password);
+  assert.ok(validateNewStaff({ ...ok, password: 'a'.repeat(73) }).password);
+  assert.ok(validateNewStaff({ ...ok, fullName: ' ' }).fullName);
+});
+
+test('FE-STAFF-N-01 password change: confirm must match and new must differ', () => {
+  const ok = { currentPassword: 'old-pass-1', newPassword: 'new-pass-1', confirmPassword: 'new-pass-1' };
+  assert.deepEqual(validatePasswordChange(ok), {});
+  assert.ok(validatePasswordChange({ ...ok, confirmPassword: 'x' }).confirmPassword);
+  assert.ok(validatePasswordChange({ ...ok, newPassword: 'old-pass-1', confirmPassword: 'old-pass-1' }).newPassword);
+  assert.ok(validatePasswordChange({ ...ok, currentPassword: '' }).currentPassword);
 });

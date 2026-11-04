@@ -1,6 +1,6 @@
 import axios, { isAxiosError } from 'axios';
 import type {
-  Student, Subject, Marks, MarksDetail,
+  Student, Subject, Marks, MarksDetail, StaffUser, NewStaffUser,
   SubjectAverage, TopStudent, PassFailStats, AnalyticsSummary
 } from '../types';
 import { getSession, clearSession, type Session } from '../auth/session';
@@ -59,6 +59,22 @@ export function getFieldErrors(err: unknown): Record<string, string> {
 // --- Auth APIs ---
 export const login = (username: string, password: string) =>
   api.post<Session>('/auth/login', { username, password }).then(r => r.data);
+
+export const changeOwnPassword = (body: { currentPassword: string; newPassword: string }) =>
+  api.put('/users/me/password', body).then(r => r.data);
+
+// --- Staff account APIs (admin only) ---
+export const getUsers = () =>
+  api.get<StaffUser[]>('/users').then(r => r.data);
+
+export const createUser = (user: NewStaffUser) =>
+  api.post<StaffUser>('/users', user).then(r => r.data);
+
+export const setUserDisabled = (id: string, disabled: boolean) =>
+  api.put<StaffUser>(`/users/${id}/status`, { disabled }).then(r => r.data);
+
+export const deleteUser = (id: string) =>
+  api.delete(`/users/${id}`).then(r => r.data);
 
 // --- Student APIs ---
 export const addStudent = (student: Student) =>

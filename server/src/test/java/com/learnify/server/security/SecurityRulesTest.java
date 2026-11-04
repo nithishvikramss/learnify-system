@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Verifies who may call what (bug B2: the API previously had no authentication at all). */
 @WebMvcTest({StudentController.class, SubjectController.class, MarksController.class})
-@Import({SecurityConfig.class, JwtService.class})
+@Import({SecurityConfig.class, JwtService.class, AllUsersActive.class})
 class SecurityRulesTest {
 
     @Autowired private MockMvc mvc;

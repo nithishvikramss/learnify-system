@@ -8,7 +8,8 @@ import StudentManagement from './pages/StudentManagement';
 import Subjects from './pages/Subjects';
 import MarksEntry from './pages/MarksEntry';
 import Reports from './pages/Reports';
-import { getSession, ROLE_LABELS } from './auth/session';
+import StaffManagement from './pages/StaffManagement';
+import { getSession, isAdmin, ROLE_LABELS } from './auth/session';
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -16,6 +17,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/subjects':  'Subjects',
   '/marks':     'Marks Entry',
   '/reports':   'Reports & Analytics',
+  '/staff':     'Staff Accounts',
 };
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -52,6 +54,7 @@ function AppLayout() {
           <Route path="/subjects"  element={<Subjects />} />
           <Route path="/marks"     element={<MarksEntry />} />
           <Route path="/reports"   element={<Reports />} />
+          <Route path="/staff"     element={isAdmin(session) ? <StaffManagement /> : <Navigate to="/dashboard" replace />} />
           <Route path="*"          element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>

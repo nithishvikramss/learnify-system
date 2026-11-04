@@ -79,3 +79,17 @@ export interface AnalyticsSummary {
   topStudents: TopStudent[];
   insights: string[];
 }
+
+export interface StaffUser {
+  id: string;
+  username: string;
+  fullName: string;
+  role: 'ADMIN' | 'TEACHER';
+  disabled: boolean;
+}
+
+export interface NewStaffUser {
+  username: string;
+  fullName: string;
+  password: string;
+}

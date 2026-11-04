@@ -13,6 +13,8 @@ public class User {
     private String passwordHash;
     private String fullName;
     private Role role;
+    /** Disabled accounts cannot log in, and their existing tokens stop working. */
+    private boolean disabled;
 
     public User() {}
 
@@ -37,4 +39,7 @@ public class User {
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public boolean isDisabled() { return disabled; }
+    public void setDisabled(boolean disabled) { this.disabled = disabled; }
 }

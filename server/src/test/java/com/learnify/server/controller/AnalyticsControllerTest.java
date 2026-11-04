@@ -2,6 +2,7 @@ package com.learnify.server.controller;
 
 import com.learnify.server.config.SecurityConfig;
 import com.learnify.server.entity.Role;
+import com.learnify.server.security.AllUsersActive;
 import com.learnify.server.security.JwtService;
 import com.learnify.server.security.TestTokens;
 import com.learnify.server.service.AnalyticsService;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Analytics endpoints, including invalid query parameters (TEST_CASES.md: ANA-N-*). */
 @WebMvcTest(AnalyticsController.class)
-@Import({SecurityConfig.class, JwtService.class})
+@Import({SecurityConfig.class, JwtService.class, AllUsersActive.class})
 class AnalyticsControllerTest {
 
     @Autowired private MockMvc mvc;

@@ -53,7 +53,7 @@ public class AuthController {
         Optional<User> user = userRepository.findByUsername(username);
         boolean matches = passwordEncoder.matches(request.password(),
                 user.map(User::getPasswordHash).orElse(dummyHash));
-        if (user.isEmpty() || !matches) {
+        if (user.isEmpty() || !matches || user.get().isDisabled()) {
             loginAttempts.recordFailure(username);
             throw new ApiException(HttpStatus.UNAUTHORIZED, BAD_CREDENTIALS);
         }
